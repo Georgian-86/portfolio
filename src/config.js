@@ -1,128 +1,141 @@
 // ─────────────────────────────────────────────────────────────
 //  EDIT THIS FILE to make the portfolio yours.
-//  Everything visible on the site (brand, contact, services,
-//  blueprints) is driven from here.
+//  Brand, contact, works (the pages of the book), services and
+//  process are all rendered from here.
 // ─────────────────────────────────────────────────────────────
 
 export const brand = {
-  name: 'NEXORA',             // your studio / personal brand
-  suffix: 'Studio',
-  tagline: 'AI systems, automations & digital products — engineered to sell while you sleep.',
-  whatsapp: '910000000000',   // international format, digits only (e.g. 919876543210)
+  name: 'Nexora',
+  monogram: 'N',
+  volume: 'Vol. I',
+  whatsapp: '910000000000',   // international format, digits only
   email: 'hello@example.com',
   calendly: 'https://calendly.com/your-handle/discovery',
-  location: 'Remote · Worldwide',
+  location: 'Remote — Worldwide',
+  foreword:
+    'I design and build the quiet machinery behind growing businesses — websites that feel considered, stores that sell, and AI agents and automations that answer every customer and move every order without anyone lifting a finger.',
+  signature: 'The Studio',
   socials: {
     LinkedIn: 'https://www.linkedin.com/',
     GitHub: 'https://github.com/',
     Instagram: 'https://www.instagram.com/',
-    X: 'https://x.com/',
   },
 };
 
-// Core services. `hue` tints the 3D scene while the card is in view.
+// ── The book's pages ─────────────────────────────────────────
+// One spread per work: left page = the story, right page = the visual.
+// `image` / `video`: put files in /public/works/ and reference them as
+//   '/works/my-project.jpg' or '/works/my-project.mp4'.
+// Without media, a designed mock-up is drawn using `mock` + `tone`:
+//   mock: 'store' | 'chat' | 'flow' | 'web' | 'app' | 'terminal'
+// `sample: true` prints a small "Sample" mark on the page —
+//   replace these entries with your real projects and delete the flag.
+export const works = [
+  {
+    sample: true,
+    title: 'Shopify Storefront',
+    category: 'E-commerce',
+    year: '2026',
+    client: 'Replace with client name',
+    summary: 'A premium Shopify OS 2.0 theme with a calm product story, fast collection filtering and a checkout tuned for mobile.',
+    role: 'Design · Theme dev · CRO',
+    stack: 'Shopify, Liquid, Klaviyo',
+    outcome: 'Add your measured result',
+    link: '',
+    mock: 'store', tone: '#C2412B',
+  },
+  {
+    sample: true,
+    title: 'WhatsApp Concierge',
+    category: 'AI Agent',
+    year: '2026',
+    client: 'Replace with client name',
+    summary: 'An AI agent on WhatsApp that answers from the business’s own documents, qualifies every enquiry and books the appointment.',
+    role: 'Agent design · Integration',
+    stack: 'WhatsApp Cloud API, Claude, n8n',
+    outcome: 'Add your measured result',
+    link: '',
+    mock: 'chat', tone: '#1F3B31',
+  },
+  {
+    sample: true,
+    title: 'Lead-to-Invoice Pipeline',
+    category: 'Automation',
+    year: '2025',
+    client: 'Replace with client name',
+    summary: 'Form, CRM, proposal, invoice and Slack alert — one workflow that replaced four hours of copy-paste a day.',
+    role: 'Systems design · Build',
+    stack: 'n8n, HubSpot, Stripe',
+    outcome: 'Add your measured result',
+    link: '',
+    mock: 'flow', tone: '#B08A4E',
+  },
+  {
+    sample: true,
+    title: 'Brand Website',
+    category: 'Web Design',
+    year: '2025',
+    client: 'Replace with client name',
+    summary: 'An editorial, scroll-told website with motion that serves the content, built to score 95+ on Core Web Vitals.',
+    role: 'Art direction · Development',
+    stack: 'Next.js, GSAP, Vercel',
+    outcome: 'Add your measured result',
+    link: '',
+    mock: 'web', tone: '#2E3A59',
+  },
+  {
+    sample: true,
+    title: 'Booking App',
+    category: 'App Development',
+    year: '2025',
+    client: 'Replace with client name',
+    summary: 'A cross-platform iOS and Android app for bookings, payments and reminders, shipped from MVP to store in weeks.',
+    role: 'Product · Mobile dev',
+    stack: 'React Native, Supabase, Razorpay',
+    outcome: 'Add your measured result',
+    link: '',
+    mock: 'app', tone: '#6B3E5E',
+  },
+  {
+    sample: true,
+    title: 'Ship-Daily Infrastructure',
+    category: 'DevOps',
+    year: '2024',
+    client: 'Replace with client name',
+    summary: 'Preview deploys on every pull request, automated tests and one-click rollbacks — releases went from monthly to daily.',
+    role: 'DevOps · Cloud',
+    stack: 'GitHub Actions, Docker, AWS',
+    outcome: 'Add your measured result',
+    link: '',
+    mock: 'terminal', tone: '#3F4A3C',
+  },
+];
+
 export const services = [
-  {
-    id: '01', title: 'AI Agents', hue: 0.72,
-    line: 'Autonomous agents that research, decide and act inside your tools.',
-    bullets: ['Sales & support agents', 'RAG knowledge bases', 'Tool-calling + MCP', 'Human-in-the-loop'],
-    stack: ['Claude', 'OpenAI', 'LangGraph', 'MCP'],
-  },
-  {
-    id: '02', title: 'WhatsApp Agents', hue: 0.38,
-    line: 'A 24/7 salesperson inside the app your customers already open 50× a day.',
-    bullets: ['Lead capture & qualification', 'Catalog + payments', 'Bookings & reminders', 'CRM sync'],
-    stack: ['WhatsApp Cloud API', 'Twilio', 'Interakt', 'n8n'],
-  },
-  {
-    id: '03', title: 'Automations', hue: 0.08,
-    line: 'Kill the copy-paste. Workflows that move data and money on their own.',
-    bullets: ['Lead → CRM → invoice', 'Reporting on autopilot', 'Email / SMS flows', 'Ops & HR pipelines'],
-    stack: ['n8n', 'Make', 'Zapier', 'Supabase'],
-  },
-  {
-    id: '04', title: 'Websites', hue: 0.6,
-    line: 'Immersive, lightning-fast sites built to convert — like the one you are on.',
-    bullets: ['3D / WebGL experiences', 'Next.js & headless', 'Framer / Webflow', 'Core Web Vitals 95+'],
-    stack: ['Next.js', 'Three.js', 'GSAP', 'Vercel'],
-  },
-  {
-    id: '05', title: 'Shopify', hue: 0.33,
-    line: 'Stores that look premium and scale from first sale to seven figures.',
-    bullets: ['Custom themes (OS 2.0)', 'Headless Hydrogen', 'Apps & checkout UX', 'CRO audits'],
-    stack: ['Shopify', 'Liquid', 'Hydrogen', 'Klaviyo'],
-  },
-  {
-    id: '06', title: 'WordPress', hue: 0.55,
-    line: 'Custom WordPress & WooCommerce without the plugin spaghetti.',
-    bullets: ['Custom themes & blocks', 'WooCommerce', 'Speed & security hardening', 'Migrations'],
-    stack: ['WordPress', 'WooCommerce', 'ACF', 'Elementor'],
-  },
-  {
-    id: '07', title: 'App Development', hue: 0.8,
-    line: 'iOS, Android and web apps — from MVP to App Store launch.',
-    bullets: ['Cross-platform apps', 'SaaS MVPs', 'Admin dashboards', 'Payments & auth'],
-    stack: ['React Native', 'Flutter', 'Expo', 'Firebase'],
-  },
-  {
-    id: '08', title: 'DevOps Support', hue: 0.5,
-    line: 'Ship daily, sleep nightly. CI/CD, cloud and monitoring done right.',
-    bullets: ['CI/CD pipelines', 'Docker & Kubernetes', 'AWS / GCP / Vercel', 'Monitoring & uptime'],
-    stack: ['GitHub Actions', 'Docker', 'AWS', 'Terraform'],
-  },
-  {
-    id: '09', title: 'SEO + AI Search', hue: 0.15,
-    line: 'Rank on Google — and get recommended by ChatGPT, Gemini and Perplexity.',
-    bullets: ['Technical SEO', 'Content & schema', 'Local SEO / GBP', 'AEO / GEO visibility'],
-    stack: ['Search Console', 'Ahrefs', 'Schema.org', 'GA4'],
-  },
-];
-
-// Recommended add-ons (the "what's left" gaps — see docs/STRATEGY.md)
-export const addons = [
-  'Voice AI calling agents', 'CRM setup & integrations', 'Brand identity & UI/UX',
-  'AI video ads & UGC', 'Analytics & CRO', 'Email / SMS marketing',
-  'Instagram & Messenger bots', 'Monthly care plans', 'Custom dashboards',
-];
-
-// Productised offers. Capabilities — not invented client results.
-export const blueprints = [
-  {
-    tag: 'WhatsApp · AI',
-    title: 'Lead-to-Booking Agent',
-    text: 'Replies in seconds, qualifies the lead, answers FAQs from your docs, books the call and pushes everything to your CRM.',
-    kpi: ['< 5s', 'first reply'],
-  },
-  {
-    tag: 'Shopify · Automation',
-    title: 'Store Growth Engine',
-    text: 'Premium theme, abandoned-cart WhatsApp + email flows, review automation and a weekly revenue report in your inbox.',
-    kpi: ['24/7', 'recovery flows'],
-  },
-  {
-    tag: 'Web · 3D',
-    title: 'Immersive Launch Site',
-    text: 'Scroll-driven WebGL storytelling, AI-generated cinematic visuals, SEO foundations and analytics from day one.',
-    kpi: ['95+', 'Lighthouse target'],
-  },
-  {
-    tag: 'DevOps · Cloud',
-    title: 'Ship-Daily Pipeline',
-    text: 'Preview deploys on every PR, automated tests, zero-downtime releases, alerts to Slack/WhatsApp when anything breaks.',
-    kpi: ['1-click', 'rollbacks'],
-  },
+  { title: 'AI Agents', line: 'Agents that research, decide and act inside your tools.', tags: ['Claude', 'OpenAI', 'MCP', 'RAG'] },
+  { title: 'WhatsApp Agents', line: 'A salesperson in the app your customers already open.', tags: ['Cloud API', 'Catalogs', 'Bookings'] },
+  { title: 'Automations', line: 'Workflows that move data and money on their own.', tags: ['n8n', 'Make', 'Zapier'] },
+  { title: 'Websites', line: 'Considered, fast, editorial websites that convert.', tags: ['Next.js', 'Webflow', 'Framer'] },
+  { title: 'Shopify', line: 'Stores that look premium and scale with you.', tags: ['Themes', 'Hydrogen', 'Apps'] },
+  { title: 'WordPress', line: 'Custom WordPress and WooCommerce, without the bloat.', tags: ['Blocks', 'WooCommerce', 'Speed'] },
+  { title: 'App Development', line: 'iOS, Android and web apps, from MVP to launch.', tags: ['React Native', 'Flutter'] },
+  { title: 'DevOps', line: 'CI/CD, cloud and monitoring so you can ship daily.', tags: ['AWS', 'Docker', 'Actions'] },
+  { title: 'SEO & AI Search', line: 'Rank on Google and get recommended by AI assistants.', tags: ['Technical', 'Schema', 'AEO'] },
 ];
 
 export const process = [
-  { k: 'Discover', t: '30-min call. We map your funnel, bottlenecks and the one system that pays for itself first.' },
-  { k: 'Design', t: 'Flows, UI and architecture in Figma / Stitch. You see it before a line of code is written.' },
+  { k: 'Listen', t: 'A thirty-minute call to map your funnel and find the one system that pays for itself first.' },
+  { k: 'Draft', t: 'Flows, interface and architecture you can see and comment on before code is written.' },
   { k: 'Build', t: 'Weekly sprints with live preview links. Agents tested on real conversations.' },
-  { k: 'Launch', t: 'Deploy, connect your tools, train your team. Measured against agreed KPIs.' },
-  { k: 'Scale', t: 'Care plan: monitoring, iterations, new automations as you grow.' },
+  { k: 'Launch', t: 'Deploy, connect your tools, train your team and measure against agreed numbers.' },
+  { k: 'Tend', t: 'A care plan: monitoring, improvements and new automations as you grow.' },
 ];
 
-export const stackMarquee = [
-  'Claude', 'OpenAI', 'n8n', 'Make', 'WhatsApp API', 'Shopify', 'WordPress', 'Next.js', 'Three.js',
-  'React Native', 'Flutter', 'Supabase', 'Firebase', 'AWS', 'Docker', 'Vercel', 'Stripe', 'Razorpay',
-  'HubSpot', 'Figma', 'Higgsfield', 'Google Flow', 'Stitch', 'ElevenLabs',
-];
+// Optional: a Google Flow clip, exported as frames, that plays on scroll
+// before the book opens. See docs/FLOW.md. Leave frames at 0 to skip.
+export const flow = {
+  frames: 0,                     // e.g. 120
+  path: '/flow/book/frame_',     // files: /public/flow/book/frame_0001.webp …
+  pad: 4,
+  ext: 'webp',
+};

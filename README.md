@@ -1,39 +1,30 @@
-# NEXORA Studio — 3D Freelance Portfolio
+# Nexora — Selected Works
 
-An immersive, scroll-driven 3D portfolio for a freelance studio offering AI agents, WhatsApp agents, automations, websites, Shopify, WordPress, app development, DevOps and SEO.
+A portfolio presented as a book. On scroll, a cloth-bound volume rises from the desk and opens; every page turn reveals one project: the story on the left, the work on the right. After the book come services, process and contact, set on paper.
 
-**Stack:** Three.js (liquid-glass core with physical materials, bloom, film grain) · GSAP ScrollTrigger · Lenis smooth scroll · Vite.
+**Design:** golden-ratio type scale (`base × φⁿ`), a golden-rectangle spread, and an ink, paper, bottle-green, brass and vermilion palette. Fonts are Cormorant Garamond, Inter and IBM Plex Mono.
+**Stack:** GSAP ScrollTrigger, Lenis and Vite. No WebGL; the book is CSS 3D.
 
 ## Run
-
 ```bash
 npm install
-npm run dev       # http://localhost:5173
-npm run build     # outputs dist/
+```
+```bash
+npm run dev
 ```
 
 ## Make it yours
+- **`src/config.js`**: brand, contact, **works** (one spread each), services and process.
+  - Add real media by putting files in `public/works/` and setting `image: '/works/x.jpg'` or `video: '/works/x.mp4'`.
+  - Works marked `sample: true` print a "Sample" mark. Replace them with real projects and delete the flag.
+- **`docs/FLOW.md`**: how to add a Google Flow clip that plays on scroll before the book opens.
+- **`docs/STRATEGY.md`**: design principles, service gaps, workflow and tools.
 
-Edit **`src/config.js`**: brand name, WhatsApp number, email, Calendly link, services, blueprints and process. All site content is generated from it.
-
-| File | What it controls |
+| File | Role |
 |---|---|
-| `src/scene.js` | The 3D world: liquid-glass core shader, chrome rings, shards, particles, post-processing |
-| `src/main.js` | Scroll choreography (`poses`), section animations, WhatsApp demo, cursor and magnetic buttons |
-| `src/style.css` | Design tokens (colours, fonts) and layout |
-| `docs/STRATEGY.md` | Research, missing services, the full workflow, tools, connectors and skills |
+| `src/main.js` | Builds the book, page-turn timeline, contents links, folio counter, section reveals |
+| `src/mockups.js` | Designed placeholder plates for works without images |
+| `src/sequence.js` | Scroll-scrubbed frame player for Flow clips |
+| `src/style.css` | Tokens (φ type scale, palette), book geometry, pages, sections |
 
-## Sections
-1. Hero: liquid-glass core with a cinematic intro
-2. Manifesto: words light up on scroll
-3. Services: pinned horizontal 3D card carousel; the scene re-tints for each service
-4. Live demo: a pinned WhatsApp agent conversation played by scroll
-5. Blueprints: productised offers
-6. Process: five steps with a line that draws on scroll
-7. Stack marquee whose speed follows scroll velocity, plus add-on services
-8. Contact: WhatsApp and booking CTAs
-
-Includes a reduced-motion fallback, a low-power mode for mobile and low-core devices, and a fallback for browsers without WebGL.
-
-## Deploy
-Import the repo in Vercel (framework: Vite). No environment variables needed.
+The book shows full spreads on desktop. On phones it reads one page at a time.

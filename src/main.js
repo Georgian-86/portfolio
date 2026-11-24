@@ -2,296 +2,255 @@ import './style.css';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { Scene } from './scene.js';
-import { brand, services, addons, blueprints, process, stackMarquee } from './config.js';
+import { brand, works, services, process, flow } from './config.js';
+import { mockup } from './mockups.js';
+import { FrameSequence } from './sequence.js';
 
 gsap.registerPlugin(ScrollTrigger);
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const touch = matchMedia('(hover: none)').matches;
+const isMobile = () => matchMedia('(max-width: 820px)').matches;
+const pad = (n) => String(n).padStart(2, '0');
 
-/* ───────────── 1. Populate content from config ───────────── */
-const wa = `https://wa.me/${brand.whatsapp}?text=${encodeURIComponent(`Hi ${brand.name}! I'd like to discuss a project.`)}`;
+/* ───────────── Static content ───────────── */
+const wa = `https://wa.me/${brand.whatsapp}?text=${encodeURIComponent(`Hello ${brand.name}, I'd like to discuss a project.`)}`;
 $$('[data-whatsapp]').forEach((a) => (a.href = wa));
 $$('[data-calendly]').forEach((a) => (a.href = brand.calendly));
 $$('[data-email]').forEach((a) => { a.href = `mailto:${brand.email}`; a.textContent = brand.email; });
 $$('[data-brand]').forEach((el) => (el.textContent = brand.name));
-$$('[data-brand-short]').forEach((el) => (el.textContent = `${brand.name} ${brand.suffix}`));
-$$('[data-brand-logo]').forEach((el) => (el.innerHTML = `<b>${brand.name}</b><span>${brand.suffix}</span>`));
-$$('[data-tagline]').forEach((el) => (el.textContent = brand.tagline));
+$$('[data-volume]').forEach((el) => (el.textContent = brand.volume));
 $$('[data-location]').forEach((el) => (el.textContent = brand.location));
+const years = works.map((w) => +w.year).filter(Boolean);
+$$('[data-years]').forEach((el) => (el.textContent = years.length ? `${Math.min(...years)}—${Math.max(...years)}` : ''));
 $('#year').textContent = new Date().getFullYear();
 $('#socials').innerHTML = Object.entries(brand.socials).map(([k, v]) => `<a href="${v}" target="_blank" rel="noopener">${k}</a>`).join('');
 
-$('#servicesTrack').innerHTML = services.map((s) => `
-  <article class="card" data-hue="${s.hue}">
-    <div class="card__glow"></div>
-    <header><span class="card__id">${s.id}</span><span class="card__chip">${s.stack[0]}</span></header>
+$('#servicesList').innerHTML = services.map((s) => `
+  <li class="reveal"><div class="index__row">
     <h3>${s.title}</h3>
+    <span class="index__tags">${s.tags.map((t) => `<span>${t}</span>`).join('')}</span>
     <p>${s.line}</p>
-    <ul>${s.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>
-    <footer>${s.stack.map((t) => `<span>${t}</span>`).join('')}</footer>
-  </article>`).join('') + `
-  <article class="card card--end">
-    <h3>Need it all<br/><em>connected?</em></h3>
-    <p>That's the point. Every service plugs into the others — site → agent → CRM → automations → reports.</p>
-    <a class="btn btn--primary magnetic" href="${wa}" target="_blank" rel="noopener"><span>Start a project</span></a>
-  </article>`;
-
-$('#bpGrid').innerHTML = blueprints.map((b) => `
-  <article class="bp tilt">
-    <span class="bp__tag">${b.tag}</span>
-    <h3>${b.title}</h3>
-    <p>${b.text}</p>
-    <div class="bp__kpi"><b>${b.kpi[0]}</b><span>${b.kpi[1]}</span></div>
-  </article>`).join('');
+  </div></li>`).join('');
 
 $('#steps').innerHTML = process.map((p, i) => `
-  <li class="step"><span class="step__n">0${i + 1}</span><h3>${p.k}</h3><p>${p.t}</p></li>`).join('');
+  <li class="reveal"><span class="n">${pad(i + 1)}</span><h3>${p.k}</h3><p>${p.t}</p></li>`).join('');
 
-const marqueeHTML = stackMarquee.map((t) => `<span>${t}</span><i>✦</i>`).join('');
-$('#marquee').innerHTML = marqueeHTML + marqueeHTML;
-$('#marquee2').innerHTML = marqueeHTML + marqueeHTML;
-$('#addons').innerHTML = addons.map((a) => `<span class="pill">${a}</span>`).join('');
+/* ───────────── The book ───────────── */
+const N = works.length;
+const pageNo = { story: (k) => 4 + 2 * k, visual: (k) => 5 + 2 * k };
 
-const chatScript = [
-  ['in', 'Hi! Do you build online stores? I sell handmade candles 🕯️'],
-  ['out', 'Hey! Yes — Shopify stores with WhatsApp checkout & abandoned-cart recovery. Roughly how many products?'],
-  ['in', 'About 40. Budget is flexible if it brings sales.'],
-  ['out', 'Perfect fit for our <b>Store Growth Engine</b>: premium theme + automated cart recovery + weekly revenue report.'],
-  ['out', 'Want a 20-min call? I have <b>Tue 4pm</b> or <b>Wed 11am</b>.'],
-  ['in', 'Wed 11 works!'],
-  ['out', '✅ Booked for Wed 11:00. Invite sent to your email. Talk soon!'],
+const head = (l, r) => `<div class="page__head rv"><span class="lbl">${l}</span><span class="lbl">${r}</span></div>`;
+const foot = (n, extra = '') => `<div class="page__foot">${extra || '<span></span>'}<span class="page__num">${n}</span></div>`;
+
+const cover = () => `
+  <div class="face face--front cover">
+    <div class="cover__frame"></div>
+    <div class="cover__inner">
+      <div class="cover__mono">${brand.monogram}</div>
+      <div class="cover__name">${brand.name}</div>
+      <div class="cover__sub">Selected Works</div>
+      <div class="cover__vol">${brand.volume} · ${new Date().getFullYear()}</div>
+    </div>
+  </div>`;
+
+const foreword = () => `
+  <div class="face face--back page page--left">
+    ${head('Foreword', brand.name)}
+    <h3 class="rv">A studio for the <em>quiet machinery</em> of business.</h3>
+    <p class="prose rv">${brand.foreword}</p>
+    <p class="sig rv">— ${brand.signature}</p>
+    ${foot(2)}
+  </div>`;
+
+const contents = () => `
+  <div class="face face--front page page--right">
+    ${head('Contents', `${N} works`)}
+    <h3 class="rv">Contents</h3>
+    <ol class="toc">
+      ${works.map((w, k) => `<li class="rv"><a href="#" data-spread="${k + 1}">
+        <span class="n">${pad(pageNo.story(k))}</span><span class="t">${w.title}</span><span class="c">${w.category}</span></a></li>`).join('')}
+      <li class="rv"><a href="#" data-spread="${N + 1}"><span class="n">${pad(pageNo.story(N))}</span><span class="t">Colophon</span><span class="c">Contact</span></a></li>
+    </ol>
+    ${foot(3)}
+  </div>`;
+
+const story = (w, k) => `
+  <div class="face face--back page page--left story">
+    ${head(`No. ${pad(k + 1)} — ${w.category}`, w.sample ? '<span class="sample">Sample</span>' : w.year)}
+    <div class="story__num rv">${pad(k + 1)}</div>
+    <h3 class="rv">${w.title}</h3>
+    <p class="story__client rv">${w.client}</p>
+    <p class="story__summary rv">${w.summary}</p>
+    <dl class="story__meta rv">
+      <div><dt>Role</dt><dd>${w.role}</dd></div><div><dt>Stack</dt><dd>${w.stack}</dd></div>
+      <div><dt>Year</dt><dd>${w.year}</dd></div><div><dt>Outcome</dt><dd>${w.outcome}</dd></div>
+    </dl>
+    ${foot(pageNo.story(k), w.link ? `<a class="story__link" href="${w.link}" target="_blank" rel="noopener">View project ↗</a>` : '')}
+  </div>`;
+
+const media = (w) => w.video
+  ? `<video src="${w.video}" muted loop playsinline autoplay preload="metadata"></video>`
+  : w.image ? `<img src="${w.image}" alt="${w.title}" loading="lazy" />` : mockup(w);
+
+const visual = (w, k) => `
+  <div class="face face--front page page--right visual">
+    <div class="plate" style="--tone:${w.tone}"><div class="plate__inner">${media(w)}</div></div>
+    <div class="plate__cap rv"><span class="t">${w.title}</span><span class="page__num">${pageNo.visual(k)}</span></div>
+  </div>`;
+
+const colophon = () => `
+  <div class="face face--back page page--left">
+    ${head('Colophon', 'Fin.')}
+    <h3 class="rv">That's the story <em>so far.</em></h3>
+    <p class="prose rv">Every project here started as a conversation. Websites, stores, AI agents, automations, apps and the infrastructure underneath — designed to work as one system.</p>
+    <p class="sig rv">Set in Cormorant Garamond &amp; Inter.</p>
+    ${foot(pageNo.story(N))}
+  </div>`;
+
+const finale = () => `
+  <div class="book__base page page--right finale">
+    ${head('The next chapter', '')}
+    <h3>Yours, <em>perhaps?</em></h3>
+    <p class="prose">Tell me what you want to build. I reply within a day.</p>
+    <div class="acts"><a href="${wa}" target="_blank" rel="noopener">WhatsApp</a><a href="${brand.calendly}" target="_blank" rel="noopener">Book a call</a></div>
+    ${foot(pageNo.visual(N))}
+  </div>`;
+
+const leavesHTML = [
+  cover() + foreword(),
+  contents() + (N ? story(works[0], 0) : colophon()),
+  ...works.map((w, k) => visual(w, k) + (k < N - 1 ? story(works[k + 1], k + 1) : colophon())),
 ];
-$('#chat').innerHTML = chatScript.map(([d, t]) => `<div class="msg msg--${d}"><p>${t}</p><time>now</time></div>`).join('') +
-  `<div class="msg msg--typing"><p><i></i><i></i><i></i></p></div>`;
+const book = $('#book');
+book.innerHTML = finale() + leavesHTML.map((h, i) => `<div class="leaf" style="z-index:${leavesHTML.length - i + 2}">${h}</div>`).join('');
+const leaves = $$('.leaf', book);
+const spreadNames = ['Foreword · Contents', ...works.map((w) => w.title), 'Colophon'];
 
-/* Split text into words for scrubbed reveals */
-$$('.split').forEach((el) => {
-  el.innerHTML = el.innerHTML.trim().split(/(\s+|<em>.*?<\/em>)/).filter((w) => w.trim()).map((w) =>
-    w.startsWith('<em>') ? w.replace(/<em>(.*?)<\/em>/, (_, x) => x.split(' ').map((y) => `<span class="w"><em>${y}</em></span>`).join(' ')) : `<span class="w">${w}</span>`
-  ).join(' ');
-});
-
-/* ───────────── 2. WebGL scene ───────────── */
-let scene = null;
-try {
-  scene = new Scene($('#webgl'));
-} catch (e) {
-  console.warn('WebGL unavailable, falling back to static background', e);
-  document.body.classList.add('no-webgl');
-}
-
-const scrim = $('#scrim');
-const mobileDim = matchMedia('(max-width: 820px)').matches ? 0.3 : 0;
-
-/* ───────────── 3. Smooth scroll (Lenis ↔ GSAP) ───────────── */
-const lenis = reduced ? null : new Lenis({ duration: 1.25, easing: (t) => 1 - Math.pow(1 - t, 4), smoothWheel: true, wheelMultiplier: 0.9 });
-if (lenis) {
-  lenis.on('scroll', ScrollTrigger.update);
-  lenis.stop();
-}
-gsap.ticker.add((time) => {
-  lenis?.raf(time * 1000);
-  if (scene) {
-    scene.render();
-    scrim.style.opacity = Math.max(scene.state.dim, mobileDim);
-  }
-});
+/* ───────────── Smooth scroll ───────────── */
+const lenis = new Lenis({ duration: 1.3, easing: (t) => 1 - Math.pow(1 - t, 4) });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add((time) => lenis.raf(time * 1000));
 gsap.ticker.lagSmoothing(0);
-
-$$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => {
-  const target = $(a.getAttribute('href'));
-  if (!target) return;
-  e.preventDefault();
-  lenis ? lenis.scrollTo(target, { offset: 0, duration: 1.8 }) : target.scrollIntoView({ behavior: 'smooth' });
+$$('a[href^="#"]:not([data-spread])').forEach((a) => a.addEventListener('click', (e) => {
+  const t = $(a.getAttribute('href'));
+  if (t) { e.preventDefault(); lenis.scrollTo(t, { duration: 1.6 }); }
 }));
 
-/* ───────────── 4. Scroll-driven 3D choreography ───────────── */
-// Each section has a target pose for the camera & the liquid-glass core.
-const poses = {
-  manifesto: { camX: 0, camY: 0.3, camZ: 8.5, lookX: 0, coreX: -3.1, coreY: 0, coreScale: 0.7, amp: 0.4, freq: 1.7, spin: 1.5, hue: 0.62, ringTilt: 1.2, ringSpread: 1.2, particles: 1, exposure: 0.95, dim: 0.35 },
-  services: { camX: 0, camY: -0.2, camZ: 10.5, lookX: 0, coreX: 3.2, coreY: 1.3, coreScale: 0.6, amp: 0.22, freq: 1.2, spin: 3, hue: 0.72, ringTilt: 0.2, ringSpread: 1.5, particles: 0.8, exposure: 0.85, dim: 0.45 },
-  demo: { camX: -0.6, camY: 0.4, camZ: 8.5, lookX: 0, coreX: 2.3, coreY: -0.2, coreScale: 0.85, amp: 0.32, freq: 1.5, spin: 4.5, hue: 0.38, ringTilt: 0.9, ringSpread: 1.1, particles: 1, exposure: 0.95, dim: 0.3 },
-  blueprints: { camX: 0.6, camY: -0.3, camZ: 11, lookX: 0, coreX: 2.6, coreY: 1.7, coreScale: 0.55, amp: 0.45, freq: 2, spin: 6, hue: 0.08, ringTilt: 1.5, ringSpread: 1.3, particles: 0.9, exposure: 0.85, dim: 0.55 },
-  process: { camX: 0, camY: 0.8, camZ: 11, lookX: 0, coreX: 0, coreY: -1.9, coreScale: 0.65, amp: 0.25, freq: 1.4, spin: 7.5, hue: 0.55, ringTilt: 0.1, ringSpread: 1.8, particles: 1, exposure: 0.9, dim: 0.4 },
-  stack: { camX: 0, camY: 0, camZ: 8.5, lookX: 0, coreX: 0, coreY: 0, coreScale: 0.9, amp: 0.5, freq: 2.3, spin: 9, hue: 0.82, ringTilt: 0.6, ringSpread: 1.2, particles: 1.2, exposure: 0.95, dim: 0.2 },
-  contact: { camX: 0, camY: 0, camZ: 9, lookX: 0, coreX: 0, coreY: 0.2, coreScale: 0.75, amp: 0.3, freq: 1.3, spin: 11, hue: 0.72, ringTilt: 0.35, ringSpread: 1, particles: 1.4, exposure: 0.85, dim: 0.4 },
-};
-
-function buildChoreography() {
-  if (!scene) return;
-  $$('[data-scene]').forEach((sec) => {
-    const pose = poses[sec.dataset.scene];
-    if (!pose) return;
-    gsap.to(scene.state, {
-      ...pose,
-      ease: 'none',
-      scrollTrigger: { trigger: sec, start: 'top bottom', end: 'top 15%', scrub: 1.6 },
-    });
-  });
+/* ───────────── Optional Google Flow intro ───────────── */
+let seq = null;
+if (flow.frames > 0) {
+  seq = new FrameSequence($('#flowCanvas'), flow);
+  document.body.classList.add('has-flow');
 }
 
-/* ───────────── 5. DOM animations ───────────── */
-function buildAnimations() {
-  // Progress bar
-  gsap.to('#progressBar', { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 0.3 } });
+/* ───────────── Book choreography ───────────── */
+function buildBook() {
+  const mobile = isMobile();
+  const allRv = $$('.rv', book);
+  gsap.set(allRv, { opacity: 0, y: 14 });
+  // closed: cover (the right half) centred — at scale s the shift is −25% × s
+  gsap.set(book, { rotateX: 22, scale: 0.6, yPercent: 14, xPercent: -15 });
+  gsap.set(leaves, { rotateY: 0, '--shade': 0 });
+  leaves.forEach((l, i) => gsap.set(l, { zIndex: leaves.length - i + 2 }));
 
-  // Manifesto words light up as you scroll
-  gsap.fromTo('.manifesto .w', { opacity: 0.12, filter: 'blur(6px)', y: 10 }, {
-    opacity: 1, filter: 'blur(0px)', y: 0, stagger: 0.05, ease: 'none',
-    scrollTrigger: { trigger: '.manifesto', start: 'top 75%', end: 'bottom 60%', scrub: 1 },
-  });
-
-  // Section headers
-  $$('.h2, .section-head .eyebrow, .services__head .eyebrow').forEach((el) => {
-    gsap.from(el, { yPercent: 40, opacity: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 88%' } });
-  });
-
-  const mm = gsap.matchMedia();
-
-  // Services: horizontal pinned scroll on desktop
-  mm.add('(min-width: 821px)', () => {
-    const track = $('#servicesTrack');
-    const cards = $$('.card', track);
-    const dist = () => track.scrollWidth - innerWidth + 80;
-    const tween = gsap.to(track, {
-      x: () => -dist(), ease: 'none',
-      scrollTrigger: {
-        trigger: '.services', start: 'top top', end: () => `+=${dist()}`, pin: true, scrub: 1, invalidateOnRefresh: true, anticipatePin: 1,
-        onUpdate: (self) => {
-          const i = Math.min(services.length - 1, Math.floor(self.progress * (cards.length - 0.5)));
-          if (scene) scene.hueOverride = services[i]?.hue ?? null;
-        },
-        onLeave: () => scene && (scene.hueOverride = null),
-        onLeaveBack: () => scene && (scene.hueOverride = null),
-      },
-    });
-    // Each card gets a 3D swing as it passes through the viewport
-    cards.forEach((card) => {
-      gsap.fromTo(card, { rotateY: -28, z: -180, opacity: 0.35 }, {
-        rotateY: 0, z: 0, opacity: 1, ease: 'power2.out',
-        scrollTrigger: { trigger: card, containerAnimation: tween, start: 'left 100%', end: 'left 45%', scrub: true },
-      });
-    });
-  });
-  mm.add('(max-width: 820px)', () => {
-    $$('.card').forEach((card) => gsap.from(card, { y: 60, opacity: 0, rotateX: 18, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 90%' } }));
-  });
-
-  // WhatsApp demo: pinned, messages appear with scroll
-  const msgs = $$('#chat .msg:not(.msg--typing)');
-  const flowItems = $$('#flow li');
-  gsap.set(msgs, { opacity: 0, y: 24, scale: 0.96 });
-  const demoTl = gsap.timeline({
-    scrollTrigger: { trigger: '.demo', start: 'top top', end: '+=1800', pin: true, scrub: 0.8, anticipatePin: 1 },
-  });
-  demoTl.from('#phone', { rotateY: -25, rotateX: 12, y: 80, duration: 1, ease: 'power2.out' });
-  // which chat message lights up which pipeline step
-  const stepAt = { 0: 0, 2: 1, 3: 2, 6: 3 };
-  msgs.forEach((m, i) => {
-    demoTl.to(m, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(2)' }, '+=0.25');
-    if (stepAt[i] !== undefined) demoTl.to(flowItems[stepAt[i]], { '--on': 1, color: '#fff', duration: 0.3 }, '<');
-  });
-  demoTl.to(flowItems[4], { '--on': 1, color: '#fff', duration: 0.3 }, '+=0.2');
-  demoTl.to('#phone', { rotateY: 8, duration: 1 }, '<');
-  // keep the newest message in view
-  demoTl.to('#chat', { scrollTop: () => $('#chat').scrollHeight, duration: 2.5, ease: 'none' }, 1.8);
-
-  // Blueprints
-  gsap.from('.bp', { y: 100, opacity: 0, rotateX: -25, stagger: 0.12, duration: 1.3, ease: 'expo.out', scrollTrigger: { trigger: '#bpGrid', start: 'top 80%' } });
-
-  // Process: steps rise + line draws
-  $$('.step').forEach((s) => {
-    gsap.from(s, { y: 80, opacity: 0, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: s, start: 'top 88%' } });
-  });
-  gsap.fromTo('.steps', { '--line': 0 }, { '--line': 1, ease: 'none', scrollTrigger: { trigger: '.steps', start: 'top 70%', end: 'bottom 60%', scrub: true } });
-
-  // Marquee speed reacts to scroll velocity
-  const mq1 = gsap.to('#marquee', { xPercent: -50, repeat: -1, duration: 40, ease: 'none' });
-  const mq2 = gsap.fromTo('#marquee2', { xPercent: -50 }, { xPercent: 0, repeat: -1, duration: 45, ease: 'none' });
-  ScrollTrigger.create({
-    trigger: '.stack', start: 'top bottom', end: 'bottom top',
-    onUpdate: (self) => {
-      const v = 1 + Math.min(Math.abs(self.getVelocity()) / 400, 6);
-      gsap.to([mq1, mq2], { timeScale: v, duration: 0.2, overwrite: true });
-      gsap.to([mq1, mq2], { timeScale: 1, duration: 1.2, delay: 0.2 });
+  const hold = mobile ? 0.7 : 1;
+  const units = (flow.frames ? 3 : 0) + 2 + leaves.length * (1.6 + hold) * (mobile ? 1.6 : 1);
+  const tl = gsap.timeline({
+    defaults: { ease: 'power2.inOut' },
+    scrollTrigger: {
+      trigger: '#stage', start: 'top top', end: () => `+=${innerHeight * units * 0.55}`,
+      pin: true, scrub: 1, anticipatePin: 1, invalidateOnRefresh: true,
+      onUpdate: () => updateFolio(tl),
     },
   });
-  gsap.from('.pill', { y: 30, opacity: 0, stagger: 0.05, duration: 0.8, ease: 'expo.out', scrollTrigger: { trigger: '#addons', start: 'top 85%' } });
 
-  // Contact title
-  gsap.from('.contact__title .line > span', { yPercent: 110, rotate: 4, stagger: 0.1, duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: '.contact__title', start: 'top 80%' } });
-  gsap.from('.contact__cta .btn, .contact__mail', { y: 40, opacity: 0, stagger: 0.1, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '.contact__cta', start: 'top 90%' } });
-
-  // Hero parallax out
-  gsap.to('.hero__inner', { yPercent: -25, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
-}
-
-/* ───────────── 6. Micro-interactions ───────────── */
-function buildInteractions() {
-  if (touch) { document.body.classList.add('is-touch'); return; }
-  // Custom cursor
-  const dot = $('.cursor__dot'), ring = $('.cursor__ring');
-  const dx = gsap.quickTo(dot, 'x', { duration: 0.1 }), dy = gsap.quickTo(dot, 'y', { duration: 0.1 });
-  const rx = gsap.quickTo(ring, 'x', { duration: 0.45, ease: 'power3' }), ry = gsap.quickTo(ring, 'y', { duration: 0.45, ease: 'power3' });
-  addEventListener('pointermove', (e) => { dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY); });
-  document.addEventListener('pointerover', (e) => {
-    document.body.classList.toggle('cursor-hover', !!e.target.closest('a, button, .card, .bp'));
-  });
-
-  // Magnetic buttons
-  $$('.magnetic').forEach((btn) => {
-    const span = btn.querySelector('span');
-    btn.addEventListener('pointermove', (e) => {
-      const r = btn.getBoundingClientRect();
-      const x = e.clientX - r.left - r.width / 2, y = e.clientY - r.top - r.height / 2;
-      gsap.to(btn, { x: x * 0.3, y: y * 0.4, duration: 0.6, ease: 'power3.out' });
-      gsap.to(span, { x: x * 0.15, y: y * 0.2, duration: 0.6, ease: 'power3.out' });
-    });
-    btn.addEventListener('pointerleave', () => gsap.to([btn, span], { x: 0, y: 0, duration: 1, ease: 'elastic.out(1, 0.35)' }));
-  });
-
-  // 3D tilt + light follow on cards
-  $$('.card, .bp').forEach((el) => {
-    el.addEventListener('pointermove', (e) => {
-      const r = el.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
-      el.style.setProperty('--mx', `${px * 100}%`);
-      el.style.setProperty('--my', `${py * 100}%`);
-      gsap.to(el, { rotateY: (px - 0.5) * 12, rotateX: (0.5 - py) * 10, duration: 0.6, ease: 'power2.out', transformPerspective: 900 });
-    });
-    el.addEventListener('pointerleave', () => gsap.to(el, { rotateY: 0, rotateX: 0, duration: 1, ease: 'elastic.out(1, 0.4)' }));
-  });
-}
-
-/* ───────────── 7. Loader → intro ───────────── */
-function intro() {
-  const tl = gsap.timeline({ onComplete: () => lenis?.start() });
-  tl.to('#loader', { clipPath: 'inset(0 0 100% 0)', duration: 1.2, ease: 'expo.inOut' })
-    .from('.hero__title .line > span', { yPercent: 115, rotate: 3, stagger: 0.09, duration: 1.5, ease: 'expo.out' }, '-=0.5')
-    .from('.reveal-up', { y: 30, opacity: 0, stagger: 0.08, duration: 1.1, ease: 'expo.out' }, '-=1.1')
-    .from('.nav > *', { y: -30, opacity: 0, stagger: 0.06, duration: 1, ease: 'expo.out' }, '-=1')
-    .from('.hero__meta > div', { y: 30, opacity: 0, stagger: 0.08, duration: 1, ease: 'expo.out' }, '-=0.9');
-  if (scene) {
-    tl.fromTo(scene.state, { camZ: 14, coreScale: 0.2, amp: 1.2, spin: -3 }, { camZ: 7.5, coreScale: 1, amp: 0.28, spin: 0, duration: 2.6, ease: 'expo.out' }, 0.2);
+  if (seq) {
+    tl.to(seq, { frame: flow.frames - 1, duration: 3, ease: 'none', onUpdate: () => seq.draw() })
+      .to('#flowCanvas', { opacity: 0, duration: 0.6 });
   }
+
+  // 1 — the book rises from the desk
+  tl.to('.stage__intro', { opacity: 0, yPercent: -30, duration: 0.8 }, seq ? '<' : 0)
+    .to('#hint', { opacity: 0, duration: 0.4 }, '<')
+    .to(book, { rotateX: 0, scale: 1, yPercent: 0, xPercent: -25, duration: 1.2, ease: 'power3.inOut' }, '<0.1')
+    .addLabel('spread0');
+
+  // 2 — every leaf turns; the spread it reveals then fills in
+  leaves.forEach((leaf, i) => {
+    const at = `turn${i}`;
+    tl.addLabel(at);
+    tl.to(leaf, { rotateY: -180, duration: 1.6 }, at)
+      .to(leaf, { skewY: -1.5, '--shade': 0.55, duration: 0.8, ease: 'power1.in' }, at)
+      .to(leaf, { skewY: 0, '--shade': 0, duration: 0.8, ease: 'power1.out' }, `${at}+=0.8`)
+      .set(leaf, { zIndex: i + 3 }, `${at}+=0.8`);
+
+    if (i === 0 && !mobile) tl.to(book, { xPercent: 0, duration: 1.6 }, at);
+    if (mobile) tl.to(book, { xPercent: 25, duration: 1 }, `${at}+=0.6`);
+
+    const next = leaves[i + 1];
+    const landed = [...$$('.face--back .rv', leaf), ...(next ? $$('.face--front .rv', next) : [])];
+    tl.to(landed, { opacity: 1, y: 0, stagger: 0.06, duration: 0.6, ease: 'power2.out' }, `${at}+=1.1`);
+    const plate = next && $('.plate__inner', next);
+    if (plate) tl.fromTo(plate, { scale: 1.12 }, { scale: 1, duration: 1.6 + hold * 2, ease: 'none' }, `${at}+=0.4`);
+    tl.addLabel(`spread${i + 1}`, `${at}+=1.4`);
+
+    if (mobile) {
+      tl.to({}, { duration: hold });
+      tl.to(book, { xPercent: -25, duration: 1 });
+    }
+    tl.to({}, { duration: hold });
+  });
+
+  // Contents links jump to their spread
+  $$('[data-spread]', book).forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const st = tl.scrollTrigger;
+    const t = tl.labels[`spread${a.dataset.spread}`] + 0.6;
+    lenis.scrollTo(st.start + (t / tl.duration()) * (st.end - st.start), { duration: 2 });
+  }));
+  return tl;
 }
 
-const counter = { v: 0 };
-gsap.to(counter, {
-  v: 100, duration: 1.8, ease: 'power2.inOut',
-  onUpdate: () => {
-    $('#loaderCount').textContent = Math.round(counter.v);
-    $('#loaderBar').style.transform = `scaleX(${counter.v / 100})`;
-  },
-  onComplete: async () => {
-    await document.fonts?.ready;
-    buildChoreography();
-    buildAnimations();
-    buildInteractions();
-    ScrollTrigger.refresh();
-    intro();
-  },
+function updateFolio(tl) {
+  const t = tl.time();
+  let idx = -1;
+  for (let i = 0; i <= leaves.length; i++) if (tl.labels[`turn${i}`] !== undefined && t >= tl.labels[`turn${i}`] + 0.8) idx = i;
+  const chapter = idx < 0 ? 'Cover' : spreadNames[idx];
+  const left = idx < 0 ? null : 2 + idx * 2;
+  const num = idx < 0 ? '00' : `${pad(left)}—${pad(left + 1)}`;
+  if ($('#chapter').textContent !== chapter) $('#chapter').textContent = chapter;
+  $('#folioNum').textContent = num;
+}
+
+/* ───────────── Sections ───────────── */
+function buildSections() {
+  ScrollTrigger.batch('.reveal', {
+    start: 'top 88%',
+    onEnter: (els) => gsap.to(els, { opacity: 1, y: 0, stagger: 0.08, duration: 1.2, ease: 'expo.out', overwrite: true }),
+  });
+  $$('.h2, .contact__title').forEach((el) => gsap.from(el, {
+    yPercent: 30, opacity: 0, duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 85%' },
+  }));
+}
+
+/* Warm light follows the cursor over the stage */
+const light = $('.stage__light');
+const L = { x: 50, y: 46, tx: 50, ty: 46 };
+addEventListener('pointermove', (e) => { L.tx = (e.clientX / innerWidth) * 100; L.ty = (e.clientY / innerHeight) * 100; });
+gsap.ticker.add(() => {
+  L.x += (L.tx - L.x) * 0.05; L.y += (L.ty - L.y) * 0.05;
+  light.style.setProperty('--lx', `${L.x}%`); light.style.setProperty('--ly', `${L.y}%`);
 });
+
+/* ───────────── Boot ───────────── */
+(async () => {
+  await Promise.all([document.fonts?.ready, seq?.load()]);
+  seq?.draw();
+  const mm = gsap.matchMedia();
+  mm.add({ mobile: '(max-width: 820px)', desktop: '(min-width: 821px)' }, () => { buildBook(); });
+  buildSections();
+  ScrollTrigger.refresh();
+  gsap.from('.masthead > *', { y: -20, opacity: 0, stagger: 0.08, duration: 1.2, ease: 'expo.out' });
+  gsap.from('.stage__intro > *', { y: 30, opacity: 0, stagger: 0.1, duration: 1.4, ease: 'expo.out' });
+  gsap.from('.book-wrap', { y: 80, opacity: 0, duration: 1.8, ease: 'expo.out', delay: 0.15 });
+})();

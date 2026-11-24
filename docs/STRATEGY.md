@@ -4,24 +4,19 @@ Research notes and a step-by-step playbook for turning this repo into a portfoli
 
 ---
 
-## 1. What makes a 3D portfolio look premium in 2026
+## 1. Design direction (v2 — "The Book")
 
-Patterns from recent Awwwards Site-of-the-Day and Three.js showcase winners (Cartier Watches & Wonders, Shopify Editions, Hubtown, Sleep Well Creative, Oryzo):
+The first version (neon, rotating 3D glass) was dropped: that look has become common. v2 is editorial and slower.
 
-| Pattern | What it means | Where it is in this repo |
-|---|---|---|
-| **Scroll is the storyteller** | Scroll moves the camera and the 3D scene, not only the page | `main.js` → `poses` + `buildChoreography()` |
-| **One hero object with weight** | A single, beautifully lit object beats a busy scene | Liquid-glass core with iridescence and dispersion (`scene.js`) |
-| **3D gives a "boring" B2B offer status** | Automation and DevOps feel premium when shown as a crafted object | The whole concept |
-| **Show it, don't just say it** | A product demo inside the page | Pinned WhatsApp-agent demo, driven by scroll |
-| **Rooms / chapters** | Each section has its own camera pose and colour | Hue changes per service card |
-| **Cinematic post-processing** | Bloom, grain, chromatic aberration, vignette | `GrainShader` + `UnrealBloomPass` |
-| **Micro-interactions** | Magnetic buttons, cursor, tilt with light-follow | `buildInteractions()` |
-| **Performance budget** | WebGPU/WebGL with low-power fallbacks | `this.low` path and reduced-motion support |
-
-Tech stack used here: **Three.js 0.180 + GSAP 3.13 (ScrollTrigger) + Lenis + Vite**. This is the same core stack those award winners use.
-
----
+| Principle | How it's applied |
+|---|---|
+| **Concept over effect** | The portfolio *is* a book. The cover opens on scroll, and each spread is one project: story on the left, visual on the right |
+| **Golden-ratio type scale** | Every font size is `base × φⁿ` (≈ 10 / 16 / 26 / 42 / 68 / 110 / 178 px). Spacing uses the same steps. Inside the book the scale is relative to the page width, so it stays φ at any size |
+| **Golden proportions** | The open spread is a golden rectangle (φ : 1); section layouts use a `1fr : 1.618fr` grid |
+| **Restrained palette** | Ink `#15120E`, paper `#F2ECE1`, cloth green `#1F3B31`, brass `#C9A66B`, a single vermilion accent `#C2412B` |
+| **Type pairing** | Cormorant Garamond (display, editorial) + Inter (text) + IBM Plex Mono (folios and labels) |
+| **Motion with meaning** | Only the page turn, the book rising and content settling on the page. No decorative spinning |
+| **Cinematic layer from Google Flow** | Optional scroll-scrubbed Flow clip before the book; see `docs/FLOW.md` |
 
 ## 2. Services: what you have and what's missing
 
@@ -89,7 +84,7 @@ Optional later: paid ads management (Meta/Google), chatbot training data and fin
 
 ### Step 5 — Build (this repo)
 - Claude Code + Three.js + GSAP + Lenis (done).
-- Next upgrades: swap the procedural core for your own **GLB logo object**, add a **case-study page** per project, and add a **WebGPU renderer** (`three/webgpu`) with a WebGL fallback.
+- Next upgrades: real project images/videos on each spread, a Flow intro clip (`docs/FLOW.md`), and a case-study page per project.
 - Skills: `engineering:code-review`, `run`, `design:accessibility-review`.
 
 ### Step 6 — Content & SEO (ongoing)
@@ -149,7 +144,7 @@ Two connectors in this session didn't connect: **Wix** and **HubSpot** (proxy-bl
 
 - [ ] Fill in `src/config.js` (brand, WhatsApp number, email, Calendly)
 - [ ] Generate a hero video loop and 9 service renders in Higgsfield
-- [ ] Optional: replace the procedural core with your GLB logo object
+- [ ] Generate the Flow intro clip and export frames (docs/FLOW.md)
 - [ ] Add 2–3 real case studies (even small or unpaid ones, with honest metrics)
 - [ ] Add a testimonial strip once you have quotes
 - [ ] Connect a Supabase contact form and WhatsApp agent
