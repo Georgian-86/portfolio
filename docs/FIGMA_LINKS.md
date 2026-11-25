@@ -8,6 +8,8 @@
   - Mobile 390 v2: https://www.figma.com/design/xAnp89eU0yXZyMyPS6Zv9I?node-id=49-330
   - Desktop 1440 v2: https://www.figma.com/design/xAnp89eU0yXZyMyPS6Zv9I?node-id=49-1437
   - Cover note (what changed in v2): https://www.figma.com/design/xAnp89eU0yXZyMyPS6Zv9I?node-id=62-966
+  - Scroll keyframes v2 (0 / 38.2 / 61.8 / 100%, mobile beside desktop, plus live motion): https://www.figma.com/design/xAnp89eU0yXZyMyPS6Zv9I?node-id=73-36
+  - Prototype v2 (mobile, pinned header + bar, starts at 01 Hero): https://www.figma.com/proto/xAnp89eU0yXZyMyPS6Zv9I?page-id=78%3A36&node-id=78-103&starting-point-node-id=78%3A103&scaling=scale-down
 
 ## Review
 
