@@ -104,3 +104,27 @@
 - [ ] **Step 4: Prototype v2.** Copy the mobile v2 frames and link them in scroll order with Smart Animate at 618 ms. Pin the header and bar (`numberOfFixedChildren` = 2, bar at y 768 with a MIN constraint). The flow starts at B2-M-01.
 - [ ] **Step 5: Audit the prototype and keyframes.** Run the proto, width, occlusion (pinned elements excluded, except the Review Focus 1 hero check) and bar-overlap audits. Expected: 0.
 - [ ] **Step 6: Commit.** Add the prototype link to `docs/FIGMA_LINKS.md`, then commit with the message `docs: add concept B v2 prototype link`.
+
+### Task 3: Video prompt sheet + Higgsfield stills (needs credit approval)
+
+**Files:**
+- Create `docs/VIDEO_PROMPTS.md`.
+- Modify the Figma v2 pages, replacing the placeholders with the generated stills.
+
+- [ ] **Step 1: Write `docs/VIDEO_PROMPTS.md`** with one block per shot. Each block gives: the purpose and section, the tool (Higgsfield model or Google Flow), the aspect ratios (16:9 desktop, 9:16 mobile), the duration (6–8 s, 24 fps), the first-frame and last-frame descriptions, the camera move, the palette HEX values, a negative prompt (no people, no text, no cuts, no flicker), and the frame-export command.
+  - Shot 1: hero "Untangling" desk film.
+  - Shot 2: the "11:42 PM" phone-at-night agent scene.
+  - Shot 3: spreadsheet printouts → laptop dashboard.
+  - Shot 4: the book flip, shown as a TBC placeholder until the reel details arrive.
+  - The last frame of each shot must match the B v2 frame it hands over to.
+- [ ] **Step 2: Get a cost estimate.** Check the Higgsfield balance and estimate the cost of the stills (first and last frame per shot, mobile and desktop). Then STOP and report the cost to the controller; the user approves before anything is generated.
+- [ ] **Step 3: Generate the stills** after approval, using Soul Cinema with palette lock, then upscale them.
+- [ ] **Step 4: Place the stills** in the B v2 hero, 02 and 04 frames on mobile and desktop, labelled "Still from planned film".
+- [ ] **Step 5: Re-audit** the touched frames for occlusion and contrast. Text over imagery needs ≥4.5:1, so add a scrim if needed.
+- [ ] **Step 6: Commit** with the message `docs: add video prompt sheet`.
+
+### Task 4: Generate the scroll films (needs approval of the stills)
+
+- [ ] **Step 1: Generate each shot** with image-to-video, using the approved stills as the first and last frames. Kling or Seedance in Higgsfield, or Flow by the user with the prompts from the prompt sheet.
+- [ ] **Step 2: Check each clip** against the scroll-scrub rules: one continuous shot, a smooth camera move, constant light, and clean rest frames at both ends.
+- [ ] **Step 3: Record the asset links** in `docs/VIDEO_PROMPTS.md`, then commit with the message `docs: record generated film assets`.
