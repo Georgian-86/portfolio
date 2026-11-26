@@ -211,3 +211,31 @@ ffmpeg -i book-9x16.mp4 -vf "fps=24,scale=1080:-2" -c:v libwebp -quality 72 publ
 ## Budget notes
 - A full 8 s clip is 192 frames. At about 60–90 KB per WebP, that is 12–17 MB on desktop and about half that on mobile. Preload the first 20 frames and stream the rest.
 - Credit costs and the approval gate are recorded in `.superpowers/sdd/2026-11-25-concept-b-final/task-3-report.md`. Nothing is generated until the user approves the cost.
+
+---
+
+## Free route: Google Flow free tier (₹0)
+
+Golu chose to spend no money, so this is now the default route. The numbers come from third-party write-ups as of Nov 2026; check them on Flow's own help page.
+- **Allowance:** a free Google account gets about **50 Flow credits a day**. They don't roll over, and they reset daily.
+- **Clip cost:** a **Veo 3.1 Lite** clip costs about 10 credits (4, 6 or 8 s at 720p), so about **5 clips a day**.
+- **Busy hours:** free generation can be blocked roughly 14:00–17:00 UTC (19:30–22:30 IST), so generate in the morning IST.
+- **Fast/Quality models:** Veo 3.1 Fast and Quality are out of reach on free credits, and both retire on 5 Dec 2026. Lite is what we use.
+
+**Plan (6 clips over 2 days):**
+
+| Day | Clips |
+|---|---|
+| 1 | Shot 1 at 16:9 and at 9:16, then Shot 2 at 16:9 (plus 2 spare credits' worth for one retry) |
+| 2 | Shot 2 at 9:16, then Shot 3 at 16:9 and at 9:16 |
+
+**Steps for each clip in Flow (labs.google/flow):**
+1. Create the **first** and **last** stills with Flow's built-in image tool, using the still prompts above plus the style bible. If the stills cost credits, make them on a day you don't generate video. The Gemini app's free image generation also works.
+2. Choose **Frames to Video**, upload the first and last stills, and paste the motion prompt plus the negative prompt.
+3. Model: **Veo 3.1 Lite**, 8 s, at the aspect ratio for that clip.
+4. Download the MP4 and save it as `shot1-16x9.mp4`, `shot1-9x16.mp4` and so on.
+5. Send the files to Claude. Claude runs the frame-export commands, upscales (free, locally), and wires up the scroll scrub.
+
+**720p is enough:** frames are exported as WebP. On mobile, 720p (9:16) is close to the screen's real resolution. On desktop, the film sits behind HTML text with a scrim, so it can be slightly softer. A free local upscale (Real-ESRGAN in ffmpeg or Upscayl) takes it to 1440 if needed.
+
+**Fallback at zero cost:** if Flow's limits block a shot, that section uses the coded Figma animation (the CSS/GSAP snap from the Scroll keyframes v2 page) instead of film. B's design works without film.
