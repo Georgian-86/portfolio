@@ -157,6 +157,8 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     for (let i = 0; i < count; i++) if (i !== first) order.push(i);
     order.sort((a, b) => Math.abs(a - first) - Math.abs(b - first));
     await Promise.all(order.slice(0, PRELOAD).map((i) => fetchFrame(i, signal)));
+    // The rest stream in only after the page has loaded, to keep the first screen light.
+    if (document.readyState !== 'complete') await new Promise((ok) => addEventListener('load', ok, { once: true }));
     const rest = order.slice(PRELOAD);
     const worker = async () => {
       while (rest.length && !signal.aborted) await fetchFrame(rest.shift(), signal);

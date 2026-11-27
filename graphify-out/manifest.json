@@ -78,15 +78,15 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1795799742.5274765,
-    "seen": 1795800120.8733706,
-    "ast_hash": "2b5d91a3c8c6721188a9cb21acba607d",
+    "mtime": 1795800576.3204343,
+    "seen": 1795800727.3835804,
+    "ast_hash": "43d071e478089379610d4868fad48590",
     "semantic_hash": ""
   },
   "public/favicon.svg": {
-    "mtime": 1795520594.1737552,
-    "seen": 1795713311.421939,
-    "ast_hash": "6864ecb0e8d192b21feb855767699723",
+    "mtime": 1795800578.3244345,
+    "seen": 1795800727.3835828,
+    "ast_hash": "ef772629e53092f36a1d420460aa7ad8",
     "semantic_hash": ""
   },
   "public/film/hero/desktop/frame_0001.webp": {
@@ -1248,9 +1248,9 @@
     "semantic_hash": ""
   },
   "src/film.js": {
-    "mtime": 1795800370.3004222,
-    "seen": 1795800458.338956,
-    "ast_hash": "ed7cc75bb317a5fdd58707e8807a9a0f",
+    "mtime": 1795800554.808433,
+    "seen": 1795800727.3835144,
+    "ast_hash": "e0393f4cdf351885efbabf8b906835d4",
     "semantic_hash": ""
   },
   "tests/film.spec.js": {
@@ -6363,6 +6363,18 @@
     "mtime": 1795800391.0764234,
     "seen": 1795800458.338963,
     "ast_hash": "43662da32b301b3dce64f93e158a270a",
+    "semantic_hash": ""
+  },
+  "tests/a11y.spec.js": {
+    "mtime": 1795800487.4644291,
+    "seen": 1795800727.383532,
+    "ast_hash": "300fd2897f5acd15f0f5eca24601444b",
+    "semantic_hash": ""
+  },
+  "public/og.jpg": {
+    "mtime": 1795800566.3644338,
+    "seen": 1795800727.3859866,
+    "ast_hash": "e78aff9c50e7104361e3dce860ad21e4",
     "semantic_hash": ""
   },
   "package-lock.json": {

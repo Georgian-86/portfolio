@@ -494,6 +494,7 @@ main { padding-top: var(--hdr-h); padding-bottom: var(--bar-h); }
     display: flex; flex-direction: column; gap: var(--s-4);
     position: sticky; top: var(--hdr-h);
     padding: var(--s-6) var(--gutter) var(--s-6) var(--s-6);
+    background-color: var(--navy-2);
   }
   .agent__copy, .agent__more { padding: 0; }
   .agent__copy .h-section { font-size: var(--t-h2); line-height: 1; }

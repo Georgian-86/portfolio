@@ -1,17 +1,17 @@
 # Graph Report - portfolio  (2026-11-27)
 
 ## Corpus Check
-- 27 files · ~33,599 words
+- 28 files · ~34,308 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 2 file(s) not represented in the graph (top: (none) 1, .css 1)
 
 ## Summary
-- 297 nodes · 454 edges · 17 communities (16 shown, 1 thin omitted)
+- 299 nodes · 456 edges · 17 communities (16 shown, 1 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 6 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e4fd225e`
+- Built from commit: `236d7c7c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -92,8 +92,8 @@ Cohesion: 0.12
 Nodes (16): 10. Left to the builder, 11. Open items (do not block design; marked TBC in the files), 1. Intent — the why, 2. Goals, 3. Non-goals (this phase), 4. Anti-goals (failure even if "done"), 5. Constraints, 6. Content (shared by all three concepts) (+8 more)
 
 ### Community 7 - "package.json"
-Cohesion: 0.12
-Nodes (17): dependencies, gsap@3.13.0, lenis@1.3.11, devDependencies, @playwright/test@^1.63.0, vite@7.1.12, name, private (+9 more)
+Cohesion: 0.10
+Nodes (21): dependencies, gsap@3.13.0, lenis@1.3.11, devDependencies, @playwright/test@^1.63.0, vite@7.1.12, name, private (+13 more)
 
 ### Community 8 - "Review Focus"
 Cohesion: 0.25
@@ -112,7 +112,7 @@ Cohesion: 0.33
 Nodes (5): 1. Make the clip in Flow, 2. Export frames, 3. Switch it on, Google Flow → scroll animation, Using your design inspiration
 
 ### Community 13 - "mountFilm"
-Cohesion: 0.28
+Cohesion: 0.26
 Nodes (15): frameUrl(), mountFilm(), decode(), ensureWindow(), fetchFrame(), load(), nearestDecoded(), paint() (+7 more)
 
 ### Community 14 - "Nexora — Selected Works"
@@ -120,12 +120,12 @@ Cohesion: 0.50
 Nodes (3): Make it yours, Nexora — Selected Works, Run
 
 ### Community 15 - "bar.js"
-Cohesion: 0.16
+Cohesion: 0.14
 Nodes (9): @playwright/test, BAR_H, expectClearsBar(), HDR_H, scrollToEnd(), scrollToSectionEnd(), WIDTHS, SECS (+1 more)
 
 ### Community 16 - "sections.js"
-Cohesion: 0.14
-Nodes (39): gsap, mountAgentDemo(), build(), endState(), bookingCard(), bubble(), callCard(), chatHead() (+31 more)
+Cohesion: 0.16
+Nodes (35): work, bookingCard(), bubble(), callCard(), chatHead(), cue(), desktopQuery, hdrH() (+27 more)
 
 ## Knowledge Gaps
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
@@ -133,17 +133,17 @@ Nodes (39): gsap, mountAgentDemo(), build(), endState(), bookingCard(), bubble()
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `gsap` connect `sections.js` to `main.js`, `package.json`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
-- **Should `main.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.14624505928853754 - nodes in this community are weakly interconnected._
-- **Why does `mountFilm()` connect `mountFilm` to `Review Focus`, `sections.js`, `main.js`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
+- **Why does `gsap` connect `package.json` to `main.js`, `sections.js`, `mountFilm`?**
+  _High betweenness centrality (0.056) - this node is a cross-community bridge._
 - **Should `Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._
-- **Why does `@playwright/test` connect `bar.js` to `package.json`?**
-  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **Why does `mountFilm()` connect `mountFilm` to `Review Focus`, `main.js`, `sections.js`?**
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **Should `Video prompt sheet — Concept B v2 "The Untangling"` be split into smaller, more focused modules?**
   _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
+- **Why does `@playwright/test` connect `bar.js` to `package.json`?**
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
 - **Should `Portfolio Design Guide — from zero to three Figma concepts` be split into smaller, more focused modules?**
   _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
+- **Should `6. Prompt library` be split into smaller, more focused modules?**
+  _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._
