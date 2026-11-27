@@ -1,17 +1,17 @@
 # Graph Report - portfolio  (2026-11-27)
 
 ## Corpus Check
-- 28 files · ~35,212 words
+- 28 files · ~36,157 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 2 file(s) not represented in the graph (top: (none) 1, .css 1)
 
 ## Summary
-- 303 nodes · 465 edges · 18 communities (17 shown, 1 thin omitted)
+- 308 nodes · 471 edges · 18 communities (17 shown, 1 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 5 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1ea0d98f`
+- Built from commit: `65613030`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -33,11 +33,11 @@
 - Nexora — Selected Works
 - bar.js
 - sections.js
-- mountAgentDemo
+- film.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `esc()` - 31 edges
-2. `mountFilm()` - 23 edges
+2. `mountFilm()` - 24 edges
 3. `Design — Three portfolio concepts in Figma` - 13 edges
 4. `renderMissedCalls()` - 12 edges
 5. `waLink()` - 11 edges
@@ -50,14 +50,14 @@
 ## Surprising Connections (you probably didn't know these)
 - `Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline)` --references--> `mountFilm()`  [INFERRED]
   docs/superpowers/plans/2026-11-27-website-build.md → src/film.js
-- `renderLiveAgent()` --calls--> `mountAgentDemo()`  [EXTRACTED]
-  src/sections.js → src/agent-demo.js
-- `renderCta()` --calls--> `waLink()`  [EXTRACTED]
-  src/sections-late.js → src/content.js
-- `renderTeam()` --calls--> `waLink()`  [EXTRACTED]
-  src/sections-late.js → src/content.js
-- `mintCta()` --calls--> `waLink()`  [EXTRACTED]
-  src/sections.js → src/content.js
+- `renderHero()` --calls--> `mountFilm()`  [EXTRACTED]
+  src/main.js → src/film.js
+- `renderDashboard()` --calls--> `mountFilm()`  [EXTRACTED]
+  src/sections-late.js → src/film.js
+- `renderMissedCalls()` --calls--> `mountFilm()`  [EXTRACTED]
+  src/sections.js → src/film.js
+- `status()` --calls--> `esc()`  [EXTRACTED]
+  src/main.js → src/ui.js
 
 ## Import Cycles
 - None detected.
@@ -65,8 +65,8 @@
 ## Communities (18 total, 1 thin omitted)
 
 ### Community 0 - "main.js"
-Cohesion: 0.15
-Nodes (14): gsap, bookLink(), menu, nav, waLink(), progress(), prop(), reducedQuery (+6 more)
+Cohesion: 0.16
+Nodes (16): bookLink(), brand, faqs, menu, nav, sections, services, team (+8 more)
 
 ### Community 1 - "Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation""
 Cohesion: 0.06
@@ -113,24 +113,24 @@ Cohesion: 0.33
 Nodes (5): 1. Make the clip in Flow, 2. Export frames, 3. Switch it on, Google Flow → scroll animation, Using your design inspiration
 
 ### Community 13 - "mountFilm"
-Cohesion: 0.24
-Nodes (17): frameUrl(), mountFilm(), decode(), ensureWindow(), fetchFrame(), load(), nearestDecoded(), paint() (+9 more)
+Cohesion: 0.22
+Nodes (18): frameUrl(), mountFilm(), decode(), ensureWindow(), fetchFrame(), load(), nextMissing(), paint() (+10 more)
 
 ### Community 14 - "Nexora — Selected Works"
 Cohesion: 0.50
 Nodes (3): Make it yours, Nexora — Selected Works, Run
 
 ### Community 15 - "bar.js"
-Cohesion: 0.14
+Cohesion: 0.12
 Nodes (9): @playwright/test, BAR_H, expectClearsBar(), HDR_H, scrollToEnd(), scrollToSectionEnd(), WIDTHS, SECS (+1 more)
 
 ### Community 16 - "sections.js"
-Cohesion: 0.14
-Nodes (40): brand, faqs, sections, services, team, work, bookingCard(), bubble() (+32 more)
+Cohesion: 0.17
+Nodes (35): work, bookingCard(), bubble(), callCard(), chatHead(), cue(), desktopQuery, hdrH() (+27 more)
 
-### Community 17 - "mountAgentDemo"
-Cohesion: 1.00
-Nodes (3): mountAgentDemo(), build(), endState()
+### Community 17 - "film.js"
+Cohesion: 0.23
+Nodes (8): gsap, mountAgentDemo(), build(), endState(), WINDOW_DESKTOP, WINDOW_MOBILE, easeOut, icon
 
 ## Knowledge Gaps
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
@@ -138,17 +138,17 @@ Nodes (3): mountAgentDemo(), build(), endState()
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `mountFilm()` connect `mountFilm` to `Review Focus`, `main.js`, `sections.js`?**
-  _High betweenness centrality (0.059) - this node is a cross-community bridge._
-- **Should `main.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.14624505928853754 - nodes in this community are weakly interconnected._
-- **Why does `gsap` connect `main.js` to `sections.js`, `package.json`?**
-  _High betweenness centrality (0.057) - this node is a cross-community bridge._
+- **Why does `mountFilm()` connect `mountFilm` to `Review Focus`, `film.js`, `main.js`, `sections.js`?**
+  _High betweenness centrality (0.062) - this node is a cross-community bridge._
 - **Should `Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._
-- **Why does `@playwright/test` connect `bar.js` to `package.json`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+- **Why does `gsap` connect `film.js` to `main.js`, `sections.js`, `package.json`?**
+  _High betweenness centrality (0.060) - this node is a cross-community bridge._
 - **Should `Video prompt sheet — Concept B v2 "The Untangling"` be split into smaller, more focused modules?**
   _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
+- **Why does `@playwright/test` connect `bar.js` to `package.json`?**
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **Should `Portfolio Design Guide — from zero to three Figma concepts` be split into smaller, more focused modules?**
   _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
+- **Should `6. Prompt library` be split into smaller, more focused modules?**
+  _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._

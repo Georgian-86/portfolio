@@ -160,7 +160,8 @@ h1, h2, h3, p { margin: 0; }
 main { padding-top: var(--hdr-h); padding-bottom: var(--bar-h); }
 
 /* ── 01 Hero ───────────────────────────────────────────────── */
-.hero { position: relative; height: 250svh; }
+/* Long pinned range (300vh of scroll) so one wheel notch moves only a few frames. */
+.hero { position: relative; height: 400svh; }
 .hero__stage {
   position: sticky; top: var(--hdr-h);
   height: calc(100svh - var(--hdr-h));
@@ -391,7 +392,7 @@ main { padding-top: var(--hdr-h); padding-bottom: var(--bar-h); }
 .sheet .btn--mint, .agent__more .btn--mint { width: 100%; }
 
 /* Night film: scrubbed between the mess and the system sheet */
-.tangle__film-track { position: relative; height: 200svh; }
+.tangle__film-track { position: relative; height: 300svh; } /* ~200vh of scrub */
 .tangle__film-stage { position: sticky; top: var(--hdr-h); height: calc(100svh - var(--hdr-h)); overflow: clip; }
 .tangle__film { position: absolute; inset: 0 0 var(--bar-h); --film-x: 0.5; --film-y: 0.5; }
 .film--night { background: var(--navy); }
@@ -461,7 +462,7 @@ main { padding-top: var(--hdr-h); padding-bottom: var(--bar-h); }
   .sheet__foot { flex-direction: row; flex-wrap: wrap; align-items: center; }
   .sheet__foot .note { order: 0; }
   .sheet .btn--mint, .agent__more .btn--mint { width: auto; align-self: flex-start; }
-  .tangle__film-track { height: 160svh; }
+  .tangle__film-track { height: 300svh; }
   /* Cover-fit anchored bottom-right (watermark corner kept): no navy bands or seams. */
   .tangle__film { inset: 0; --film-fit: cover; --film-x: 1; --film-y: 1; }
   .chat { padding: var(--s-3); border-radius: 22px; }

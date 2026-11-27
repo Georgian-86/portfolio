@@ -13,7 +13,11 @@ gsap.registerPlugin(ScrollTrigger);
 const MOBILE_QUERY = '(max-width: 767px), (max-aspect-ratio: 1/1)';
 const REDUCED_QUERY = '(prefers-reduced-motion: reduce)';
 const PRELOAD = 20; // frames fetched first; the rest stream in the background
-const WINDOW = 12; // decoded frames kept on each side of the current one
+// Decoded frames kept around the displayed one, biased toward the direction of travel.
+const WINDOW_DESKTOP = { ahead: 30, behind: 10 };
+const WINDOW_MOBILE = { ahead: 18, behind: 6 };
+const LERP = 0.2; // share of the remaining distance the shown frame moves per 60 Hz frame
+const MAX_STEP = 3; // most frames the display may advance in one animation frame
 const BASE = import.meta.env.BASE_URL;
 
 const frameUrl = (name, set, i) => `${BASE}film/${name}/${set}/frame_${String(i).padStart(4, '0')}.webp`;
@@ -44,6 +48,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   let blobs = []; // compressed frames, index -> Blob
   let bitmaps = new Map(); // decoded window, index -> ImageBitmap
   let decoding = new Set();
+  const fetching = new Set();
   let abort = null;
   let shown = null; // bitmap currently painted (may belong to the previous set)
   let reduced = rq.matches;
@@ -84,36 +89,73 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     el.dataset.draw = JSON.stringify({ x: Math.round(x), y: Math.round(y), w: Math.round(dw), h: Math.round(dh), cw: W, ch: H });
   }
 
-  function nearestDecoded(i) {
-    for (let d = 0; d < count; d++) {
-      if (bitmaps.has(i - d)) return i - d;
-      if (bitmaps.has(i + d)) return i + d;
-    }
-    return -1;
+  // ── Display: a rAF loop eases the shown frame (`disp`) toward the target, but only across
+  // frames that are already decoded, so it never holds a stale frame and then jumps. ──
+  const win = () => (set === 'mobile' ? WINDOW_MOBILE : WINDOW_DESKTOP);
+
+  // Furthest index reachable from `from` toward `to` through consecutively decoded frames.
+  function reachable(from, to) {
+    const dir = to > from ? 1 : -1;
+    let i = from;
+    while (i !== to && bitmaps.has(i + dir)) i += dir;
+    return i;
   }
 
-  function render() {
+  function show(i, resized) {
+    const bmp = bitmaps.get(i);
+    if (!bmp) return false;
+    if (bmp !== shown || resized) paint(bmp);
+    if (shown && shown !== bmp && ![...bitmaps.values()].includes(shown)) shown.close();
+    shown = bmp;
+    el.dataset.frame = String(i + 1);
+    el.classList.add('is-ready');
+    return true;
+  }
+
+  let disp = -1; // displayed frame index (float); -1 until the first frame is shown
+  let lastT = 0;
+  function render(now = performance.now()) {
     const resized = size();
-    const i = nearestDecoded(current());
-    if (i >= 0) {
-      const bmp = bitmaps.get(i);
-      if (bmp !== shown || resized) paint(bmp);
-      if (shown && shown !== bmp && ![...bitmaps.values()].includes(shown)) shown.close();
-      shown = bmp;
-      el.dataset.frame = String(i + 1);
-      el.classList.add('is-ready');
-    } else if (resized && shown) {
-      paint(shown); // keep the previous set's frame instead of a blank canvas
+    const target = current();
+    if (disp < 0 || reduced) {
+      // First frame (or reduced motion): show the target, or the nearest decoded frame.
+      for (let d = 0; d < count; d++) {
+        const i = [target - d, target + d].find((k) => bitmaps.has(k));
+        if (i !== undefined) { disp = i; show(i, resized); return; }
+      }
+      if (resized && shown) paint(shown); // keep the previous frame instead of a blank canvas
+      return;
     }
+    const at = Math.round(disp);
+    if (!bitmaps.has(at)) { // window moved away (e.g. set switch): resync to what exists
+      disp = -1;
+      return render(now);
+    }
+    const goal = reachable(at, target);
+    const dt = Math.min(64, now - (lastT || now));
+    lastT = now;
+    const k = 1 - Math.pow(1 - LERP, dt / 16.7); // frame-rate independent easing
+    let step = (goal - disp) * k;
+    step = Math.max(-MAX_STEP, Math.min(MAX_STEP, step));
+    disp = Math.abs(goal - disp) < 0.02 ? goal : disp + step;
+    show(Math.round(disp), resized) || (resized && shown && paint(shown));
   }
 
-  function trimWindow() {
-    const c = current();
+  // Ahead-biased decode window around the displayed frame (and the direction of travel).
+  function ensureWindow() {
+    if (!abort) return;
+    const c = disp < 0 ? current() : Math.round(disp);
+    const ahead = current() >= c;
+    const [back, fwd] = ahead ? [win().behind, win().ahead] : [win().ahead, win().behind];
     for (const [i, bmp] of bitmaps) {
-      if (Math.abs(i - c) > WINDOW) {
+      if (i < c - back || i > c + fwd) {
         bitmaps.delete(i);
         if (bmp !== shown) bmp.close();
       }
+    }
+    for (let d = 0; d <= Math.max(back, fwd); d++) {
+      if (d <= fwd && c + d < count) decode(c + d, abort.signal);
+      if (d <= back && c - d >= 0) decode(c - d, abort.signal);
     }
     el.dataset.decoded = String(bitmaps.size);
   }
@@ -125,26 +167,17 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     createImageBitmap(blob)
       .then((bmp) => {
         decoding.delete(i);
-        if (signal.aborted || Math.abs(i - current()) > WINDOW) return bmp.close();
+        const c = disp < 0 ? current() : Math.round(disp);
+        if (signal.aborted || i < c - win().ahead || i > c + win().ahead) return bmp.close();
         bitmaps.set(i, bmp);
         el.dataset.decoded = String(bitmaps.size);
-        render();
       })
       .catch(() => decoding.delete(i));
   }
 
-  function ensureWindow() {
-    if (!abort) return;
-    trimWindow();
-    const c = current();
-    for (let d = 0; d <= WINDOW; d++) {
-      if (c - d >= 0) decode(c - d, abort.signal);
-      if (c + d < count) decode(c + d, abort.signal);
-    }
-  }
-
   async function fetchFrame(i, signal) {
-    if (blobs[i] || signal.aborted) return;
+    if (blobs[i] || fetching.has(i) || signal.aborted) return;
+    fetching.add(i);
     try {
       const res = await fetch(frameUrl(name, set, i + 1), { signal });
       if (!res.ok) return;
@@ -152,29 +185,50 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
       if (signal.aborted) return;
       blobs[i] = blob;
       el.dataset.blobs = String(blobs.filter(Boolean).length);
-      if (Math.abs(i - current()) <= WINDOW) decode(i, signal);
+      ensureWindow();
     } catch {
       /* aborted or offline: the poster stays */
+    } finally {
+      fetching.delete(i);
     }
   }
 
+  // Next frame to fetch: the first missing one ahead of the displayed frame (toward the target),
+  // then the rest of the film ahead, then anything behind.
+  function nextMissing() {
+    const c = disp < 0 ? current() : Math.round(disp);
+    const dir = current() >= c ? 1 : -1;
+    for (let i = c; i >= 0 && i < count; i += dir) if (!blobs[i] && !fetching.has(i)) return i;
+    for (let i = c; i >= 0 && i < count; i -= dir) if (!blobs[i] && !fetching.has(i)) return i;
+    return -1;
+  }
+
   async function load(signal) {
-    const first = current();
-    await fetchFrame(first, signal);
+    await fetchFrame(current(), signal);
     ensureWindow(); // frames already fetched (e.g. after a reduced-motion toggle) need decoding again
     if (reduced || signal.aborted) return; // reduced motion: the last frame only
-    const order = [];
-    for (let i = 0; i < count; i++) if (i !== first) order.push(i);
-    order.sort((a, b) => Math.abs(a - first) - Math.abs(b - first));
-    await Promise.all(order.slice(0, PRELOAD).map((i) => fetchFrame(i, signal)));
-    // The rest stream in only after the page has loaded, to keep the first screen light.
-    if (document.readyState !== 'complete') await new Promise((ok) => addEventListener('load', ok, { once: true }));
-    const rest = order.slice(PRELOAD);
-    const worker = async () => {
-      while (rest.length && !signal.aborted) await fetchFrame(rest.shift(), signal);
+    const worker = async (limit) => {
+      for (let n = 0; n < limit && !signal.aborted; n++) {
+        const i = nextMissing();
+        if (i < 0) return;
+        await fetchFrame(i, signal);
+      }
     };
-    await Promise.all([worker(), worker(), worker(), worker()]);
+    // The first frames ahead now; the rest of the film only after the page has loaded,
+    // to keep the first screen light.
+    await Promise.all([worker(PRELOAD / 4), worker(PRELOAD / 4), worker(PRELOAD / 4), worker(PRELOAD / 4)]);
+    if (document.readyState !== 'complete') await new Promise((ok) => addEventListener('load', ok, { once: true }));
+    await Promise.all([worker(Infinity), worker(Infinity), worker(Infinity), worker(Infinity)]);
   }
+
+  // The display loop runs while the film is near the screen.
+  let raf = 0;
+  const loop = (now) => {
+    render(now);
+    raf = requestAnimationFrame(loop);
+  };
+  const startLoop = () => { if (!raf) raf = requestAnimationFrame(loop); };
+  const stopLoop = () => { cancelAnimationFrame(raf); raf = 0; lastT = 0; };
 
   // Off-screen films hold nothing: in-flight fetches are aborted and every decoded bitmap is
   // released (the canvas keeps its last pixels; the poster sits underneath).
@@ -210,6 +264,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     set = next;
     count = set === 'mobile' ? mobile : desktop;
     blobs = [];
+    disp = -1;
     el.dataset.set = set;
     el.dataset.count = String(count);
     restart();
@@ -220,8 +275,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   // so handing over from the autoplay intro to the scroll scrub never jumps back.
   function update() {
     progress = reduced ? 1 : introA + scrollP * (1 - introA);
-    ensureWindow();
-    render();
+    ensureWindow(); // the rAF loop draws
   }
 
   function scrub() {
@@ -233,7 +287,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     tween = gsap.to(state, {
       p: 1,
       ease: 'none',
-      scrollTrigger: { trigger: trigger || el.closest('section') || el, start, end, scrub: 0.4 },
+      scrollTrigger: { trigger: trigger || el.closest('section') || el, start, end, scrub: 0.8 },
       onUpdate: () => {
         scrollP = state.p;
         update();
@@ -275,6 +329,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     scrub();
     scrollP = tween?.scrollTrigger?.progress ?? 0;
     progress = reduced ? 1 : introA + scrollP * (1 - introA);
+    disp = -1; // jump straight to the new target (the decode window follows it)
     restart();
     render();
   };
@@ -290,8 +345,11 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
       near = entry.isIntersecting;
       if (near) {
         restart();
-        render();
-      } else sleep();
+        startLoop();
+      } else {
+        stopLoop();
+        sleep();
+      }
     },
     { rootMargin: '100% 0px' },
   );
@@ -312,6 +370,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
       tween?.scrollTrigger?.kill();
       tween?.kill();
       introTween?.kill();
+      stopLoop();
       for (const bmp of bitmaps.values()) bmp.close();
       shown?.close();
       bitmaps.clear();

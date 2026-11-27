@@ -209,3 +209,66 @@ for (const id of ['02', '04']) {
     expect(r.y).toBeLessThanOrEqual(0);
   });
 }
+
+// ── Smooth scrubbing (live-site feedback: "changing in a sec, like it is stuck") ──
+// Samples the hero's displayed frame every animation frame while wheel-scrolling in small steps.
+async function wheelSamples(page, { notches = 25, delta = 100, gap = 60, throttleMbps = 0 } = {}) {
+  if (throttleMbps) {
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Network.enable');
+    await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 40, downloadThroughput: (throttleMbps * 1e6) / 8, uploadThroughput: 1e6 });
+  }
+  await page.goto('/');
+  const hero = page.locator('[data-sec="01"] .film');
+  await expect(hero).toHaveAttribute('data-intro', 'done', { timeout: 15000 });
+  await page.evaluate(() => {
+    window.__s = [];
+    const f = document.querySelector('[data-sec="01"] .film');
+    const tick = () => { window.__s.push([performance.now(), Number(f.dataset.frame), scrollY]); requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+  const vp = page.viewportSize();
+  await page.mouse.move(vp.width / 2, vp.height / 2);
+  for (let i = 0; i < notches; i++) { await page.mouse.wheel(0, delta); await page.waitForTimeout(gap); }
+  await page.waitForTimeout(800);
+  return { samples: await page.evaluate(() => window.__s), count: Number(await hero.getAttribute('data-count')) };
+}
+
+function analyse({ samples, count }) {
+  let maxStep = 0, backwards = 0, plateau = 0, runStart = null;
+  for (let i = 1; i < samples.length; i++) {
+    const [t, f, y] = samples[i];
+    const [, pf, py] = samples[i - 1];
+    if (f < pf) backwards++;
+    maxStep = Math.max(maxStep, Math.abs(f - pf));
+    const scrolling = y !== py;
+    if (f === pf && scrolling && f < count) { runStart ??= samples[i - 1][0]; plateau = Math.max(plateau, t - runStart); }
+    else if (f !== pf) runStart = null;
+  }
+  const first = samples[0][1], last = samples.at(-1)[1];
+  return { maxStep, backwards, plateau: Math.round(plateau), first, last };
+}
+
+for (const vp of [{ width: 1920, height: 880 }, { width: 390, height: 844 }]) {
+  test(`at ${vp.width}x${vp.height} wheel scrolling scrubs the hero smoothly`, async ({ page }) => {
+    await page.setViewportSize(vp);
+    const r = analyse(await wheelSamples(page));
+    console.log(`smooth scrub ${vp.width}: ${JSON.stringify(r)}`);
+    expect(r.last).toBeGreaterThan(r.first); // it moved
+    expect(r.backwards).toBe(0); // monotonic while scrolling down
+    expect(r.maxStep).toBeLessThanOrEqual(4); // no jumps between consecutive samples
+    expect(r.plateau).toBeLessThanOrEqual(250); // never stuck while the page scrolls
+    // A long range: 25 wheel notches (2500px) must not run the whole film.
+    expect(r.last).toBeLessThan(Number(await page.locator('[data-sec="01"] .film').getAttribute('data-count')));
+  });
+}
+
+test('on a slow network (5 Mbps) the hero still advances while scrolling, never stuck on a stale frame', async ({ page }) => {
+  test.setTimeout(60000);
+  await page.setViewportSize({ width: 1920, height: 880 });
+  const r = analyse(await wheelSamples(page, { throttleMbps: 5, notches: 15 }));
+  console.log(`smooth scrub 5Mbps: ${JSON.stringify(r)}`);
+  expect(r.last).toBeGreaterThan(r.first + 10);
+  expect(r.backwards).toBe(0);
+  expect(r.maxStep).toBeLessThanOrEqual(4);
+});

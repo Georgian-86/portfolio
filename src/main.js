@@ -119,7 +119,9 @@ function renderHero() {
         <p class="hero__cue label" aria-hidden="true">${esc(h.scrollCue)} <span class="hero__cue-arrow">↓</span></p>
       </div>
     </div>`;
-  mountFilm($('[data-film]', el), h.film);
+  // The scrub starts when the hero meets the header (it sits below it at scroll 0).
+  const fromHeader = () => `top ${parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hdr-h')) || 60}px`;
+  mountFilm($('[data-film]', el), { ...h.film, start: fromHeader });
   // The scroll cue fades once the visitor starts scrolling (and comes back at the very top).
   const cue = $('.hero__cue', el);
   const syncCue = () => cue.classList.toggle('is-gone', scrollY > 8);
@@ -138,7 +140,7 @@ function renderHero() {
       autoAlpha: 0,
       y: -24,
       ease: 'none',
-      scrollTrigger: { trigger: el, start: 'top top', end: '38.2% top', scrub: 0.4 },
+      scrollTrigger: { trigger: el, start: fromHeader, end: '38.2% top', scrub: 1 },
     });
   };
   syncProps();
@@ -154,7 +156,7 @@ function smoothScroll() {
       lenis?.destroy();
       lenis = null;
     } else if (!lenis) {
-      lenis = new Lenis({ lerp: 0.12 });
+      lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
       lenis.on('scroll', ScrollTrigger.update);
     }
   };
