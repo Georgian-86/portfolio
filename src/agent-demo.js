@@ -3,10 +3,11 @@
 // Under reduced motion it shows the end state with no scrub.
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { easeOut } from './ui.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+const EASE = easeOut; // cubic-bezier(0.16,1,0.3,1); GSAP does not parse CSS bezier strings
 
 export function mountAgentDemo(el) {
   const rq = matchMedia('(prefers-reduced-motion: reduce)');

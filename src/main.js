@@ -116,9 +116,15 @@ function renderHero() {
           <a class="btn btn--ghost d-only" href="#contact">${icon.calendar}<span>${esc(h.secondaryCta)}</span></a>
         </div>
         <p class="hero__status d-only">${status('Online · usually replies within')}</p>
+        <p class="hero__cue label" aria-hidden="true">${esc(h.scrollCue)} <span class="hero__cue-arrow">↓</span></p>
       </div>
     </div>`;
   mountFilm($('[data-film]', el), h.film);
+  // The scroll cue fades once the visitor starts scrolling (and comes back at the very top).
+  const cue = $('.hero__cue', el);
+  const syncCue = () => cue.classList.toggle('is-gone', scrollY > 8);
+  addEventListener('scroll', syncCue, { passive: true });
+  syncCue();
   // Live props fade out by the first snap keyframe (38.2%) while the film tidies the desk.
   let fade = null;
   const syncProps = () => {

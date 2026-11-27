@@ -27,7 +27,8 @@ export const sections = {
     subMobile: 'I’m Golu. I turn the mess into simple systems that win you clients.',
     subDesktop: 'I’m Golu. I turn missed calls, sticky notes and messy sheets into calm systems that win you clients.',
     secondaryCta: 'Book a call',
-    film: { name: 'hero', desktop: 188, mobile: 190 },
+    film: { name: 'hero', desktop: 188, mobile: 190, intro: 0.382 }, // autoplays to the first snap keyframe
+    scrollCue: 'Scroll',
     // Decorative props that sit on the desk film and fade as it tidies.
     props: [
       { kind: 'chat', id: 'riya', initials: 'RK', title: 'Riya · WhatsApp', text: 'Still available? Price?', badge: '14', where: 'both' },

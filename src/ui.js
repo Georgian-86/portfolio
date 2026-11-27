@@ -11,3 +11,16 @@ export const icon = {
   tick: '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
   mark: '<svg class="mark" width="20" height="22" viewBox="0 0 20 22" aria-hidden="true"><text x="0" y="10" font-family="Inter, sans-serif" font-weight="600" font-size="12" fill="currentColor">G</text><text x="8" y="21" font-family="Inter, sans-serif" font-weight="600" font-size="12" fill="currentColor">K</text></svg>',
 };
+
+// CSS-style cubic-bezier easing for GSAP (GSAP does not parse "cubic-bezier()" strings).
+export function cubicBezier(x1, y1, x2, y2) {
+  const at = (a, b, t) => 3 * a * t * (1 - t) ** 2 + 3 * b * t * t * (1 - t) + t ** 3;
+  return (x) => {
+    if (x <= 0 || x >= 1) return x;
+    let lo = 0, hi = 1, t = x;
+    for (let i = 0; i < 24; i++) { t = (lo + hi) / 2; if (at(x1, x2, t) < x) lo = t; else hi = t; }
+    return at(y1, y2, t);
+  };
+}
+// The site's motion ease: cubic-bezier(0.16, 1, 0.3, 1).
+export const easeOut = cubicBezier(0.16, 1, 0.3, 1);

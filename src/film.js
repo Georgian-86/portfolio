@@ -6,6 +6,7 @@
 // - Under reduced motion it fetches and shows only the last frame, with no scrub.
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { easeOut } from './ui.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,7 +19,8 @@ const BASE = import.meta.env.BASE_URL;
 const frameUrl = (name, set, i) => `${BASE}film/${name}/${set}/frame_${String(i).padStart(4, '0')}.webp`;
 
 // `trigger` (optional) is the element whose scroll drives the scrub; it defaults to the enclosing section.
-export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 'bottom bottom', trigger }) {
+// `intro` (optional, 0–1) autoplays the film to that point after load; scroll continues from there.
+export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 'bottom bottom', trigger, intro = 0, introDuration = 2.5 }) {
   const mq = matchMedia(MOBILE_QUERY);
   const rq = matchMedia(REDUCED_QUERY);
 
@@ -48,6 +50,9 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   let progress = reduced ? 1 : 0;
   let tween = null;
   let near = false; // within ~1 viewport of the screen (IntersectionObserver)
+  let scrollP = 0; // scrub progress from ScrollTrigger
+  let introA = 0; // autoplay intro offset (0 → intro)
+  let introTween = null;
 
   const current = () => Math.round(progress * (count - 1));
 
@@ -66,12 +71,17 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     const cs = getComputedStyle(el);
     const ax = parseFloat(cs.getPropertyValue('--film-x'));
     const ay = parseFloat(cs.getPropertyValue('--film-y'));
+    // --film-fit: "contain" (default) or "cover". Cover must be anchored at the watermark
+    // corner (--film-x/--film-y = 1) so the Flow watermark is never cropped.
+    const fit = cs.getPropertyValue('--film-fit').trim() === 'cover' ? 'cover' : 'contain';
     const W = canvas.width, H = canvas.height;
-    // Contain-fit so the Flow watermark corner is never cropped.
-    const s = Math.min(W / bmp.width, H / bmp.height);
+    const s = (fit === 'cover' ? Math.max : Math.min)(W / bmp.width, H / bmp.height);
     const dw = bmp.width * s, dh = bmp.height * s;
+    const x = (W - dw) * (isNaN(ax) ? 0.5 : ax), y = (H - dh) * (isNaN(ay) ? 0 : ay);
     ctx.clearRect(0, 0, W, H);
-    ctx.drawImage(bmp, (W - dw) * (isNaN(ax) ? 0.5 : ax), (H - dh) * (isNaN(ay) ? 0 : ay), dw, dh);
+    ctx.drawImage(bmp, x, y, dw, dh);
+    el.dataset.fit = fit;
+    el.dataset.draw = JSON.stringify({ x: Math.round(x), y: Math.round(y), w: Math.round(dw), h: Math.round(dh), cw: W, ch: H });
   }
 
   function nearestDecoded(i) {
@@ -206,22 +216,52 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     return true;
   }
 
+  // Film progress = intro offset + scroll progress over the rest. The intro offset only grows,
+  // so handing over from the autoplay intro to the scroll scrub never jumps back.
+  function update() {
+    progress = reduced ? 1 : introA + scrollP * (1 - introA);
+    ensureWindow();
+    render();
+  }
+
   function scrub() {
     tween?.scrollTrigger?.kill();
     tween?.kill();
     tween = null;
     if (reduced) return;
-    const state = { p: progress };
+    const state = { p: scrollP };
     tween = gsap.to(state, {
       p: 1,
       ease: 'none',
       scrollTrigger: { trigger: trigger || el.closest('section') || el, start, end, scrub: 0.4 },
       onUpdate: () => {
-        progress = state.p;
-        ensureWindow();
-        render();
+        scrollP = state.p;
+        update();
       },
     });
+  }
+
+  // Optional autoplay intro: after the page loads, play forward to `intro` (0–1) on its own,
+  // so the film visibly moves before the visitor scrolls.
+  function playIntro() {
+    if (!intro || reduced) return;
+    if (scrollY > innerHeight) { // arrived mid-page: no intro, just start from its end state
+      introA = intro;
+      el.dataset.intro = 'done';
+      return update();
+    }
+    const go = () => {
+      if (reduced) return;
+      el.dataset.intro = 'playing';
+      const o = { a: introA };
+      introTween = gsap.to(o, {
+        a: intro, duration: introDuration, ease: easeOut, delay: 0.15,
+        onUpdate: () => { introA = o.a; update(); },
+        onComplete: () => { el.dataset.intro = 'done'; },
+      });
+    };
+    if (document.readyState === 'complete') go();
+    else addEventListener('load', go, { once: true });
   }
 
   const onResize = () => {
@@ -230,15 +270,18 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   };
   const onReduced = () => {
     reduced = rq.matches;
+    introTween?.kill();
+    if (intro) { introA = intro; el.dataset.intro = 'done'; }
     scrub();
-    if (reduced) progress = 1;
-    else progress = tween?.scrollTrigger?.progress ?? 0;
+    scrollP = tween?.scrollTrigger?.progress ?? 0;
+    progress = reduced ? 1 : introA + scrollP * (1 - introA);
     restart();
     render();
   };
 
   pickSet();
   scrub();
+  playIntro();
 
   // Only fetch and decode while the film is within about one viewport of the screen.
   const io = new IntersectionObserver(
@@ -268,6 +311,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
       rq.removeEventListener('change', onReduced);
       tween?.scrollTrigger?.kill();
       tween?.kill();
+      introTween?.kill();
       for (const bmp of bitmaps.values()) bmp.close();
       shown?.close();
       bitmaps.clear();

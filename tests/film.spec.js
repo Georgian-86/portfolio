@@ -139,3 +139,73 @@ test('far-away films drop their compressed frames too', async ({ page }) => {
   await page.evaluate(() => scrollTo(0, document.querySelector('[data-sec="03"]').offsetTop));
   await expect.poll(async () => Number(await hero.getAttribute('data-blobs'))).toBe(0);
 });
+
+// ── Hero intro autoplay + cover fit (live-site feedback) ──────────
+test('at 1920x880 the hero film plays forward on its own, without scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 880 });
+  await page.goto('/');
+  const hero = page.locator('[data-sec="01"] .film');
+  await expect.poll(async () => Number(await hero.getAttribute('data-frame')), { timeout: 8000 }).toBeGreaterThanOrEqual(60);
+  await expect(hero).toHaveAttribute('data-intro', 'done', { timeout: 8000 });
+  expect(await page.evaluate(() => scrollY)).toBe(0);
+});
+
+test('at 1920x880 scrolling 300px after the intro advances the frame (no jump back)', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 880 });
+  await page.goto('/');
+  const hero = page.locator('[data-sec="01"] .film');
+  await expect(hero).toHaveAttribute('data-intro', 'done', { timeout: 8000 });
+  const f0 = Number(await hero.getAttribute('data-frame'));
+  await page.mouse.move(960, 500);
+  await page.mouse.wheel(0, 300);
+  await expect.poll(async () => Number(await hero.getAttribute('data-frame'))).toBeGreaterThan(f0 + 5);
+});
+
+test('the "Scroll" cue shows at rest and fades once scrolling starts', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const cue = page.locator('[data-sec="01"] .hero__cue');
+  await expect(cue).toBeVisible();
+  await expect(cue).toContainText('Scroll');
+  await page.evaluate(() => scrollTo(0, 200));
+  await expect.poll(() => cue.evaluate((el) => Number(getComputedStyle(el).opacity))).toBeLessThan(0.1);
+});
+
+for (const w of [1440, 1920, 2560]) {
+  test(`at ${w}px the hero film fills the stage edge to edge (no seam), watermark corner drawn`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: 880 });
+    await page.goto('/');
+    const hero = page.locator('[data-sec="01"] .film');
+    await expect(hero).toHaveAttribute('data-fit', 'cover');
+    await expect.poll(() => hero.evaluate((el) => {
+      const c = el.querySelector('canvas');
+      const ctx = c.getContext('2d');
+      const px = (x, y) => ctx.getImageData(x, y, 1, 1).data[3];
+      // Left edge, middle, and the bottom-right (watermark) corner are all painted.
+      return px(1, c.height >> 1) > 0 && px(c.width >> 1, c.height >> 1) > 0 && px(c.width - 2, c.height - 2) > 0;
+    })).toBe(true);
+    // Cover anchored bottom-right: the frame's right and bottom edges sit on the stage's edges.
+    const r = await hero.evaluate((el) => JSON.parse(el.dataset.draw));
+    expect(Math.abs(r.x + r.w - r.cw)).toBeLessThanOrEqual(1);
+    expect(Math.abs(r.y + r.h - r.ch)).toBeLessThanOrEqual(1);
+    expect(r.x).toBeLessThanOrEqual(0);
+  });
+}
+
+for (const id of ['02', '04']) {
+  test(`at 1920px the ${id} film covers its stage anchored bottom-right (no seam)`, async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 880 });
+    await page.goto('/');
+    const film = page.locator(`[data-sec="${id}"] .film`);
+    await page.evaluate((id) => {
+      const t = document.querySelector(`[data-sec="${id}"] .tangle__film-track`);
+      scrollTo(0, t.getBoundingClientRect().top + scrollY + t.offsetHeight * 0.3);
+    }, id);
+    await expect(film).toHaveAttribute('data-fit', 'cover', { timeout: 8000 });
+    const r = await film.evaluate((el) => JSON.parse(el.dataset.draw));
+    expect(Math.abs(r.x + r.w - r.cw)).toBeLessThanOrEqual(1);
+    expect(Math.abs(r.y + r.h - r.ch)).toBeLessThanOrEqual(1);
+    expect(r.x).toBeLessThanOrEqual(0);
+    expect(r.y).toBeLessThanOrEqual(0);
+  });
+}
