@@ -1,256 +1,157 @@
+import './tokens.css';
 import './style.css';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { brand, works, services, process, flow } from './config.js';
-import { mockup } from './mockups.js';
-import { FrameSequence } from './sequence.js';
+import { brand, sections, nav, waLink } from './content.js';
+import { mountFilm } from './film.js';
 
 gsap.registerPlugin(ScrollTrigger);
+
 const $ = (s, el = document) => el.querySelector(s);
-const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const isMobile = () => matchMedia('(max-width: 820px)').matches;
-const pad = (n) => String(n).padStart(2, '0');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const tbc = (v) => (v === 'TBC' ? '<span class="tbc">TBC</span>' : esc(v));
 
-/* ───────────── Static content ───────────── */
-const wa = `https://wa.me/${brand.whatsapp}?text=${encodeURIComponent(`Hello ${brand.name}, I'd like to discuss a project.`)}`;
-$$('[data-whatsapp]').forEach((a) => (a.href = wa));
-$$('[data-calendly]').forEach((a) => (a.href = brand.calendly));
-$$('[data-email]').forEach((a) => { a.href = `mailto:${brand.email}`; a.textContent = brand.email; });
-$$('[data-brand]').forEach((el) => (el.textContent = brand.name));
-$$('[data-volume]').forEach((el) => (el.textContent = brand.volume));
-$$('[data-location]').forEach((el) => (el.textContent = brand.location));
-const years = works.map((w) => +w.year).filter(Boolean);
-$$('[data-years]').forEach((el) => (el.textContent = years.length ? `${Math.min(...years)}—${Math.max(...years)}` : ''));
-$('#year').textContent = new Date().getFullYear();
-$('#socials').innerHTML = Object.entries(brand.socials).map(([k, v]) => `<a href="${v}" target="_blank" rel="noopener">${k}</a>`).join('');
+// Inline icons (stand-ins: the Figma asset host is not reachable from the build environment).
+const icon = {
+  whatsapp: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.7 11.7 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>',
+  send: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  calendar: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g></svg>',
+  missed: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3l1.5 4-2 1.3a11 11 0 0 0 5.2 5.2l1.3-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/><path d="m15 4 5 5M20 4l-5 5"/></g></svg>',
+  mark: '<svg class="mark" width="20" height="22" viewBox="0 0 20 22" aria-hidden="true"><text x="0" y="10" font-family="Inter, sans-serif" font-weight="600" font-size="12" fill="currentColor">G</text><text x="8" y="21" font-family="Inter, sans-serif" font-weight="600" font-size="12" fill="currentColor">K</text></svg>',
+};
 
-$('#servicesList').innerHTML = services.map((s) => `
-  <li class="reveal"><div class="index__row">
-    <h3>${s.title}</h3>
-    <span class="index__tags">${s.tags.map((t) => `<span>${t}</span>`).join('')}</span>
-    <p>${s.line}</p>
-  </div></li>`).join('');
+const status = (text = 'Online · replies within') =>
+  `<span class="status"><span class="status__dot" aria-hidden="true"></span><span class="label">${esc(text)}</span> ${tbc(brand.replyTime)}</span>`;
 
-$('#steps').innerHTML = process.map((p, i) => `
-  <li class="reveal"><span class="n">${pad(i + 1)}</span><h3>${p.k}</h3><p>${p.t}</p></li>`).join('');
+const progress = () =>
+  `<span class="untangled" aria-label="Untangled 0 of 4"><span class="label">Untangled 0/4</span><span class="untangled__segs" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>`;
 
-/* ───────────── The book ───────────── */
-const N = works.length;
-const pageNo = { story: (k) => 4 + 2 * k, visual: (k) => 5 + 2 * k };
-
-const head = (l, r) => `<div class="page__head rv"><span class="lbl">${l}</span><span class="lbl">${r}</span></div>`;
-const foot = (n, extra = '') => `<div class="page__foot">${extra || '<span></span>'}<span class="page__num">${n}</span></div>`;
-
-const cover = () => `
-  <div class="face face--front cover">
-    <div class="cover__frame"></div>
-    <div class="cover__inner">
-      <div class="cover__mono">${brand.monogram}</div>
-      <div class="cover__name">${brand.name}</div>
-      <div class="cover__sub">Selected Works</div>
-      <div class="cover__vol">${brand.volume} · ${new Date().getFullYear()}</div>
+function renderHeader() {
+  $('[data-hdr]').innerHTML = `
+    <a class="hdr__brand" href="#main" aria-label="${esc(brand.fullName)}, back to top">${icon.mark}</a>
+    <div class="hdr__id">
+      <div class="hdr__row">
+        <span class="hdr__name"><span class="m-only">${esc(brand.name)}</span><span class="d-only">${esc(brand.fullName)}</span></span>
+        <span class="m-only">${progress()}</span>
+      </div>
+      ${status()}
     </div>
-  </div>`;
-
-const foreword = () => `
-  <div class="face face--back page page--left">
-    ${head('Foreword', brand.name)}
-    <h3 class="rv">A studio for the <em>quiet machinery</em> of business.</h3>
-    <p class="prose rv">${brand.foreword}</p>
-    <p class="sig rv">— ${brand.signature}</p>
-    ${foot(2)}
-  </div>`;
-
-const contents = () => `
-  <div class="face face--front page page--right">
-    ${head('Contents', `${N} works`)}
-    <h3 class="rv">Contents</h3>
-    <ol class="toc">
-      ${works.map((w, k) => `<li class="rv"><a href="#" data-spread="${k + 1}">
-        <span class="n">${pad(pageNo.story(k))}</span><span class="t">${w.title}</span><span class="c">${w.category}</span></a></li>`).join('')}
-      <li class="rv"><a href="#" data-spread="${N + 1}"><span class="n">${pad(pageNo.story(N))}</span><span class="t">Colophon</span><span class="c">Contact</span></a></li>
-    </ol>
-    ${foot(3)}
-  </div>`;
-
-const story = (w, k) => `
-  <div class="face face--back page page--left story">
-    ${head(`No. ${pad(k + 1)} — ${w.category}`, w.sample ? '<span class="sample">Sample</span>' : w.year)}
-    <div class="story__num rv">${pad(k + 1)}</div>
-    <h3 class="rv">${w.title}</h3>
-    <p class="story__client rv">${w.client}</p>
-    <p class="story__summary rv">${w.summary}</p>
-    <dl class="story__meta rv">
-      <div><dt>Role</dt><dd>${w.role}</dd></div><div><dt>Stack</dt><dd>${w.stack}</dd></div>
-      <div><dt>Year</dt><dd>${w.year}</dd></div><div><dt>Outcome</dt><dd>${w.outcome}</dd></div>
-    </dl>
-    ${foot(pageNo.story(k), w.link ? `<a class="story__link" href="${w.link}" target="_blank" rel="noopener">View project ↗</a>` : '')}
-  </div>`;
-
-const media = (w) => w.video
-  ? `<video src="${w.video}" muted loop playsinline autoplay preload="metadata"></video>`
-  : w.image ? `<img src="${w.image}" alt="${w.title}" loading="lazy" />` : mockup(w);
-
-const visual = (w, k) => `
-  <div class="face face--front page page--right visual">
-    <div class="plate" style="--tone:${w.tone}"><div class="plate__inner">${media(w)}</div></div>
-    <div class="plate__cap rv"><span class="t">${w.title}</span><span class="page__num">${pageNo.visual(k)}</span></div>
-  </div>`;
-
-const colophon = () => `
-  <div class="face face--back page page--left">
-    ${head('Colophon', 'Fin.')}
-    <h3 class="rv">That's the story <em>so far.</em></h3>
-    <p class="prose rv">Every project here started as a conversation. Websites, stores, AI agents, automations, apps and the infrastructure underneath — designed to work as one system.</p>
-    <p class="sig rv">Set in Cormorant Garamond &amp; Inter.</p>
-    ${foot(pageNo.story(N))}
-  </div>`;
-
-const finale = () => `
-  <div class="book__base page page--right finale">
-    ${head('The next chapter', '')}
-    <h3>Yours, <em>perhaps?</em></h3>
-    <p class="prose">Tell me what you want to build. I reply within a day.</p>
-    <div class="acts"><a href="${wa}" target="_blank" rel="noopener">WhatsApp</a><a href="${brand.calendly}" target="_blank" rel="noopener">Book a call</a></div>
-    ${foot(pageNo.visual(N))}
-  </div>`;
-
-const leavesHTML = [
-  cover() + foreword(),
-  contents() + (N ? story(works[0], 0) : colophon()),
-  ...works.map((w, k) => visual(w, k) + (k < N - 1 ? story(works[k + 1], k + 1) : colophon())),
-];
-const book = $('#book');
-book.innerHTML = finale() + leavesHTML.map((h, i) => `<div class="leaf" style="z-index:${leavesHTML.length - i + 2}">${h}</div>`).join('');
-const leaves = $$('.leaf', book);
-const spreadNames = ['Foreword · Contents', ...works.map((w) => w.title), 'Colophon'];
-
-/* ───────────── Smooth scroll ───────────── */
-const lenis = new Lenis({ duration: 1.3, easing: (t) => 1 - Math.pow(1 - t, 4) });
-lenis.on('scroll', ScrollTrigger.update);
-gsap.ticker.add((time) => lenis.raf(time * 1000));
-gsap.ticker.lagSmoothing(0);
-$$('a[href^="#"]:not([data-spread])').forEach((a) => a.addEventListener('click', (e) => {
-  const t = $(a.getAttribute('href'));
-  if (t) { e.preventDefault(); lenis.scrollTo(t, { duration: 1.6 }); }
-}));
-
-/* ───────────── Optional Google Flow intro ───────────── */
-let seq = null;
-if (flow.frames > 0) {
-  seq = new FrameSequence($('#flowCanvas'), flow);
-  document.body.classList.add('has-flow');
+    <ul class="hdr__links" role="list">
+      ${nav.slice(0, 3).map((l) => `<li><a href="${l.href}">${esc(l.label)}</a></li>`).join('')}
+    </ul>
+    <span class="hdr__progress label">Untangled 0/4</span>
+    <a class="btn btn--primary hdr__cta" href="${waLink()}" target="_blank" rel="noopener">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>
+    <button class="hdr__menu" type="button" aria-controls="menu" aria-expanded="false" aria-label="Open menu"><i></i><i></i><i></i></button>`;
+  $('#menu').innerHTML = `
+    <ul role="list">${nav.map((l) => `<li><a href="${l.href}">${esc(l.label)}</a></li>`).join('')}</ul>
+    <a class="btn btn--primary" href="${waLink()}" target="_blank" rel="noopener">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>`;
 }
 
-/* ───────────── Book choreography ───────────── */
-function buildBook() {
-  const mobile = isMobile();
-  const allRv = $$('.rv', book);
-  gsap.set(allRv, { opacity: 0, y: 14 });
-  // closed: cover (the right half) centred — at scale s the shift is −25% × s
-  gsap.set(book, { rotateX: 22, scale: 0.6, yPercent: 14, xPercent: -15 });
-  gsap.set(leaves, { rotateY: 0, '--shade': 0 });
-  leaves.forEach((l, i) => gsap.set(l, { zIndex: leaves.length - i + 2 }));
-
-  const hold = mobile ? 0.7 : 1;
-  const units = (flow.frames ? 3 : 0) + 2 + leaves.length * (1.6 + hold) * (mobile ? 1.6 : 1);
-  const tl = gsap.timeline({
-    defaults: { ease: 'power2.inOut' },
-    scrollTrigger: {
-      trigger: '#stage', start: 'top top', end: () => `+=${innerHeight * units * 0.55}`,
-      pin: true, scrub: 1, anticipatePin: 1, invalidateOnRefresh: true,
-      onUpdate: () => updateFolio(tl),
-    },
+function wireMenu() {
+  const btn = $('.hdr__menu');
+  const menu = $('#menu');
+  const set = (open) => {
+    menu.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    document.documentElement.classList.toggle('menu-open', open);
+  };
+  btn.addEventListener('click', () => set(menu.hidden));
+  menu.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !menu.hidden) { set(false); btn.focus(); }
   });
+  matchMedia('(min-width: 1100px)').addEventListener('change', () => set(false));
+}
 
-  if (seq) {
-    tl.to(seq, { frame: flow.frames - 1, duration: 3, ease: 'none', onUpdate: () => seq.draw() })
-      .to('#flowCanvas', { opacity: 0, duration: 0.6 });
-  }
-
-  // 1 — the book rises from the desk
-  tl.to('.stage__intro', { opacity: 0, yPercent: -30, duration: 0.8 }, seq ? '<' : 0)
-    .to('#hint', { opacity: 0, duration: 0.4 }, '<')
-    .to(book, { rotateX: 0, scale: 1, yPercent: 0, xPercent: -25, duration: 1.2, ease: 'power3.inOut' }, '<0.1')
-    .addLabel('spread0');
-
-  // 2 — every leaf turns; the spread it reveals then fills in
-  leaves.forEach((leaf, i) => {
-    const at = `turn${i}`;
-    tl.addLabel(at);
-    tl.to(leaf, { rotateY: -180, duration: 1.6 }, at)
-      .to(leaf, { skewY: -1.5, '--shade': 0.55, duration: 0.8, ease: 'power1.in' }, at)
-      .to(leaf, { skewY: 0, '--shade': 0, duration: 0.8, ease: 'power1.out' }, `${at}+=0.8`)
-      .set(leaf, { zIndex: i + 3 }, `${at}+=0.8`);
-
-    if (i === 0 && !mobile) tl.to(book, { xPercent: 0, duration: 1.6 }, at);
-    if (mobile) tl.to(book, { xPercent: 25, duration: 1 }, `${at}+=0.6`);
-
-    const next = leaves[i + 1];
-    const landed = [...$$('.face--back .rv', leaf), ...(next ? $$('.face--front .rv', next) : [])];
-    tl.to(landed, { opacity: 1, y: 0, stagger: 0.06, duration: 0.6, ease: 'power2.out' }, `${at}+=1.1`);
-    const plate = next && $('.plate__inner', next);
-    if (plate) tl.fromTo(plate, { scale: 1.12 }, { scale: 1, duration: 1.6 + hold * 2, ease: 'none' }, `${at}+=0.4`);
-    tl.addLabel(`spread${i + 1}`, `${at}+=1.4`);
-
-    if (mobile) {
-      tl.to({}, { duration: hold });
-      tl.to(book, { xPercent: -25, duration: 1 });
-    }
-    tl.to({}, { duration: hold });
-  });
-
-  // Contents links jump to their spread
-  $$('[data-spread]', book).forEach((a) => a.addEventListener('click', (e) => {
+function renderBar() {
+  const bar = $('[data-bar]');
+  bar.innerHTML = `
+    <label class="bar__field">
+      <span class="bar__icon">${icon.whatsapp}</span>
+      <span class="sr-only">Your message</span>
+      <input name="msg" type="text" autocomplete="off" enterkeyhint="send" placeholder="${esc(brand.barPlaceholder)}" />
+      <button class="bar__send" type="submit" aria-label="Send on WhatsApp">${icon.send}</button>
+    </label>`;
+  bar.addEventListener('submit', (e) => {
     e.preventDefault();
-    const st = tl.scrollTrigger;
-    const t = tl.labels[`spread${a.dataset.spread}`] + 0.6;
-    lenis.scrollTo(st.start + (t / tl.duration()) * (st.end - st.start), { duration: 2 });
-  }));
-  return tl;
-}
-
-function updateFolio(tl) {
-  const t = tl.time();
-  let idx = -1;
-  for (let i = 0; i <= leaves.length; i++) if (tl.labels[`turn${i}`] !== undefined && t >= tl.labels[`turn${i}`] + 0.8) idx = i;
-  const chapter = idx < 0 ? 'Cover' : spreadNames[idx];
-  const left = idx < 0 ? null : 2 + idx * 2;
-  const num = idx < 0 ? '00' : `${pad(left)}—${pad(left + 1)}`;
-  if ($('#chapter').textContent !== chapter) $('#chapter').textContent = chapter;
-  $('#folioNum').textContent = num;
-}
-
-/* ───────────── Sections ───────────── */
-function buildSections() {
-  ScrollTrigger.batch('.reveal', {
-    start: 'top 88%',
-    onEnter: (els) => gsap.to(els, { opacity: 1, y: 0, stagger: 0.08, duration: 1.2, ease: 'expo.out', overwrite: true }),
+    const text = bar.msg.value.trim() || brand.defaultMessage;
+    window.open(waLink(text), '_blank', 'noopener');
+    bar.reset();
   });
-  $$('.h2, .contact__title').forEach((el) => gsap.from(el, {
-    yPercent: 30, opacity: 0, duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 85%' },
-  }));
 }
 
-/* Warm light follows the cursor over the stage */
-const light = $('.stage__light');
-const L = { x: 50, y: 46, tx: 50, ty: 46 };
-addEventListener('pointermove', (e) => { L.tx = (e.clientX / innerWidth) * 100; L.ty = (e.clientY / innerHeight) * 100; });
-gsap.ticker.add(() => {
-  L.x += (L.tx - L.x) * 0.05; L.y += (L.ty - L.y) * 0.05;
-  light.style.setProperty('--lx', `${L.x}%`); light.style.setProperty('--ly', `${L.y}%`);
-});
+function prop(p) {
+  const cls = `prop prop--${p.kind} prop--${p.id}${p.where === 'desktop' ? ' d-only' : ''}`;
+  if (p.kind === 'sticky') return `<div class="${cls}"><span class="prop__tape"></span><p>${esc(p.text)}</p></div>`;
+  if (p.kind === 'call') {
+    return `<div class="${cls}"><span class="prop__icon${p.alert ? ' is-alert' : ''}">${icon.missed}</span>
+      <span class="prop__text"><b${p.alert ? ' class="is-alert"' : ''}>${esc(p.title)}</b><span>${esc(p.text)}</span></span></div>`;
+  }
+  if (p.kind === 'sheet') {
+    return `<div class="${cls}"><p class="prop__sheet-hd label"><span>${esc(p.title)}</span><span>#REF!</span></p>
+      <table>${p.rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
+  }
+  const text = p.textMobile
+    ? `<span class="d-only">${esc(p.text)}</span><span class="m-only">${esc(p.textMobile)}</span>`
+    : esc(p.text);
+  return `<div class="${cls}"><span class="prop__avatar">${esc(p.initials)}</span>
+    <span class="prop__text"><b>${esc(p.title)}</b><span>${text}</span></span><span class="prop__badge label">${esc(p.badge)}</span></div>`;
+}
 
-/* ───────────── Boot ───────────── */
-(async () => {
-  await Promise.all([document.fonts?.ready, seq?.load()]);
-  seq?.draw();
-  const mm = gsap.matchMedia();
-  mm.add({ mobile: '(max-width: 820px)', desktop: '(min-width: 821px)' }, () => { buildBook(); });
-  buildSections();
-  ScrollTrigger.refresh();
-  gsap.from('.masthead > *', { y: -20, opacity: 0, stagger: 0.08, duration: 1.2, ease: 'expo.out' });
-  gsap.from('.stage__intro > *', { y: 30, opacity: 0, stagger: 0.1, duration: 1.4, ease: 'expo.out' });
-  gsap.from('.book-wrap', { y: 80, opacity: 0, duration: 1.8, ease: 'expo.out', delay: 0.15 });
-})();
+function renderHero() {
+  const h = sections.hero;
+  const el = $('[data-sec="01"]');
+  el.innerHTML = `
+    <div class="hero__stage">
+      <div class="hero__film" data-film></div>
+      <div class="hero__props" aria-hidden="true">${h.props.map(prop).join('')}</div>
+      <div class="hero__copy">
+        <p class="hero__kicker label d-only">${esc(h.kicker)}</p>
+        <h1 id="hero-h1" class="hero__h1">${h.h1.map((l) => `<span class="is-${l.tone}">${esc(l.text)}</span>`).join(' ')}</h1>
+        <p class="hero__sub"><span class="m-only">${esc(h.subMobile)}</span><span class="d-only">${esc(h.subDesktop)}</span></p>
+        <div class="hero__ctas">
+          <a class="btn btn--primary" href="${waLink()}" target="_blank" rel="noopener">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>
+          <a class="btn btn--ghost d-only" href="#contact">${icon.calendar}<span>${esc(h.secondaryCta)}</span></a>
+        </div>
+        <p class="hero__status d-only">${status('Online · usually replies within')}</p>
+      </div>
+    </div>`;
+  mountFilm($('[data-film]', el), h.film);
+  if (!reduced) {
+    // Live props fade out by the first snap keyframe (38.2%) while the film tidies the desk.
+    gsap.to($('.hero__props', el), {
+      autoAlpha: 0,
+      y: -24,
+      ease: 'none',
+      scrollTrigger: { trigger: el, start: 'top top', end: '38.2% top', scrub: 0.4 },
+    });
+  }
+}
+
+function renderCta() {
+  const c = sections.cta;
+  $('[data-sec="09"]').innerHTML = `
+    <div class="cta-sec__inner">
+      <h2 id="cta-h2" class="cta-sec__h2">${esc(c.h2)}</h2>
+      <p class="cta-sec__body">${esc(c.body)}</p>
+      <a class="btn btn--primary cta" href="${waLink()}" target="_blank" rel="noopener">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>
+    </div>`;
+}
+
+function smoothScroll() {
+  if (reduced) return;
+  const lenis = new Lenis({ lerp: 0.12 });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((t) => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
+
+renderHeader();
+wireMenu();
+renderBar();
+renderHero();
+renderCta();
+smoothScroll();

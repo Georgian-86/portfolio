@@ -2,89 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexora — Selected Works</title>
-  <meta name="description" content="A book of selected works: AI agents, WhatsApp agents, automations, websites, Shopify, WordPress, apps, DevOps and SEO." />
-  <meta name="theme-color" content="#15120E" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Golu Kumar · Less chaos. More clients.</title>
+  <meta name="description" content="Golu Kumar turns missed calls, sticky notes and messy sheets into calm systems that win you clients: AI agents, automation and product." />
+  <meta name="theme-color" content="#F3F1EC" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="/film/hero/mobile/frame_0001.webp" media="(max-width: 767px), (max-aspect-ratio: 1/1)" />
+  <link rel="preload" as="image" href="/film/hero/desktop/frame_0001.webp" media="(min-width: 768px) and (min-aspect-ratio: 1/1)" />
 </head>
 <body>
-  <header class="masthead">
-    <a href="#top" class="masthead__brand" data-brand></a>
-    <nav class="masthead__nav">
-      <a href="#top">Works</a>
-      <a href="#services">Services</a>
-      <a href="#process">Process</a>
-      <a href="#contact">Contact</a>
-    </nav>
-    <span class="masthead__vol" data-volume></span>
-  </header>
+  <a class="skip" href="#main">Skip to content</a>
 
-  <main id="top">
-    <!-- THE BOOK -->
-    <section class="stage" id="stage" aria-label="Selected works, presented as a book">
-      <div class="stage__inner">
-        <div class="stage__light" aria-hidden="true"></div>
-        <canvas class="stage__flow" id="flowCanvas" aria-hidden="true"></canvas>
+  <header class="hdr" data-hdr></header>
+  <nav id="menu" class="menu" aria-label="Menu" hidden></nav>
 
-        <div class="stage__intro">
-          <p class="label">Selected works · <span data-years></span></p>
-          <h1 class="stage__title">A book of things<br /><em>I've built.</em></h1>
-        </div>
-
-        <div class="book-wrap">
-          <div class="book" id="book"></div>
-        </div>
-
-        <div class="stage__foot">
-          <span class="label" id="hint">Scroll to open</span>
-          <span class="label folio"><span id="chapter">Cover</span><span class="folio__sep"></span><span id="folioNum">00</span></span>
-        </div>
-      </div>
-    </section>
-
-    <!-- SERVICES -->
-    <section class="section services" id="services">
-      <div class="golden">
-        <div class="golden__minor">
-          <p class="label">§ 01 — Services</p>
-          <h2 class="h2">What I can<br /><em>make for you.</em></h2>
-          <p class="body muted">Nine disciplines under one roof, so the website, the agent, the store and the automations are designed to work together.</p>
-        </div>
-        <ol class="index" id="servicesList"></ol>
-      </div>
-    </section>
-
-    <!-- PROCESS -->
-    <section class="section process" id="process">
-      <div class="golden">
-        <div class="golden__minor">
-          <p class="label">§ 02 — Process</p>
-          <h2 class="h2">How a project<br /><em>unfolds.</em></h2>
-        </div>
-        <ol class="steps" id="steps"></ol>
-      </div>
-    </section>
-
-    <!-- CONTACT -->
-    <section class="contact" id="contact">
-      <p class="label">§ 03 — The next chapter</p>
-      <h2 class="contact__title">Let's write<br /><em>yours.</em></h2>
-      <div class="contact__actions">
-        <a class="btn btn--solid" data-whatsapp target="_blank" rel="noopener">Message on WhatsApp</a>
-        <a class="btn btn--line" data-calendly target="_blank" rel="noopener">Book a call</a>
-      </div>
-      <a class="contact__mail" data-email></a>
-      <footer class="footer">
-        <span>© <span id="year"></span> <span data-brand></span></span>
-        <span class="footer__links" id="socials"></span>
-        <span data-location></span>
-      </footer>
-    </section>
+  <main id="main">
+    <section data-sec="01" class="hero" aria-labelledby="hero-h1"></section>
+    <section data-sec="09" id="contact" class="cta-sec" aria-labelledby="cta-h2"></section>
   </main>
+
+  <form class="bar" data-bar aria-label="Message Golu on WhatsApp"></form>
 
   <script type="module" src="/src/main.js"></script>
 </body>
