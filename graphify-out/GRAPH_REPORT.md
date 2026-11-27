@@ -1,17 +1,17 @@
 # Graph Report - portfolio  (2026-11-27)
 
 ## Corpus Check
-- 21 files · ~27,365 words
+- 22 files · ~28,301 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 2 file(s) not represented in the graph (top: (none) 1, .css 1)
 
 ## Summary
-- 239 nodes · 263 edges · 14 communities (13 shown, 1 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.9)
+- 251 nodes · 286 edges · 16 communities (15 shown, 1 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 3 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1fbbbe37`
+- Built from commit: `5bfc7080`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -24,45 +24,47 @@
 - 3. The workflow (idea → launched portfolio)
 - Design — Three portfolio concepts in Figma
 - package.json
-- mountFilm
+- Review Focus
 - Review Focus
 - CLAUDE.md
 - Review Focus
 - Google Flow → scroll animation
+- mountFilm
 - Nexora — Selected Works
+- bar.js
 
 ## God Nodes (most connected - your core abstractions)
-1. `Design — Three portfolio concepts in Figma` - 13 edges
-2. `mountFilm()` - 11 edges
+1. `mountFilm()` - 16 edges
+2. `Design — Three portfolio concepts in Figma` - 13 edges
 3. `Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"` - 11 edges
-4. `Portfolio Research Playbook — tools, connectors, skills & prompts` - 10 edges
-5. `6. Prompt library` - 10 edges
+4. `6. Prompt library` - 10 edges
+5. `Portfolio Research Playbook — tools, connectors, skills & prompts` - 10 edges
 6. `3. The workflow (idea → launched portfolio)` - 9 edges
 7. `esc()` - 8 edges
-8. `Portfolio Design Guide — from zero to three Figma concepts` - 8 edges
-9. `Video prompt sheet — Concept B v2 "The Untangling"` - 8 edges
+8. `Video prompt sheet — Concept B v2 "The Untangling"` - 8 edges
+9. `Portfolio Design Guide — from zero to three Figma concepts` - 8 edges
 10. `Portfolio Strategy, Workflow & Toolkit` - 7 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline)` --references--> `mountFilm()`  [INFERRED]
   docs/superpowers/plans/2026-11-27-website-build.md → src/film.js
+- `scrub()` --indirect_call--> `progress()`  [INFERRED]
+  src/film.js → src/main.js
 - `renderHero()` --calls--> `mountFilm()`  [EXTRACTED]
   src/main.js → src/film.js
 - `renderBar()` --calls--> `waLink()`  [EXTRACTED]
   src/main.js → src/content.js
 - `renderCta()` --calls--> `waLink()`  [EXTRACTED]
   src/main.js → src/content.js
-- `renderHeader()` --calls--> `waLink()`  [EXTRACTED]
-  src/main.js → src/content.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (14 total, 1 thin omitted)
+## Communities (16 total, 1 thin omitted)
 
 ### Community 0 - "main.js"
-Cohesion: 0.16
-Nodes (18): brand, faqs, nav, sections, services, team, waLink(), work (+10 more)
+Cohesion: 0.15
+Nodes (19): brand, faqs, nav, sections, services, team, waLink(), work (+11 more)
 
 ### Community 1 - "Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation""
 Cohesion: 0.06
@@ -89,12 +91,12 @@ Cohesion: 0.12
 Nodes (16): 10. Left to the builder, 11. Open items (do not block design; marked TBC in the files), 1. Intent — the why, 2. Goals, 3. Non-goals (this phase), 4. Anti-goals (failure even if "done"), 5. Constraints, 6. Content (shared by all three concepts) (+8 more)
 
 ### Community 7 - "package.json"
-Cohesion: 0.09
-Nodes (20): dependencies, gsap@3.13.0, lenis@1.3.11, devDependencies, @playwright/test@^1.63.0, vite@7.1.12, name, private (+12 more)
+Cohesion: 0.10
+Nodes (19): dependencies, gsap@3.13.0, lenis@1.3.11, devDependencies, @playwright/test@^1.63.0, vite@7.1.12, name, private (+11 more)
 
-### Community 8 - "mountFilm"
-Cohesion: 0.17
-Nodes (16): Global Constraints, Portfolio Website Build (Concept B v2) Implementation Plan, Review Focus, Task 1: Foundation: tokens, shell, FrameSequence v2, test harness, Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline), Task 3: Sections 04–09 and menu content (dashboard with the sheet film, StepQ, founding team, services, about, CTA), Task 4: Polish, performance and accessibility pass, frameUrl() (+8 more)
+### Community 8 - "Review Focus"
+Cohesion: 0.25
+Nodes (7): Global Constraints, Portfolio Website Build (Concept B v2) Implementation Plan, Review Focus, Task 1: Foundation: tokens, shell, FrameSequence v2, test harness, Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline), Task 3: Sections 04–09 and menu content (dashboard with the sheet film, StepQ, founding team, services, about, CTA), Task 4: Polish, performance and accessibility pass
 
 ### Community 9 - "Review Focus"
 Cohesion: 0.20
@@ -108,9 +110,17 @@ Nodes (7): Concept B Final ("The Untangling" v2) Implementation Plan, Global Con
 Cohesion: 0.33
 Nodes (5): 1. Make the clip in Flow, 2. Export frames, 3. Switch it on, Google Flow → scroll animation, Using your design inspiration
 
+### Community 13 - "mountFilm"
+Cohesion: 0.28
+Nodes (14): frameUrl(), mountFilm(), decode(), ensureWindow(), fetchFrame(), load(), nearestDecoded(), paint() (+6 more)
+
 ### Community 14 - "Nexora — Selected Works"
 Cohesion: 0.50
 Nodes (3): Make it yours, Nexora — Selected Works, Run
+
+### Community 15 - "bar.js"
+Cohesion: 0.32
+Nodes (5): BAR_H, expectClearsBar(), HDR_H, scrollToEnd(), WIDTHS
 
 ## Knowledge Gaps
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
@@ -118,17 +128,17 @@ Nodes (3): Make it yours, Nexora — Selected Works, Run
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `mountFilm()` connect `mountFilm` to `main.js`, `package.json`?**
-  _High betweenness centrality (0.029) - this node is a cross-community bridge._
+- **Why does `mountFilm()` connect `mountFilm` to `Review Focus`, `main.js`?**
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Should `main.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.14666666666666667 - nodes in this community are weakly interconnected._
+- **Why does `@playwright/test` connect `package.json` to `bar.js`?**
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Should `Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._
-- **Why does `gsap` connect `package.json` to `main.js`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
+- **Why does `gsap` connect `package.json` to `main.js`, `mountFilm`?**
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **Should `Video prompt sheet — Concept B v2 "The Untangling"` be split into smaller, more focused modules?**
   _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
-- **Why does `lenis` connect `package.json` to `main.js`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Should `Portfolio Design Guide — from zero to three Figma concepts` be split into smaller, more focused modules?**
   _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
-- **Should `6. Prompt library` be split into smaller, more focused modules?**
-  _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._

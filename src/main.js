@@ -9,7 +9,7 @@ import { mountFilm } from './film.js';
 gsap.registerPlugin(ScrollTrigger);
 
 const $ = (s, el = document) => el.querySelector(s);
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)');
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const tbc = (v) => (v === 'TBC' ? '<span class="tbc">TBC</span>' : esc(v));
 
@@ -52,18 +52,21 @@ function renderHeader() {
 function wireMenu() {
   const btn = $('.hdr__menu');
   const menu = $('#menu');
-  const set = (open) => {
+  const behind = [$('main'), $('[data-bar]')];
+  const set = (open, { restoreFocus = true } = {}) => {
+    if (menu.hidden === !open) return;
     menu.hidden = !open;
     btn.setAttribute('aria-expanded', String(open));
     btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     document.documentElement.classList.toggle('menu-open', open);
+    behind.forEach((el) => { el.inert = open; });
+    if (open) $('a', menu)?.focus();
+    else if (restoreFocus) btn.focus({ preventScroll: true });
   };
   btn.addEventListener('click', () => set(menu.hidden));
   menu.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
-  addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !menu.hidden) { set(false); btn.focus(); }
-  });
-  matchMedia('(min-width: 1100px)').addEventListener('change', () => set(false));
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+  matchMedia('(min-width: 1100px)').addEventListener('change', (e) => { if (e.matches) set(false, { restoreFocus: false }); });
 }
 
 function renderBar() {
@@ -71,8 +74,7 @@ function renderBar() {
   bar.innerHTML = `
     <label class="bar__field">
       <span class="bar__icon">${icon.whatsapp}</span>
-      <span class="sr-only">Your message</span>
-      <input name="msg" type="text" autocomplete="off" enterkeyhint="send" placeholder="${esc(brand.barPlaceholder)}" />
+      <input name="msg" type="text" autocomplete="off" enterkeyhint="send" placeholder="${esc(brand.barPlaceholder)}" aria-label="${esc(brand.barLabel)}" />
       <button class="bar__send" type="submit" aria-label="Send on WhatsApp">${icon.send}</button>
     </label>`;
   bar.addEventListener('submit', (e) => {
@@ -120,15 +122,24 @@ function renderHero() {
       </div>
     </div>`;
   mountFilm($('[data-film]', el), h.film);
-  if (!reduced) {
-    // Live props fade out by the first snap keyframe (38.2%) while the film tidies the desk.
-    gsap.to($('.hero__props', el), {
+  // Live props fade out by the first snap keyframe (38.2%) while the film tidies the desk.
+  let fade = null;
+  const syncProps = () => {
+    fade?.scrollTrigger?.kill();
+    fade?.kill();
+    fade = null;
+    const props = $('.hero__props', el);
+    gsap.set(props, { clearProps: 'all' });
+    if (reducedQuery.matches) return;
+    fade = gsap.to(props, {
       autoAlpha: 0,
       y: -24,
       ease: 'none',
       scrollTrigger: { trigger: el, start: 'top top', end: '38.2% top', scrub: 0.4 },
     });
-  }
+  };
+  syncProps();
+  reducedQuery.addEventListener('change', syncProps);
 }
 
 function renderCta() {
@@ -142,11 +153,21 @@ function renderCta() {
 }
 
 function smoothScroll() {
-  if (reduced) return;
-  const lenis = new Lenis({ lerp: 0.12 });
-  lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add((t) => lenis.raf(t * 1000));
+  let lenis = null;
+  const tick = (t) => lenis?.raf(t * 1000);
+  const sync = () => {
+    if (reducedQuery.matches) {
+      lenis?.destroy();
+      lenis = null;
+    } else if (!lenis) {
+      lenis = new Lenis({ lerp: 0.12 });
+      lenis.on('scroll', ScrollTrigger.update);
+    }
+  };
+  gsap.ticker.add(tick);
   gsap.ticker.lagSmoothing(0);
+  sync();
+  reducedQuery.addEventListener('change', sync);
 }
 
 renderHeader();

@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "src/main.js": {
-    "mtime": 1795798043.4002838,
-    "seen": 1795798195.7192729,
-    "ast_hash": "d7b1423e80217b9b1792b5aa84909a6a",
+    "mtime": 1795798418.0757477,
+    "seen": 1795798490.4737608,
+    "ast_hash": "47ead746f95090bb18ce97ed856b463e",
     "semantic_hash": ""
   },
   "README.md": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1795798009.7508733,
-    "seen": 1795798195.7193053,
-    "ast_hash": "d7e050485d7b45972055a01e593cd049",
+    "mtime": 1795798435.3579767,
+    "seen": 1795798490.4737985,
+    "ast_hash": "63a5f8ee37fda442807d3de3f9deac95",
     "semantic_hash": ""
   },
   "public/favicon.svg": {
@@ -1242,27 +1242,27 @@
     "semantic_hash": ""
   },
   "src/content.js": {
-    "mtime": 1795797985.5820284,
-    "seen": 1795798195.7192686,
-    "ast_hash": "7beee1cfb449abc011233ccabf4f4616",
+    "mtime": 1795798418.0762687,
+    "seen": 1795798490.4737554,
+    "ast_hash": "4bd2061c990fd35c76fdcaccec10e927",
     "semantic_hash": ""
   },
   "src/film.js": {
-    "mtime": 1795798001.3442814,
-    "seen": 1795798195.7192702,
-    "ast_hash": "8752c78482300fd55b2fe9503f2bdeb3",
+    "mtime": 1795798407.3593106,
+    "seen": 1795798490.4737582,
+    "ast_hash": "8340984ab069ae44620feaaec1a848af",
     "semantic_hash": ""
   },
   "tests/film.spec.js": {
-    "mtime": 1795797722.1211224,
-    "seen": 1795798195.7192752,
-    "ast_hash": "be9bf8cfbdce7dd46c1ad5b2f060858a",
+    "mtime": 1795798343.9019117,
+    "seen": 1795798490.473763,
+    "ast_hash": "deed32bf91470dd01abb8fe62ce9d1a7",
     "semantic_hash": ""
   },
   "tests/layout.spec.js": {
-    "mtime": 1795797722.119816,
-    "seen": 1795798195.719277,
-    "ast_hash": "8a6bda82ac81a31095987419587eedd7",
+    "mtime": 1795798340.4441116,
+    "seen": 1795798490.4737678,
+    "ast_hash": "e326ce71f816d8cadf3cf8b4bc4724ac",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
@@ -6327,6 +6327,12 @@
     "mtime": 1795797540.5802538,
     "seen": 1795798195.7203743,
     "ast_hash": "e8b911643aab1a0fdab9b44d857c0ff8",
+    "semantic_hash": ""
+  },
+  "tests/helpers/bar.js": {
+    "mtime": 1795798340.4300408,
+    "seen": 1795798490.4737656,
+    "ast_hash": "b54ddfc9c0e855077ad5ff098a87a4cc",
     "semantic_hash": ""
   },
   "package-lock.json": {

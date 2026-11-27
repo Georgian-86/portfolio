@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { expectClearsBar, scrollToEnd } from './helpers/bar.js';
 
 const WIDTHS = [320, 360, 390, 414, 768, 1024, 1280, 1440, 1920];
 
@@ -82,12 +83,41 @@ test('bar submit opens WhatsApp with the typed text', async ({ page, context }) 
 test('final CTA (09) clears the pinned bar when scrolled to the end', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await page.waitForTimeout(400);
-  const cta = page.locator('[data-sec="09"] .cta');
-  await expect(cta).toBeVisible();
-  const r = await cta.boundingBox();
-  const ih = await page.evaluate(() => innerHeight);
-  expect(r.y).toBeGreaterThanOrEqual(60);
-  expect(r.y + r.height).toBeLessThanOrEqual(ih - 76);
+  await scrollToEnd(page);
+  await expectClearsBar(page, page.locator('[data-sec="09"] .cta'));
+});
+
+test('bar placeholder is short; "opens WhatsApp" is announced, font stays 16px', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const input = page.locator('form.bar input');
+  await expect(input).toHaveAttribute('placeholder', 'Message Golu');
+  await expect(input).toHaveAccessibleName(/opens WhatsApp/);
+  expect(await input.evaluate((el) => getComputedStyle(el).fontSize)).toBe('16px');
+});
+
+test('open menu makes main and bar inert, focuses first link; close restores focus', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const btn = page.locator('header.hdr button[aria-controls="menu"]');
+  for (const close of ['escape', 'button', 'link']) {
+    await btn.click();
+    await expect(page.locator('#menu')).toBeVisible();
+    expect(await page.evaluate(() => [document.querySelector('main').inert, document.querySelector('form.bar').inert])).toEqual([true, true]);
+    await expect(page.locator('#menu a').first()).toBeFocused();
+    if (close === 'escape') await page.keyboard.press('Escape');
+    if (close === 'button') await btn.click();
+    if (close === 'link') await page.locator('#menu a').first().click();
+    await expect(page.locator('#menu')).toBeHidden();
+    await expect(btn).toBeFocused();
+    expect(await page.evaluate(() => [document.querySelector('main').inert, document.querySelector('form.bar').inert])).toEqual([false, false]);
+  }
+});
+
+test('bar does not sit above the open menu', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.locator('header.hdr button[aria-controls="menu"]').click();
+  const top = await page.evaluate(() => document.elementFromPoint(195, 844 - 30).closest('#menu, form.bar')?.id || 'bar');
+  expect(top).toBe('menu');
 });

@@ -11,7 +11,8 @@ export const brand = {
   email: 'TBC',
   calendly: 'TBC',
   ctaLabel: 'Message me on WhatsApp',
-  barPlaceholder: 'Message Golu · opens WhatsApp',
+  barPlaceholder: 'Message Golu',
+  barLabel: 'Message Golu · opens WhatsApp',
   defaultMessage: 'Hi Golu, I found your website.',
 };
 
