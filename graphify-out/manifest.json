@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "src/main.js": {
-    "mtime": 1795801433.2445593,
-    "seen": 1795801757.1486564,
-    "ast_hash": "6444d956da65a801892c38127118994a",
+    "mtime": 1795802015.8334525,
+    "seen": 1795802320.8379412,
+    "ast_hash": "2f5ba7f14b02e9291649842a41276aca",
     "semantic_hash": ""
   },
   "README.md": {
@@ -6366,9 +6366,9 @@
     "semantic_hash": ""
   },
   "tests/a11y.spec.js": {
-    "mtime": 1795800487.4644291,
-    "seen": 1795800727.383532,
-    "ast_hash": "300fd2897f5acd15f0f5eca24601444b",
+    "mtime": 1795802212.4895024,
+    "seen": 1795802320.8379514,
+    "ast_hash": "0cb1f424224005afd1deaee63fb630f8",
     "semantic_hash": ""
   },
   "public/og.jpg": {

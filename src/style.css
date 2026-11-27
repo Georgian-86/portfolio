@@ -197,6 +197,27 @@ main { padding-top: var(--hdr-h); padding-bottom: var(--bar-h); }
 .hero__h1 span { display: block; }
 .hero__h1 .is-mint { color: var(--mint-deep); }
 .hero__sub { color: var(--muted); }
+/* Legibility over the film. Mobile: a Paper highlight behind the text lines only, so the
+   film (and its watermark just below) stays visible around it. */
+.hero__sub > span { background: rgba(243, 241, 236, 0.9); padding: 1px 4px; border-radius: 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.hero__scrim { display: none; }
+/* Mobile: a feathered Paper band behind the H1 only (top ~70% of the copy block); it fades out
+   above the CTA, so the watermark band at the film's bottom-right stays clear. */
+.hero__copy { z-index: 1; }
+.hero__copy::before {
+  content: ''; position: absolute; inset: -48px 0 30% 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(243, 241, 236, 0) 0%, rgba(243, 241, 236, 0.82) 22%, rgba(243, 241, 236, 0.82) 78%, rgba(243, 241, 236, 0) 100%);
+}
+@media (min-width: 768px) {
+  .hero__sub > span { background: none; padding: 0; }
+  .hero__copy::before { display: none; }
+  /* Desktop: a Paper scrim behind the left text column, clear by ~62% width; the
+     watermark corner (bottom-right) is untouched. */
+  .hero__scrim {
+    display: block; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(90deg, rgba(243, 241, 236, 0.94) 0%, rgba(243, 241, 236, 0.9) 46%, rgba(243, 241, 236, 0) 62%);
+  }
+}
 .hero__ctas { display: flex; flex-wrap: wrap; gap: var(--s-3); }
 .hero__ctas .btn--primary { width: 100%; }
 

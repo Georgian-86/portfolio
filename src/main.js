@@ -122,6 +122,9 @@ function renderHero() {
   // The scrub starts when the hero meets the header (it sits below it at scroll 0).
   const fromHeader = () => `top ${parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hdr-h')) || 60}px`;
   mountFilm($('[data-film]', el), { ...h.film, start: fromHeader });
+  // Desktop legibility scrim: inside the film, above the frames but below its "Illustrative footage" label.
+  const scrim = Object.assign(document.createElement('div'), { className: 'hero__scrim' });
+  $('.film__label', el).before(scrim);
   // The scroll cue fades once the visitor starts scrolling (and comes back at the very top).
   const cue = $('.hero__cue', el);
   const syncCue = () => cue.classList.toggle('is-gone', scrollY > 8);

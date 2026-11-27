@@ -1,29 +1,27 @@
 # Graph Report - portfolio  (2026-11-27)
 
 ## Corpus Check
-- 28 files · ~36,157 words
+- 28 files · ~36,724 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 2 file(s) not represented in the graph (top: (none) 1, .css 1)
 
 ## Summary
-- 308 nodes · 471 edges · 18 communities (17 shown, 1 thin omitted)
+- 309 nodes · 472 edges · 16 communities (15 shown, 1 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 5 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `65613030`
+- Built from commit: `0a79fca3`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- main.js
 - Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"
 - Video prompt sheet — Concept B v2 "The Untangling"
 - Portfolio Design Guide — from zero to three Figma concepts
 - 6. Prompt library
 - 3. The workflow (idea → launched portfolio)
 - Design — Three portfolio concepts in Figma
-- package.json
 - Review Focus
 - Review Focus
 - CLAUDE.md
@@ -56,17 +54,13 @@
   src/sections-late.js → src/film.js
 - `renderMissedCalls()` --calls--> `mountFilm()`  [EXTRACTED]
   src/sections.js → src/film.js
-- `status()` --calls--> `esc()`  [EXTRACTED]
-  src/main.js → src/ui.js
+- `renderLiveAgent()` --calls--> `mountAgentDemo()`  [EXTRACTED]
+  src/sections.js → src/agent-demo.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (18 total, 1 thin omitted)
-
-### Community 0 - "main.js"
-Cohesion: 0.16
-Nodes (16): bookLink(), brand, faqs, menu, nav, sections, services, team (+8 more)
+## Communities (16 total, 1 thin omitted)
 
 ### Community 1 - "Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation""
 Cohesion: 0.06
@@ -91,10 +85,6 @@ Nodes (16): 1. Design direction (v2 — "The Book"), 2. Services: what you have 
 ### Community 6 - "Design — Three portfolio concepts in Figma"
 Cohesion: 0.12
 Nodes (16): 10. Left to the builder, 11. Open items (do not block design; marked TBC in the files), 1. Intent — the why, 2. Goals, 3. Non-goals (this phase), 4. Anti-goals (failure even if "done"), 5. Constraints, 6. Content (shared by all three concepts) (+8 more)
-
-### Community 7 - "package.json"
-Cohesion: 0.12
-Nodes (17): dependencies, gsap@3.13.0, lenis@1.3.11, devDependencies, @playwright/test@^1.63.0, vite@7.1.12, name, private (+9 more)
 
 ### Community 8 - "Review Focus"
 Cohesion: 0.25
@@ -121,12 +111,12 @@ Cohesion: 0.50
 Nodes (3): Make it yours, Nexora — Selected Works, Run
 
 ### Community 15 - "bar.js"
-Cohesion: 0.12
-Nodes (9): @playwright/test, BAR_H, expectClearsBar(), HDR_H, scrollToEnd(), scrollToSectionEnd(), WIDTHS, SECS (+1 more)
+Cohesion: 0.06
+Nodes (26): dependencies, gsap@3.13.0, lenis@1.3.11, devDependencies, @playwright/test@^1.63.0, vite@7.1.12, name, private (+18 more)
 
 ### Community 16 - "sections.js"
-Cohesion: 0.17
-Nodes (35): work, bookingCard(), bubble(), callCard(), chatHead(), cue(), desktopQuery, hdrH() (+27 more)
+Cohesion: 0.10
+Nodes (51): bookLink(), brand, faqs, menu, nav, sections, services, team (+43 more)
 
 ### Community 17 - "film.js"
 Cohesion: 0.23
@@ -138,17 +128,17 @@ Nodes (8): gsap, mountAgentDemo(), build(), endState(), WINDOW_DESKTOP, WINDOW_M
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `mountFilm()` connect `mountFilm` to `Review Focus`, `film.js`, `main.js`, `sections.js`?**
+- **Why does `mountFilm()` connect `mountFilm` to `Review Focus`, `film.js`, `sections.js`?**
   _High betweenness centrality (0.062) - this node is a cross-community bridge._
 - **Should `Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._
-- **Why does `gsap` connect `film.js` to `main.js`, `sections.js`, `package.json`?**
-  _High betweenness centrality (0.060) - this node is a cross-community bridge._
+- **Why does `gsap` connect `film.js` to `sections.js`, `bar.js`?**
+  _High betweenness centrality (0.061) - this node is a cross-community bridge._
 - **Should `Video prompt sheet — Concept B v2 "The Untangling"` be split into smaller, more focused modules?**
   _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
-- **Why does `@playwright/test` connect `bar.js` to `package.json`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **Should `Portfolio Design Guide — from zero to three Figma concepts` be split into smaller, more focused modules?**
   _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
 - **Should `6. Prompt library` be split into smaller, more focused modules?**
   _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._
+- **Should `3. The workflow (idea → launched portfolio)` be split into smaller, more focused modules?**
+  _Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected._
