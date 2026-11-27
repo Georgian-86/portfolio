@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "src/main.js": {
-    "mtime": 1795798418.0757477,
-    "seen": 1795798490.4737608,
-    "ast_hash": "47ead746f95090bb18ce97ed856b463e",
+    "mtime": 1795798761.311046,
+    "seen": 1795799075.1103308,
+    "ast_hash": "e0f174813a9f8ca955dd7c0ddc4c7e0d",
     "semantic_hash": ""
   },
   "README.md": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1795798435.3579767,
-    "seen": 1795798490.4737985,
-    "ast_hash": "63a5f8ee37fda442807d3de3f9deac95",
+    "mtime": 1795798690.42718,
+    "seen": 1795799075.1103923,
+    "ast_hash": "9774b0793946b9fb68147c9e8b66f0b0",
     "semantic_hash": ""
   },
   "public/favicon.svg": {
@@ -1242,15 +1242,15 @@
     "semantic_hash": ""
   },
   "src/content.js": {
-    "mtime": 1795798418.0762687,
-    "seen": 1795798490.4737554,
-    "ast_hash": "4bd2061c990fd35c76fdcaccec10e927",
+    "mtime": 1795798672.7558227,
+    "seen": 1795799075.1103263,
+    "ast_hash": "bf066d4b9f336d40fceeb979cf3103f9",
     "semantic_hash": ""
   },
   "src/film.js": {
-    "mtime": 1795798407.3593106,
-    "seen": 1795798490.4737582,
-    "ast_hash": "8340984ab069ae44620feaaec1a848af",
+    "mtime": 1795798677.270617,
+    "seen": 1795799075.1103287,
+    "ast_hash": "976376369e1bce4425bcf7f165a86f73",
     "semantic_hash": ""
   },
   "tests/film.spec.js": {
@@ -6333,6 +6333,30 @@
     "mtime": 1795798340.4300408,
     "seen": 1795798490.4737656,
     "ast_hash": "b54ddfc9c0e855077ad5ff098a87a4cc",
+    "semantic_hash": ""
+  },
+  "src/agent-demo.js": {
+    "mtime": 1795798685.472322,
+    "seen": 1795799075.1103227,
+    "ast_hash": "940e4a4abc0a83858f27aa40586fd21a",
+    "semantic_hash": ""
+  },
+  "src/sections.js": {
+    "mtime": 1795798994.5163403,
+    "seen": 1795799075.1103327,
+    "ast_hash": "e2c3621fc8ff576d808327e1b0211ee4",
+    "semantic_hash": ""
+  },
+  "src/ui.js": {
+    "mtime": 1795798761.3106222,
+    "seen": 1795799075.1103346,
+    "ast_hash": "c4a173ca3383ee63fd51c452f4d6a7b0",
+    "semantic_hash": ""
+  },
+  "tests/sections.spec.js": {
+    "mtime": 1795798885.4797783,
+    "seen": 1795799075.1103647,
+    "ast_hash": "41b93f74bf49b34b1b8eb03469fe9d27",
     "semantic_hash": ""
   },
   "package-lock.json": {

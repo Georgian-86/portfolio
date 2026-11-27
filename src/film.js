@@ -17,11 +17,12 @@ const BASE = import.meta.env.BASE_URL;
 
 const frameUrl = (name, set, i) => `${BASE}film/${name}/${set}/frame_${String(i).padStart(4, '0')}.webp`;
 
-export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 'bottom bottom' }) {
+// `trigger` (optional) is the element whose scroll drives the scrub; it defaults to the enclosing section.
+export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 'bottom bottom', trigger }) {
   const mq = matchMedia(MOBILE_QUERY);
   const rq = matchMedia(REDUCED_QUERY);
 
-  el.classList.add('film');
+  el.classList.add('film', `film--${name}`);
   el.setAttribute('aria-hidden', 'true');
   const poster = document.createElement('img');
   poster.className = 'film__poster';
@@ -193,7 +194,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     tween = gsap.to(state, {
       p: 1,
       ease: 'none',
-      scrollTrigger: { trigger: el.closest('section') || el, start, end, scrub: 0.4 },
+      scrollTrigger: { trigger: trigger || el.closest('section') || el, start, end, scrub: 0.4 },
       onUpdate: () => {
         progress = state.p;
         ensureWindow();
