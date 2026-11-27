@@ -597,7 +597,7 @@ html.is-navy .bar__send { background: var(--mint); color: var(--navy); }
 .quote figcaption { display: flex; align-items: center; gap: 8px; color: var(--fog); }
 [data-work].is-out { opacity: 0.28; filter: grayscale(1); }
 @media (min-width: 768px) {
-  .filter__chips { max-width: 360px; }
+
   .mess--scribble { height: 240px; }
   .story .media { max-width: 600px; }
 }

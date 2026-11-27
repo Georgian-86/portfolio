@@ -150,7 +150,8 @@ export function renderPipeline() {
 }
 
 // Snap animations (Scroll keyframes v2): the mess tidies by 38.2 %, system rows land by 61.8 %.
-const SNAP_SECS = '[data-sec="02"], [data-sec="03"], [data-sec="04"], [data-sec="05"]';
+const desktopQuery = matchMedia('(min-width: 768px)');
+const SNAP_SECS ='[data-sec="02"], [data-sec="03"], [data-sec="04"], [data-sec="05"]';
 const SNAP_ROWS = '.steps > li, .chat--wide > *, .board > *, .story > *';
 let snaps = [];
 function wireSnaps() {
@@ -158,12 +159,21 @@ function wireSnaps() {
   snaps = [];
   gsap.set($$(`${SNAP_SECS} .mess > *, ${SNAP_ROWS}`), { clearProps: 'all' });
   if (reducedQuery.matches) return;
+  const desktop = desktopQuery.matches;
   $$(SNAP_SECS).forEach((sec) => {
-    // The mess column is sticky on desktop, so drive it by the section's own scroll.
-    snaps.push(gsap.to($$('.mess > *', sec), {
-      y: (i) => -12 * i, rotate: 0, opacity: 0.35, ease: 'none', stagger: 0.05,
-      scrollTrigger: { trigger: sec, start: () => `top ${hdrH()}px`, end: '61.8% bottom', scrub: 0.4 },
-    }));
+    const tidy = { y: (i) => -12 * i, rotate: 0, opacity: 0.35, ease: 'none', stagger: 0.05 };
+    if (!desktop) {
+      // Mobile: the mess tidies as it scrolls off the top, so it is at full opacity while read.
+      snaps.push(gsap.to($$('.mess > *', sec), {
+        ...tidy, scrollTrigger: { trigger: $('.mess', sec), start: 'bottom 38.2%', end: () => `bottom ${hdrH()}px`, scrub: 0.4 },
+      }));
+    } else if (sec.offsetHeight >= innerHeight * 1.5) {
+      // Desktop: the mess column is sticky, so drive it by the section's own scroll,
+      // but only when the section is long enough to scrub; short ones stay at rest.
+      snaps.push(gsap.to($$('.mess > *', sec), {
+        ...tidy, scrollTrigger: { trigger: sec, start: () => `top ${hdrH()}px`, end: '61.8% bottom', scrub: 0.4 },
+      }));
+    }
     snaps.push(gsap.from($$(SNAP_ROWS, sec), {
       autoAlpha: 0, y: 16, ease: 'none', stagger: 0.1, immediateRender: false,
       scrollTrigger: { trigger: $('.sheet', sec), start: 'top 85%', end: 'top 38.2%', scrub: 0.4 },
@@ -204,5 +214,6 @@ export function mountSections(more = () => {}) {
   more();
   wireSnaps();
   reducedQuery.addEventListener('change', wireSnaps);
+  desktopQuery.addEventListener('change', wireSnaps);
   wireProgress();
 }

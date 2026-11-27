@@ -84,7 +84,7 @@ function renderStepQ() {
   wireFilter(el, s.filters);
 }
 
-// Chip filter: single choice, none selected by default; non-matching work cards dim (.is-out).
+// Chip filter: single choice, none selected by default; non-matching work cards in 05 dim (.is-out).
 function wireFilter(el, filters) {
   const status = $('.filter__status', el);
   const label = Object.fromEntries(filters);
@@ -95,7 +95,7 @@ function wireFilter(el, filters) {
     all('.chip', el).forEach((c) => c.setAttribute('aria-pressed', String(on && c === chip)));
     const f = on ? chip.dataset.filter : null;
     let n = 0;
-    all('[data-work]').forEach((card) => {
+    all('[data-work]', el).forEach((card) => { // only the 05 work list, not the 06 cards below
       const match = !f || card.dataset.tags.split(' ').includes(f);
       card.classList.toggle('is-out', !match);
       if (match) n++;

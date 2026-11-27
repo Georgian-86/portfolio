@@ -119,3 +119,23 @@ test('films only fetch and decode near the viewport (hero vs night)', async ({ p
   expect(night.length).toBeGreaterThan(0);
   await expect.poll(async () => Number(await heroFilm.getAttribute('data-decoded'))).toBe(0);
 });
+
+for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+  test(`at ${vp.width}: sheet film frames are not requested at load`, async ({ page }) => {
+    await page.setViewportSize(vp);
+    const sheet = [];
+    page.on('request', (r) => { if (/\/film\/sheet\//.test(r.url())) sheet.push(r.url()); });
+    await page.goto('/');
+    await page.waitForTimeout(1500);
+    expect(sheet).toEqual([]);
+  });
+}
+
+test('far-away films drop their compressed frames too', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const hero = page.locator('[data-sec="01"] .film');
+  await expect.poll(async () => Number(await hero.getAttribute('data-blobs'))).toBeGreaterThan(0);
+  await page.evaluate(() => scrollTo(0, document.querySelector('[data-sec="03"]').offsetTop));
+  await expect.poll(async () => Number(await hero.getAttribute('data-blobs'))).toBe(0);
+});

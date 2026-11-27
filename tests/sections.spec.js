@@ -169,11 +169,37 @@ test('05 chip filter filters the work cards and can be cleared', async ({ page }
   await sec.getByRole('button', { name: 'Automation' }).click();
   await expect(sec.getByRole('button', { name: 'Automation' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-work="stepq"]')).toHaveClass(/is-out/);
-  await expect(page.locator('[data-work="automations"]')).not.toHaveClass(/is-out/);
+  // Only the 05 work list is filtered; the 06 cards far below are never dimmed.
+  await expect(page.locator('[data-sec="06"] [data-work].is-out')).toHaveCount(0);
   await expect(sec.locator('.filter__status')).toContainText('Automation');
-  await sec.getByRole('button', { name: 'Automation' }).click();
+  await sec.getByRole('button', { name: 'Website' }).click();
+  await expect(page.locator('[data-work="stepq"]')).not.toHaveClass(/is-out/);
+  await expect(sec.getByRole('button', { name: 'Automation' })).toHaveAttribute('aria-pressed', 'false');
+  await sec.getByRole('button', { name: 'Website' }).click();
   await expect(page.locator('[data-work].is-out')).toHaveCount(0);
 });
+
+test('05 chips sit on one row at 1440', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const tops = await page.locator('[data-sec="05"] .filter button').evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
+  expect(new Set(tops).size).toBe(1);
+});
+
+for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+  test(`at ${vp.width}: the 05 sticky note is at full opacity at rest`, async ({ page }) => {
+    await page.setViewportSize(vp);
+    await page.goto('/');
+    // Resting position: the sticky note centred in the viewport.
+    await page.evaluate(() => {
+      const n = document.querySelector('[data-sec="05"] .mess-sticky');
+      scrollTo(0, n.getBoundingClientRect().top + scrollY - innerHeight / 2 + n.offsetHeight / 2);
+    });
+    await page.waitForTimeout(800);
+    const op = await page.locator('[data-sec="05"] .mess-sticky').evaluate((el) => Number(getComputedStyle(el).opacity));
+    expect(op).toBeGreaterThanOrEqual(0.9);
+  });
+}
 
 test('StepQ credit matches the global constraint; TeachGenie and Brivia show TBC chips', async ({ page }) => {
   await page.goto('/');

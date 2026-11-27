@@ -141,6 +141,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
       const blob = await res.blob();
       if (signal.aborted) return;
       blobs[i] = blob;
+      el.dataset.blobs = String(blobs.filter(Boolean).length);
       if (Math.abs(i - current()) <= WINDOW) decode(i, signal);
     } catch {
       /* aborted or offline: the poster stays */
@@ -173,7 +174,10 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     bitmaps = new Map();
     shown?.close();
     shown = null;
+    // Compressed frames go too; on return they come back from the HTTP cache.
+    blobs = [];
     el.dataset.decoded = '0';
+    el.dataset.blobs = '0';
   }
 
   function restart() {
