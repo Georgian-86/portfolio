@@ -117,28 +117,140 @@ export const sections = {
     cta: 'Watch an automation run',
     ctaMessage: 'Hi Golu, can you show me an automation run?',
   },
+  dashboard: {
+    id: '04',
+    untangled: 3,
+    kicker: 'Tangle 3 of 4 · the spreadsheet',
+    h2: 'A messy sheet becomes a live dashboard.',
+    body: 'Leads, replies and bookings in one place, updated by itself. You check it; you don’t build it.',
+    sheet: {
+      title: 'leads_FINAL_v7.xlsx',
+      rows: [['Name', 'Phone', 'Status', 'Paid?', ''], ['Riya', '', 'call??', '#REF!', ''], ['Mehta', '', '??', '', ''], ['Riya', '', 'dup', 'yes?', ''], ['—', '', 'lost', '', '']],
+    },
+    cue: 'snaps into a system',
+    film: { name: 'sheet', desktop: 161, mobile: 106 },
+    sysKicker: 'System · dashboard',
+    lead: 'One screen. Updated by itself.',
+    boardTitle: 'This week',
+    boardTag: 'Illustrative',
+    kpis: [['Leads', '48'], ['Median reply', '38s'], ['Booked', '17'], ['Follow-ups due', '0']],
+    bars: [['M', 30], ['T', 46], ['W', 38], ['T', 62], ['F', 54], ['S', 72, true], ['S', 40]],
+    tag: 'Illustrative numbers · not client data',
+  },
+  stepq: {
+    id: '05',
+    untangled: 4,
+    filterLabel: 'What are you building?',
+    filters: [['website', 'Website'], ['app', 'App'], ['automation', 'Automation'], ['store', 'Store']],
+    kicker: 'Tangle 4 of 4 · “we need a website”',
+    h2: 'One scribble became three products.',
+    body: 'A client came with a sticky note. They left with a website and two apps.',
+    note: 'We need a website… and an app??',
+    cue: 'snaps into a system',
+    lead: 'StepQ',
+    media: 'StepQ · website and apps',
+    desc: 'A walking-rewards app for India, fronted by a mascot called Piko. I built the website and both mobile apps.',
+    chips: ['Website', 'iOS app', 'Android app'],
+    quote: '“Client quote goes here: what changed for them after launch.”',
+    quoteBy: 'StepQ team',
+    cta: 'Ask me about StepQ',
+    ctaMessage: 'Hi Golu, tell me more about the StepQ project.',
+  },
+  team: {
+    id: '06',
+    kicker: 'From day one',
+    h2: 'Systems I helped build from day one.',
+    body: 'Two products where I was on the founding team, plus the automations I set up for small businesses.',
+    more: 'Ask about it →',
+    automations: {
+      title: 'Automations · before → after',
+      rows: [
+        ['DMs copied into Excel', 'Logged in the CRM, tagged'],
+        ['Friday-night invoices', 'Sent the moment it’s paid'],
+        ['“Did anyone call back?”', 'Follow-ups booked for you'],
+      ],
+    },
+  },
+  services: {
+    id: '07',
+    kicker: 'What I untangle',
+    h2: 'Pick the outcome. I’ll build the system.',
+    body: 'Two outcomes: more leads in, less manual work.',
+    outcomes: [
+      {
+        title: 'More leads', n: 'Outcome 01',
+        items: [
+          ['Websites', 'Fast, clear sites that turn visits into enquiries.'],
+          ['Shopify', 'Stores that sell without you babysitting them.'],
+          ['WordPress', 'Sites your team can update without calling me.'],
+          ['SEO & AI search', 'Found on Google and in AI answers.'],
+          ['WhatsApp agents', 'Every message answered, day or night.'],
+        ],
+      },
+      {
+        title: 'Less manual work', n: 'Outcome 02',
+        items: [
+          ['AI agents', 'Assistants that handle the repetitive questions.'],
+          ['Automations', 'Orders, invoices and CRM that sync themselves.'],
+          ['App development', 'Web, iOS and Android apps, end to end.'],
+          ['DevOps support', 'Deploys, backups and uptime, handled.'],
+        ],
+      },
+    ],
+  },
+  about: {
+    id: '08',
+    kicker: 'About',
+    photo: 'Photo of Golu',
+    h2: 'Hi, I’m Golu.',
+    body: 'I’m Golu Kumar, an independent developer. I build AI agents, automations, websites and apps for small businesses that want more leads and less manual work.',
+    promises: ['Clear scope, in writing, before I start.', 'You own everything I build.', 'Plain-English updates, every week.'],
+    foot: 'Independent studio for AI, automation & product.',
+  },
   cta: {
     id: '09',
-    h2: 'Ready to untangle?',
-    body: 'Tell me what’s messy. I reply on WhatsApp.',
+    kicker: 'All clear · 4/4',
+    h2: 'Hand me your mess.',
+    body: 'Tell me what’s tangled. I’ll reply with a plan, in plain English.',
+    sticky: 'All sorted',
+    running: { title: '3 systems · running', lines: ['0 missed calls', '0 loose notes', '1 live dashboard'], tag: 'Illustrative' },
+    checklist: {
+      title: 'Untangled · 4/4',
+      items: ['Missed calls → WhatsApp agent', 'Sticky notes → pipeline', 'Spreadsheet → live dashboard', '“We need a website” → StepQ'],
+    },
+    book: 'Book a call',
+    foot: '© 2026 Golu Kumar · Independent studio for AI, automation & product',
   },
 };
+
+// Menu sheet (B2-M-00 Menu): every link jumps to its section.
+export const menu = [
+  { n: '02', label: 'Missed calls → bookings', href: '#missed-calls' },
+  { n: '02b', label: 'Live agent demo', href: '#live-agent' },
+  { n: '03', label: 'Notes → pipeline', href: '#pipeline' },
+  { n: '04', label: 'Sheet → dashboard', href: '#dashboard' },
+  { n: '05', label: 'Work · StepQ', href: '#work' },
+  { n: '06', label: 'Founding team', href: '#founding-team' },
+  { n: '07', label: 'Services', href: '#services' },
+  { n: '08', label: 'About', href: '#about' },
+  { n: '09', label: 'Hand me your mess', href: '#contact' },
+];
 
 export const services = [];
 
 export const work = [
   {
-    id: 'stepq', name: 'StepQ', credit: 'Client project · Website + iOS + Android',
+    id: 'stepq', name: 'StepQ', credit: 'Client project · Website + iOS + Android', tags: ['website', 'app'],
     blurb: 'A walking-rewards app for India.',
     blurbDesktop: 'A walking-rewards app for India, fronted by a mascot called Piko.',
   },
   {
-    id: 'teachgenie', name: 'TeachGenie.ai', credit: 'Founding team · role', role: 'TBC',
+    id: 'teachgenie', name: 'TeachGenie.ai', credit: 'Founding team · role', role: 'TBC', tags: ['app'],
     blurb: 'AI lesson plans, slides and quizzes in minutes.',
     blurbDesktop: 'An AI teaching assistant: lesson plans, slides and quizzes in 1–2 minutes.',
   },
   {
-    id: 'brivia', name: 'Brivia Club', credit: 'Founding team · role', role: 'TBC',
+    id: 'brivia', name: 'Brivia Club', credit: 'Founding team · role', role: 'TBC', tags: ['app'],
     blurb: 'Networking: Swipe. Match. Build.',
     blurbDesktop: 'A networking platform for builders. Swipe. Match. Build.',
   },
@@ -157,3 +269,7 @@ export const nav = [
 
 export const waLink = (text = brand.defaultMessage) =>
   `https://wa.me/${brand.whatsapp}?text=${encodeURIComponent(text)}`;
+
+// Calendly is TBC: until it is set, "Book a call" opens WhatsApp asking for a call.
+export const bookLink = () =>
+  brand.calendly === 'TBC' ? waLink('Hi Golu, I’d like to book a call.') : brand.calendly;

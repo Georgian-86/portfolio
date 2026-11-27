@@ -3,7 +3,8 @@ import './style.css';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { brand, sections, nav, waLink } from './content.js';
+import { brand, sections, nav, menu, waLink, bookLink } from './content.js';
+import { renderLateSections } from './sections-late.js';
 import { mountFilm } from './film.js';
 import { esc, tbc, icon } from './ui.js';
 import { mountSections } from './sections.js';
@@ -35,8 +36,9 @@ function renderHeader() {
     <a class="btn btn--primary hdr__cta" href="${waLink()}" target="_blank" rel="noopener">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>
     <button class="hdr__menu" type="button" aria-controls="menu" aria-expanded="false" aria-label="Open menu"><i></i><i></i><i></i></button>`;
   $('#menu').innerHTML = `
-    <ul role="list">${nav.map((l) => `<li><a href="${l.href}">${esc(l.label)}</a></li>`).join('')}</ul>
-    <a class="btn btn--primary" href="${waLink()}" target="_blank" rel="noopener">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>`;
+    <p class="label menu__kicker">Menu · jump to a section</p>
+    <ul role="list">${menu.map((l) => `<li><a href="${l.href}"><span class="label">${esc(l.n)}</span>${esc(l.label)}</a></li>`).join('')}</ul>
+    <a class="btn menu__book" href="${bookLink()}" target="_blank" rel="noopener">Book a call</a>`;
 }
 
 function wireMenu() {
@@ -54,7 +56,12 @@ function wireMenu() {
     else if (restoreFocus) btn.focus({ preventScroll: true });
   };
   btn.addEventListener('click', () => set(menu.hidden));
-  menu.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
+  menu.addEventListener('click', (e) => {
+    if (!e.target.closest('a')) return;
+    set(false);
+    // Jumping to a #section resets focus after this handler; hand it back to the menu button.
+    setTimeout(() => btn.focus({ preventScroll: true }));
+  });
   addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
   matchMedia('(min-width: 1100px)').addEventListener('change', (e) => { if (e.matches) set(false, { restoreFocus: false }); });
 }
@@ -132,15 +139,6 @@ function renderHero() {
   reducedQuery.addEventListener('change', syncProps);
 }
 
-function renderCta() {
-  const c = sections.cta;
-  $('[data-sec="09"]').innerHTML = `
-    <div class="cta-sec__inner">
-      <h2 id="cta-h2" class="cta-sec__h2">${esc(c.h2)}</h2>
-      <p class="cta-sec__body">${esc(c.body)}</p>
-      <a class="btn btn--primary cta" href="${waLink()}" target="_blank" rel="noopener">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>
-    </div>`;
-}
 
 function smoothScroll() {
   let lenis = null;
@@ -164,6 +162,5 @@ renderHeader();
 wireMenu();
 renderBar();
 renderHero();
-mountSections();
-renderCta();
+mountSections(renderLateSections);
 smoothScroll();

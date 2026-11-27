@@ -131,3 +131,115 @@ for (const w of [320, 390]) {
     expect(lines.at(-1), `words per line: ${lines}`).toBeGreaterThan(1);
   });
 }
+
+// ── Task 3: sections 04–09 and menu ─────────────────────────────
+const SECS3 = ['04', '05', '06', '07', '08', '09'];
+
+test('sections 04–09 exist in order after 03', async ({ page }) => {
+  await page.goto('/');
+  const order = await page.evaluate(() => [...document.querySelectorAll('main > section')].map((s) => s.dataset.sec));
+  expect(order).toEqual(['01', '01b', '02', '02b', '03', ...SECS3]);
+});
+
+test('04 shows "Illustrative numbers · not client data" and carries the sheet film', async ({ page }) => {
+  await page.goto('/');
+  const sec = page.locator('[data-sec="04"]');
+  await expect(sec).toContainText('Illustrative numbers · not client data');
+  await expect(sec.locator('.film')).toHaveAttribute('data-count', /^(161|106)$/);
+  await expect(sec.locator('.film')).toContainText('Illustrative footage');
+});
+
+test('05 chip row: 4 buttons, each ≥44px tall, on one row at 390, none selected by default', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const chips = page.locator('[data-sec="05"] .filter button');
+  await expect(chips).toHaveCount(4);
+  const boxes = await chips.evaluateAll((els) => els.map((el) => el.getBoundingClientRect()).map((r) => ({ top: r.top, h: r.height })));
+  for (const b of boxes) expect(b.h).toBeGreaterThanOrEqual(44);
+  expect(new Set(boxes.map((b) => Math.round(b.top))).size).toBe(1);
+  for (let i = 0; i < 4; i++) await expect(chips.nth(i)).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('05 chip filter filters the work cards and can be cleared', async ({ page }) => {
+  await page.goto('/');
+  const sec = page.locator('[data-sec="05"]');
+  const cards = page.locator('[data-work]');
+  expect(await cards.count()).toBeGreaterThanOrEqual(4);
+  await expect(page.locator('[data-work].is-out')).toHaveCount(0);
+  await sec.getByRole('button', { name: 'Automation' }).click();
+  await expect(sec.getByRole('button', { name: 'Automation' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-work="stepq"]')).toHaveClass(/is-out/);
+  await expect(page.locator('[data-work="automations"]')).not.toHaveClass(/is-out/);
+  await expect(sec.locator('.filter__status')).toContainText('Automation');
+  await sec.getByRole('button', { name: 'Automation' }).click();
+  await expect(page.locator('[data-work].is-out')).toHaveCount(0);
+});
+
+test('StepQ credit matches the global constraint; TeachGenie and Brivia show TBC chips', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('[data-sec="05"]')).toContainText('Client project · Website + iOS + Android');
+  for (const id of ['teachgenie', 'brivia']) {
+    const card = page.locator(`[data-sec="06"] [data-work="${id}"]`);
+    await expect(card).toContainText('Founding team');
+    await expect(card.locator('.tbc')).toHaveText('TBC');
+  }
+});
+
+test('07 services cover the full list', async ({ page }) => {
+  await page.goto('/');
+  const text = await page.locator('[data-sec="07"]').innerText();
+  for (const s of ['AI agents', 'WhatsApp agents', 'Automations', 'Websites', 'Shopify', 'WordPress', 'App development', 'DevOps', 'SEO']) {
+    expect(text, s).toContain(s);
+  }
+});
+
+test('09 is the clean-desk CTA, with WhatsApp and book-a-call actions', async ({ page }) => {
+  await page.goto('/');
+  const sec = page.locator('[data-sec="09"]');
+  await expect(sec.locator('h2')).toHaveText('Hand me your mess.');
+  await expect(sec.locator('.cta')).toHaveAttribute('href', /^https:\/\/wa\.me\/\d+/);
+  await expect(sec.getByRole('link', { name: /Book a call/ })).toHaveCount(1);
+});
+
+test('every menu link scrolls to its section', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const btn = page.locator('header.hdr button[aria-controls="menu"]');
+  await btn.click();
+  const hrefs = await page.locator('#menu a[href^="#"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  expect(hrefs.length).toBe(9);
+  await btn.click();
+  for (const href of hrefs) {
+    await btn.click();
+    await page.locator(`#menu a[href="${href}"]`).click();
+    await expect(page.locator('#menu')).toBeHidden();
+    await expect
+      .poll(() => page.evaluate((h) => {
+        const r = document.querySelector(h).getBoundingClientRect();
+        const atEnd = Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight - 1;
+        return Math.abs(r.top - 60) <= 4 || (atEnd && r.top < innerHeight);
+      }, href), { message: href })
+      .toBe(true);
+  }
+});
+
+for (const id of SECS3) {
+  test(`mobile: end of ${id} clears the pinned bar`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await scrollToSectionEnd(page, `[data-sec="${id}"]`);
+    await expectClearsBar(page, page.locator(`[data-sec="${id}"] [data-end]`));
+  });
+}
+
+for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+  test(`at ${vp.width}: at most one red alert per screen in 04–09`, async ({ page }) => {
+    await page.setViewportSize(vp);
+    await page.goto('/');
+    for (const id of SECS3) {
+      await page.evaluate((id) => document.querySelector(`[data-sec="${id}"]`).scrollIntoView(), id);
+      await page.waitForTimeout(300);
+      expect((await redItems(page)).length, `screen at ${id}`).toBeLessThanOrEqual(1);
+    }
+  });
+}

@@ -13,14 +13,14 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)');
 
-const tag = (text, tone = 'navy') => `<span class="note note--${tone} label">${esc(text)}</span>`;
-const respText = (m, d) => (d ? `<span class="m-only">${esc(m)}</span><span class="d-only">${esc(d)}</span>` : esc(m));
+export const tag = (text, tone = 'navy') => `<span class="note note--${tone} label">${esc(text)}</span>`;
+export const respText =(m, d) => (d ? `<span class="m-only">${esc(m)}</span><span class="d-only">${esc(d)}</span>` : esc(m));
 const callCard = (c) => `
   <div class="mess-call" style="--rot:${c.rot}deg">
     <span class="prop__icon${c.alert ? ' is-alert' : ''}">${icon.missed}</span>
     <span class="prop__text"><b${c.alert ? ' class="is-alert"' : ''}>${esc(c.title)}</b><span>${esc(c.text)}</span></span>
   </div>`;
-const stickyNote = (n) => `<div class="mess-sticky" style="--rot:${n.rot}deg"><span class="prop__tape"></span><p>${esc(n.text)}</p></div>`;
+export const stickyNote = (n) => `<div class="mess-sticky" style="--rot:${n.rot}deg"><span class="prop__tape"></span><p>${esc(n.text)}</p></div>`;
 const bubble = (who, text, cls = '') => `<div class="chat__row chat__row--${who} ${cls}"><p class="bubble bubble--${who}">${esc(text)}</p></div>`;
 const chatHead = (name) => `
   <div class="chat__head"><span class="chat__avatar" aria-hidden="true"></span>
@@ -28,9 +28,9 @@ const chatHead = (name) => `
 const bookingCard = (b, cls = '') => `
   <div class="booking ${cls}"><span class="booking__tick">${icon.tick}</span>
     <span class="booking__text"><b>${esc(b.title)}</b><span>${esc(b.text)}</span>${b.tag ? tag(b.tag, 'paper') : ''}</span></div>`;
-const mintCta = (label, msg, iconHtml = icon.whatsapp, after = false) =>
+export const mintCta = (label, msg, iconHtml = icon.whatsapp, after = false) =>
   `<a class="btn btn--mint" data-end href="${waLink(msg)}" target="_blank" rel="noopener">${after ? '' : iconHtml}<span>${esc(label)}</span>${after ? iconHtml : ''}</a>`;
-const cue = (text) =>
+export const cue = (text) =>
   `<p class="cue label" aria-hidden="true"><span class="m-only">↓ ${esc(text)}</span><span class="d-only">${esc(text)} →</span></p>`;
 
 export function renderProof() {
@@ -89,6 +89,7 @@ export function renderMissedCalls() {
 export function renderLiveAgent() {
   const a = sections.liveAgent;
   const el = $('[data-sec="02b"]');
+  el.dataset.theme = 'navy';
   // .agent__side holds copy + explainer; it is `display: contents` on mobile (flex order
   // copy → chat → explainer) and a sticky right column on desktop.
   el.innerHTML = `
@@ -149,19 +150,21 @@ export function renderPipeline() {
 }
 
 // Snap animations (Scroll keyframes v2): the mess tidies by 38.2 %, system rows land by 61.8 %.
+const SNAP_SECS = '[data-sec="02"], [data-sec="03"], [data-sec="04"], [data-sec="05"]';
+const SNAP_ROWS = '.steps > li, .chat--wide > *, .board > *, .story > *';
 let snaps = [];
 function wireSnaps() {
   snaps.forEach((t) => { t.scrollTrigger?.kill(); t.kill(); });
   snaps = [];
-  gsap.set($$('[data-sec="02"] .mess > *, [data-sec="03"] .mess > *, .steps > li, .chat--wide > *'), { clearProps: 'all' });
+  gsap.set($$(`${SNAP_SECS} .mess > *, ${SNAP_ROWS}`), { clearProps: 'all' });
   if (reducedQuery.matches) return;
-  $$('[data-sec="02"], [data-sec="03"]').forEach((sec) => {
+  $$(SNAP_SECS).forEach((sec) => {
     // The mess column is sticky on desktop, so drive it by the section's own scroll.
     snaps.push(gsap.to($$('.mess > *', sec), {
       y: (i) => -12 * i, rotate: 0, opacity: 0.35, ease: 'none', stagger: 0.05,
       scrollTrigger: { trigger: sec, start: () => `top ${hdrH()}px`, end: '61.8% bottom', scrub: 0.4 },
     }));
-    snaps.push(gsap.from($$('.steps > li, .chat--wide > *', sec), {
+    snaps.push(gsap.from($$(SNAP_ROWS, sec), {
       autoAlpha: 0, y: 16, ease: 'none', stagger: 0.1, immediateRender: false,
       scrollTrigger: { trigger: $('.sheet', sec), start: 'top 85%', end: 'top 38.2%', scrub: 0.4 },
     }));
@@ -170,9 +173,11 @@ function wireSnaps() {
 
 // Header "Untangled n/4" progress and the navy header/bar over 02b.
 function setUntangled(n) {
-  $$('.hdr .untangled .label, .hdr__progress').forEach((l) => { l.textContent = `Untangled ${n}/4`; });
+  // n = 5 means every tangle is done: the header reads "All clear · 4/4".
+  const text = n > 4 ? 'All clear · 4/4' : `Untangled ${n}/4`;
+  $$('.hdr .untangled .label, .hdr__progress').forEach((l) => { l.textContent = text; });
   $$('.hdr .untangled__segs i').forEach((seg, i) => seg.classList.toggle('is-on', i < n));
-  $('.hdr .untangled')?.setAttribute('aria-label', `Untangled ${n} of 4`);
+  $('.hdr .untangled')?.setAttribute('aria-label', n > 4 ? 'All clear, 4 of 4 untangled' : `Untangled ${n} of 4`);
 }
 const hdrH = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hdr-h')) || 60;
 function wireProgress() {
@@ -183,17 +188,20 @@ function wireProgress() {
       onEnter: () => setUntangled(n), onLeaveBack: () => setUntangled(n - 1),
     });
   });
-  ScrollTrigger.create({
-    trigger: '[data-sec="02b"]', start: () => `top ${hdrH()}px`, end: () => `bottom ${hdrH()}px`,
-    toggleClass: { targets: document.documentElement, className: 'is-navy' },
-  });
+  // Navy header and bar while a navy section (02b, 07) sits under the header.
+  $$('[data-theme="navy"]').forEach((sec) => ScrollTrigger.create({
+    trigger: sec, start: () => `top ${hdrH() + 1}px`, end: () => `bottom ${hdrH() + 1}px`,
+    onToggle: (self) => document.documentElement.classList.toggle('is-navy', self.isActive),
+  }));
 }
 
-export function mountSections() {
+// `more` renders later sections (04–09) before the shared snaps and progress are wired.
+export function mountSections(more = () => {}) {
   renderProof();
   renderMissedCalls();
   renderLiveAgent();
   renderPipeline();
+  more();
   wireSnaps();
   reducedQuery.addEventListener('change', wireSnaps);
   wireProgress();
