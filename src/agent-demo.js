@@ -40,7 +40,7 @@ export function mountAgentDemo(el) {
       })
       .to(typing, { autoAlpha: 1, duration: 0.12 }, 0.08)
       .to(typing, { autoAlpha: 0, duration: 0.04 }, 0.342)
-      .to(reply, { autoAlpha: 1, y: 0, duration: 0.12 }, 0.342)
+      .to(reply, { autoAlpha: 1, y: 0, duration: 0.12 }, 0.382) // after typing is fully out
       .to(booking, { autoAlpha: 1, y: 0, duration: 0.14 }, 0.56)
       .to({}, { duration: 0.1 }, 0.9);
   }

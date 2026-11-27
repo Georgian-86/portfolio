@@ -99,3 +99,23 @@ test('slow network: poster image is visible before frames load', async ({ page }
   await expect(poster).toBeVisible();
   await expect.poll(() => poster.evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
 });
+
+test('films only fetch and decode near the viewport (hero vs night)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const night = [];
+  page.on('request', (r) => { if (/\/film\/night\//.test(r.url())) night.push(r.url()); });
+  await page.goto('/');
+  const heroFilm = page.locator('[data-sec="01"] .film');
+  const nightFilm = page.locator('[data-sec="02"] .film');
+  await expect.poll(async () => Number(await heroFilm.getAttribute('data-decoded'))).toBeGreaterThan(0);
+  await page.waitForTimeout(1000);
+  expect(Number((await nightFilm.getAttribute('data-decoded')) || 0)).toBe(0);
+  expect(night).toEqual([]);
+  await page.evaluate(() => {
+    const t = document.querySelector('[data-sec="02"] .tangle__film-track');
+    scrollTo(0, t.getBoundingClientRect().top + scrollY + t.offsetHeight / 2); // mid-film, > 1 viewport past the hero
+  });
+  await expect.poll(async () => Number(await nightFilm.getAttribute('data-decoded'))).toBeGreaterThan(0);
+  expect(night.length).toBeGreaterThan(0);
+  await expect.poll(async () => Number(await heroFilm.getAttribute('data-decoded'))).toBe(0);
+});

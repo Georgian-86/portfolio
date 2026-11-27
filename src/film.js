@@ -47,6 +47,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   let reduced = rq.matches;
   let progress = reduced ? 1 : 0;
   let tween = null;
+  let near = false; // within ~1 viewport of the screen (IntersectionObserver)
 
   const current = () => Math.round(progress * (count - 1));
 
@@ -162,7 +163,21 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     await Promise.all([worker(), worker(), worker(), worker()]);
   }
 
+  // Off-screen films hold nothing: in-flight fetches are aborted and every decoded bitmap is
+  // released (the canvas keeps its last pixels; the poster sits underneath).
+  function sleep() {
+    abort?.abort();
+    abort = null;
+    decoding = new Set();
+    for (const bmp of bitmaps.values()) if (bmp !== shown) bmp.close();
+    bitmaps = new Map();
+    shown?.close();
+    shown = null;
+    el.dataset.decoded = '0';
+  }
+
   function restart() {
+    if (!near) return sleep();
     abort?.abort();
     abort = new AbortController();
     decoding = new Set();
@@ -219,6 +234,20 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   pickSet();
   scrub();
 
+  // Only fetch and decode while the film is within about one viewport of the screen.
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting === near) return;
+      near = entry.isIntersecting;
+      if (near) {
+        restart();
+        render();
+      } else sleep();
+    },
+    { rootMargin: '100% 0px' },
+  );
+  io.observe(el);
+
   const ro = new ResizeObserver(onResize);
   ro.observe(el);
   mq.addEventListener('change', onResize);
@@ -227,6 +256,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   return {
     destroy() {
       abort?.abort();
+      io.disconnect();
       ro.disconnect();
       mq.removeEventListener('change', onResize);
       rq.removeEventListener('change', onReduced);

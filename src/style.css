@@ -297,7 +297,7 @@ main { padding-top: var(--hdr-h); padding-bottom: var(--bar-h); }
 .h-section { font-size: var(--t-h3); font-weight: 600; line-height: 1.06; letter-spacing: -0.025em; }
 .label--mint { color: var(--mint-deep); }
 .label--on-navy { color: var(--mint); }
-.note { display: inline-flex; align-self: flex-start; padding: 4px 8px; border: 1px solid; border-radius: 4px; }
+.note { display: inline-flex; align-self: flex-start; max-width: 100%; padding: 4px 8px; border: 1px solid; border-radius: 4px; text-wrap: balance; }
 .note--navy { color: var(--fog); border-color: var(--fog); }
 .note--paper { color: var(--muted); border-color: var(--muted); }
 .btn--mint { background: var(--mint); color: var(--navy); }
