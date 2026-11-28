@@ -73,8 +73,21 @@ export function renderServices() {
     });
   };
 
-  const ro = new ResizeObserver(() => field?.resize());
+  // Phones: the figure lives in the strip between the heading and the tallest group's copy, so
+  // the big "Grow / Automate / Ship" title never sits on top of it.
+  const head = el.querySelector('.services__head');
+  const groupsBox = el.querySelector('.services__groups');
+  const fitBand = () => {
+    if (!field) return;
+    if (innerWidth >= 768) { field.setBand(null); return; }
+    const c = canvas.getBoundingClientRect();
+    const top = head.getBoundingClientRect().bottom - c.top + 12;
+    const bottom = groupsBox.getBoundingClientRect().top - c.top - 12;
+    field.setBand(bottom - top > 80 ? { top, bottom } : null);
+  };
+  const ro = new ResizeObserver(() => { field?.resize(); fitBand(); });
   ro.observe(canvas);
+  ro.observe(groupsBox);
   // A canvas that has held a WebGL context can't be reused for 2D or a second WebGL context: swap in a new one.
   const freshCanvas = () => {
     const c = canvas.cloneNode(false);
@@ -94,6 +107,7 @@ export function renderServices() {
       field = createField(canvas, { count, THREE: null, reduced });
     }
     el.dataset.renderer = THREE ? 'webgl' : '2d';
+    fitBand();
     field.setMorph(reduced ? 3 : morphAt(progress), true);
     if (visible) field.start();
     if (THREE) {

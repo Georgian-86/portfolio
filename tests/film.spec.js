@@ -239,3 +239,23 @@ test('on a slow network (5 Mbps) the hero still advances while scrolling, never 
   expect(r.backwards).toBe(0);
   expect(r.maxStep).toBeLessThanOrEqual(4);
 });
+
+// Phones (live feedback): no autoplay offset. The film sits on the mess at the top, clears as you
+// scroll down, and brings the mess back every time you scroll up.
+test('at 390x844 the hero film is fully scroll-driven: mess at the top, cleared at the bottom, mess again on the way up', async ({ page }) => {
+  test.setTimeout(60000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const film = page.locator('[data-sec="01"] .film');
+  await expect(film).toHaveAttribute('data-set', 'mobile');
+  await expect(film).toHaveAttribute('data-intro', 'done', { timeout: 15000 });
+  const to = (p) => page.evaluate((p) => { const h = document.querySelector('[data-sec="01"]'); scrollTo(0, Math.round(p * (h.offsetHeight - innerHeight))); }, p);
+  const frame = () => film.evaluate((el) => Number(el.dataset.frame));
+  await expect.poll(frame, { timeout: 10000 }).toBe(1);
+  for (let round = 0; round < 2; round++) {
+    await to(1);
+    await expect.poll(frame, { timeout: 15000 }).toBeGreaterThan(185);
+    await to(0);
+    await expect.poll(frame, { timeout: 15000 }).toBe(1);
+  }
+});
