@@ -1,31 +1,40 @@
-/* v3 "Systems in motion" tokens (docs/DESIGN.md). Dark-first; Mint is the only saturated colour. */
+/* "Riso Press" tokens (docs/DESIGN.md). Paper ground, black ink, three overprint inks used as shapes only. */
 :root {
-  /* Palette */
-  --stage: #0b1426;
-  --surface: #12203a;
-  --line-solid: #1e2e4d;
-  --text: #eef1f7;
-  --muted: #9da9c2;
-  --mint: #3ddc97;
-  --paper: #f3f1ec;     /* the light contact section only (Task 3) */
-  --hair: rgba(238, 241, 247, 0.14);
-  --scrim: 11, 20, 38;  /* rgb of --stage, for rgba() gradients over films */
-  --alert: #e5484d;     /* at most one per screen */
-  --sticky: #f7d154;    /* legacy props only; never as text */
+  /* Palette: paper + ink carry all text; pink / teal / yellow are inks for shapes, never body text. */
+  --paper: #f6f2ea;     /* main ground */
+  --paper-2: #ede5d6;   /* a second sheet: panels, alternate sections */
+  --paper-3: #e4dac7;   /* third sheet: chips, inset rows */
+  --surface: #fffcf6;   /* cards (uncoated stock) */
+  --ink: #141414;       /* text, rules, primary buttons (17.6:1 on paper) */
+  --muted: #4b4740;     /* secondary text (8.0:1 on paper, 6.2:1 on paper-3) */
+  --pink: #ff4fa3;      /* fluoro pink ink */
+  --teal: #00a5a0;      /* riso teal ink */
+  --yellow: #ffe45c;    /* butter yellow ink; also the text on ink buttons (13.9:1) */
+  --hair: rgba(20, 20, 20, 0.16);
+  --rule: rgba(20, 20, 20, 0.85);
+  --scrim: 246, 242, 234; /* rgb of --paper, for rgba() panels */
+  --alert: #c8102e;     /* at most one per screen; 5.6:1 on surface */
+  --sticky: var(--yellow);
+  /* Paper grain: tiny inline fractal noise, low opacity. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.08 0 0 0 0 0.08 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
 
-  /* Legacy aliases: sections not yet restyled (Tasks 2–3) render on the dark set. */
-  --ink: var(--text);
-  --navy: var(--surface);
-  --navy-2: var(--line-solid);
-  --mint-deep: var(--mint);
+  /* Legacy names, mapped onto the riso set (no dark surfaces remain). */
+  --stage: var(--paper);
+  --text: var(--ink);
+  --navy: var(--paper-2);
+  --navy-2: var(--paper-3);
+  --line-solid: var(--paper-3);
+  --mint: var(--teal);      /* decorative only: dots, bullets, ticks */
+  --mint-deep: var(--ink);  /* was used for text: now ink */
   --fog: var(--muted);
   --white: var(--surface);
   --line: var(--hair);
-  --line-soft: rgba(238, 241, 247, 0.1);
+  --line-soft: rgba(20, 20, 20, 0.1);
 
   /* Fonts */
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-display: 'Archivo', 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* phi type scale, mobile (<768): 12/16/26/42/68 */
   --t-label: 12px;
@@ -48,7 +57,7 @@
   --hdr-h: 60px;
   --bar-h: 76px;
   --gutter: 16px;
-  --radius-btn: 12px;
+  --radius-btn: 4px;
 
   /* Motion */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);

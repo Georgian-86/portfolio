@@ -56,11 +56,12 @@ test('fonts use preconnect and display=swap', async ({ page }) => {
   await expect(page.locator('link[rel="stylesheet"][href*="fonts.googleapis.com"]')).toHaveAttribute('href', /display=swap/);
 });
 
-test('favicon matches the brand (G·K mark on Navy)', async ({ page, request }) => {
+test('favicon matches the brand (G·K mark in ink on paper)', async ({ page, request }) => {
   await page.goto('/');
   const href = await page.locator('link[rel="icon"]').getAttribute('href');
   const svg = await (await request.get(href)).text();
-  expect(svg).toMatch(/#0F1E3D/i);
+  expect(svg).toMatch(/#141414/i);
+  expect(svg).toMatch(/#F6F2EA/i);
   expect(svg).toContain('G');
   expect(svg).toContain('K');
 });

@@ -99,11 +99,24 @@ function renderHero() {
   const revealed = new Promise((ok) => { revealHero = ok; });
   const film = $('[data-film]', el);
   mountFilm(film, { ...h.film, start: 'top top', end: 'bottom bottom', introGate: revealed });
-  // Over the frames, under the "AI-generated footage" label: the focus-pull blur and the navy scrim.
-  // Both are kept out of the watermark corner (see .hero__focus / .hero__scrim in style.css).
+  // Over the frames, under the "AI-generated footage" label: the focus-pull blur and the paper panel the
+  // copy is printed on, with its overprint shapes. Both are kept out of the watermark corner (see
+  // .hero__focus / .hero__scrim in style.css); the film's own pixels are never filtered.
   const focus = Object.assign(document.createElement('div'), { className: 'hero__focus' });
   const scrim = Object.assign(document.createElement('div'), { className: 'hero__scrim' });
+  scrim.setAttribute('aria-hidden', 'true');
+  scrim.innerHTML = ['yellow', 'pink', 'teal'].map((c) => `<i class="riso-blob riso-blob--${c}"></i>`).join('');
   $('.film__label', el).before(focus, scrim);
+  // Mobile: the panel starts just above the copy, wherever its bottom-anchored stack ends up.
+  const stage = $('.hero__stage', el);
+  const copy = $('.hero__copy', el);
+  const fitPanel = () => {
+    const top = copy.getBoundingClientRect().top - stage.getBoundingClientRect().top;
+    stage.style.setProperty('--hero-panel-top', `${Math.round(top - 26)}px`);
+  };
+  new ResizeObserver(fitPanel).observe(copy);
+  addEventListener('resize', fitPanel);
+  fitPanel();
 
   const cue = $('.hero__cue', el);
   const syncCue = () => cue.classList.toggle('is-gone', scrollY > 8);
