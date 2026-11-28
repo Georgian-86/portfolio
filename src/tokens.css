@@ -1,19 +1,27 @@
-/* Concept B v2 design tokens (Figma xAnp89eU0yXZyMyPS6Zv9I). */
+/* v3 "Systems in motion" tokens (docs/DESIGN.md). Dark-first; Mint is the only saturated colour. */
 :root {
   /* Palette */
-  --paper: #f3f1ec;
-  --ink: #121417;
-  --navy: #0f1e3d;
-  --navy-2: #182a4f;
-  --mint: #3ddc97;      /* never as text on Paper */
-  --mint-deep: #0e7a52;
-  --sticky: #f7d154;    /* never as text */
-  --alert: #c9343a;     /* at most one per screen */
-  --fog: #9da9c2;
-  --muted: #5b6170;
-  --white: #fff;
-  --line: rgba(18, 20, 23, 0.18);
-  --line-soft: rgba(18, 20, 23, 0.14);
+  --stage: #0b1426;
+  --surface: #12203a;
+  --line-solid: #1e2e4d;
+  --text: #eef1f7;
+  --muted: #9da9c2;
+  --mint: #3ddc97;
+  --paper: #f3f1ec;     /* the light contact section only (Task 3) */
+  --hair: rgba(238, 241, 247, 0.14);
+  --scrim: 11, 20, 38;  /* rgb of --stage, for rgba() gradients over films */
+  --alert: #e5484d;     /* at most one per screen */
+  --sticky: #f7d154;    /* legacy props only; never as text */
+
+  /* Legacy aliases: sections not yet restyled (Tasks 2–3) render on the dark set. */
+  --ink: var(--text);
+  --navy: var(--surface);
+  --navy-2: var(--line-solid);
+  --mint-deep: var(--mint);
+  --fog: var(--muted);
+  --white: var(--surface);
+  --line: var(--hair);
+  --line-soft: rgba(238, 241, 247, 0.1);
 
   /* Fonts */
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;

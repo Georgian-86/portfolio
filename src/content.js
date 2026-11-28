@@ -20,27 +20,15 @@ export const sections = {
   hero: {
     id: '01',
     kicker: 'Golu Kumar · AI, automation & product',
-    h1: [
-      { text: 'Less chaos.', tone: 'ink' },
-      { text: 'More clients.', tone: 'mint' },
+    // One line on screen at a time, revealed in sequence across the pinned scroll.
+    lines: [
+      'Every business runs on a little chaos.',
+      'I build the systems that untangle it.',
+      'AI agents · automations · websites · apps.',
     ],
-    subMobile: 'I’m Golu. I turn the mess into simple systems that win you clients.',
-    subDesktop: 'I’m Golu. I turn missed calls, sticky notes and messy sheets into calm systems that win you clients.',
     secondaryCta: 'Book a call',
-    film: { name: 'hero', desktop: 188, mobile: 190, intro: 0.382 }, // autoplays to the first snap keyframe
+    film: { name: 'hero', desktop: 188, mobile: 190, intro: 0.382 }, // autoplays to 38.2% after the loader
     scrollCue: 'Scroll',
-    // Decorative props that sit on the desk film and fade as it tidies.
-    props: [
-      { kind: 'chat', id: 'riya', initials: 'RK', title: 'Riya · WhatsApp', text: 'Still available? Price?', badge: '14', where: 'both' },
-      { kind: 'call', id: 'missed1', title: 'Missed call', text: 'Unknown · 9:05 PM', where: 'desktop' },
-      { kind: 'call', id: 'missed2', title: '3 missed calls', text: 'Unknown · 11:42 PM', alert: true, where: 'both' },
-      { kind: 'sticky', id: 'sticky1', text: 'Send bill to Priya??', where: 'both' },
-      { kind: 'sticky', id: 'sticky2', text: 'Call back Mehta!!', where: 'desktop' },
-      { kind: 'sticky', id: 'sticky3', text: 'WEBSITE??? (ask Golu)', where: 'desktop' },
-      { kind: 'chat', id: 'arjun', initials: 'AS', title: 'Arjun · Instagram', text: 'Do you deliver today?', textMobile: 'Deliver today?', badge: '6', where: 'both' },
-      { kind: 'sheet', id: 'sheet', title: 'leads_FINAL_v7.xlsx', where: 'desktop',
-        rows: [['Name', 'Phone', 'Status', 'Paid?', ''], ['Riya', '', 'call??', '#REF!', ''], ['Mehta', '', '??', '', ''], ['Riya', '', 'dup', 'yes?', ''], ['—', '', 'lost', '', '']] },
-    ],
   },
   proof: {
     id: '01b',

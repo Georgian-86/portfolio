@@ -14,7 +14,7 @@ test('02 tags its times as "Sample · illustrative times" and carries the night 
   const sec = page.locator('[data-sec="02"]');
   await expect(sec).toContainText('Sample · illustrative times');
   await expect(sec.locator('.film')).toHaveAttribute('data-count', /^(190|188)$/);
-  await expect(sec.locator('.film')).toContainText('Illustrative footage');
+  await expect(sec.locator('.film')).toContainText('AI-generated footage');
   // The poster is only requested once the film is near the viewport.
   await sec.locator('.tangle__film-track').scrollIntoViewIfNeeded();
   await expect(sec.locator('.film__poster')).toHaveAttribute('src', /\/film\/night\//);
@@ -146,7 +146,7 @@ test('04 shows "Illustrative numbers · not client data" and carries the sheet f
   const sec = page.locator('[data-sec="04"]');
   await expect(sec).toContainText('Illustrative numbers · not client data');
   await expect(sec.locator('.film')).toHaveAttribute('data-count', /^(161|106)$/);
-  await expect(sec.locator('.film')).toContainText('Illustrative footage');
+  await expect(sec.locator('.film')).toContainText('AI-generated footage');
 });
 
 test('05 chip row: 4 buttons, each ≥44px tall, on one row at 390, none selected by default', async ({ page }) => {

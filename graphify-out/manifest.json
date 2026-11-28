@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "src/main.js": {
-    "mtime": 1795802015.8334525,
-    "seen": 1795802320.8379412,
-    "ast_hash": "2f5ba7f14b02e9291649842a41276aca",
+    "mtime": 1795840009.0294688,
+    "seen": 1795840478.10461,
+    "ast_hash": "6e9bc87965370d85f98acc4a9a432dfb",
     "semantic_hash": ""
   },
   "README.md": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1795800576.3204343,
-    "seen": 1795800727.3835804,
-    "ast_hash": "43d071e478089379610d4868fad48590",
+    "mtime": 1795840014.9775543,
+    "seen": 1795840478.1046617,
+    "ast_hash": "e0326639cd5cdf46da6a3f852024ac34",
     "semantic_hash": ""
   },
   "public/favicon.svg": {
@@ -1242,21 +1242,21 @@
     "semantic_hash": ""
   },
   "src/content.js": {
-    "mtime": 1795800880.5569704,
-    "seen": 1795801232.3989136,
-    "ast_hash": "0869669feb7e4fdb7c6a2f10f2bbcf26",
+    "mtime": 1795839975.0806568,
+    "seen": 1795840478.1045995,
+    "ast_hash": "6f3b83cb974bd1d1848689381c64f1f5",
     "semantic_hash": ""
   },
   "src/film.js": {
-    "mtime": 1795801505.394396,
-    "seen": 1795801757.1486533,
-    "ast_hash": "25506987a5cd023a57562fb6d745a173",
+    "mtime": 1795839970.895357,
+    "seen": 1795840478.1046028,
+    "ast_hash": "f7a97d65d89eb6ba6be195021ea9cc36",
     "semantic_hash": ""
   },
   "tests/film.spec.js": {
-    "mtime": 1795801334.0764794,
-    "seen": 1795801757.148668,
-    "ast_hash": "9bd119ed756142e943138e254fe4ec97",
+    "mtime": 1795839842.1281178,
+    "seen": 1795840478.104623,
+    "ast_hash": "ca3df46369773adcd4d2324d7b932bb5",
     "semantic_hash": ""
   },
   "tests/layout.spec.js": {
@@ -1266,9 +1266,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1795713318.2616503,
-    "seen": 1795798195.7192783,
-    "ast_hash": "dfe5fa7939121e96d61b54077cc9ab84",
+    "mtime": 1795839798.345362,
+    "seen": 1795840478.1046333,
+    "ast_hash": "515d736cc703ab6574502af4e5d16f06",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-11-27-website-build.md": {
@@ -6342,9 +6342,9 @@
     "semantic_hash": ""
   },
   "src/sections.js": {
-    "mtime": 1795800388.8724232,
-    "seen": 1795800458.3389661,
-    "ast_hash": "0ddcf607109b3283efb0e4dd9e25894d",
+    "mtime": 1795839985.352278,
+    "seen": 1795840478.1046157,
+    "ast_hash": "dbbf5ea1a430705ba4c958ffec1465ba",
     "semantic_hash": ""
   },
   "src/ui.js": {
@@ -6354,9 +6354,9 @@
     "semantic_hash": ""
   },
   "tests/sections.spec.js": {
-    "mtime": 1795800297.8428276,
-    "seen": 1795800458.338981,
-    "ast_hash": "d694552e913f5a67dd4101c2a9c1a37c",
+    "mtime": 1795839842.1301484,
+    "seen": 1795840478.104632,
+    "ast_hash": "b759703f36c48275d90bd9c5479ad415",
     "semantic_hash": ""
   },
   "src/sections-late.js": {
@@ -6366,15 +6366,51 @@
     "semantic_hash": ""
   },
   "tests/a11y.spec.js": {
-    "mtime": 1795802212.4895024,
-    "seen": 1795802320.8379514,
-    "ast_hash": "0cb1f424224005afd1deaee63fb630f8",
+    "mtime": 1795839848.7085483,
+    "seen": 1795840478.1046212,
+    "ast_hash": "3af606c6c97ca6f69801c8eea9476de7",
     "semantic_hash": ""
   },
   "public/og.jpg": {
     "mtime": 1795800566.3644338,
     "seen": 1795800727.3859866,
     "ast_hash": "e78aff9c50e7104361e3dce860ad21e4",
+    "semantic_hash": ""
+  },
+  "src/loader.js": {
+    "mtime": 1795839961.1322765,
+    "seen": 1795840478.1046064,
+    "ast_hash": "bf2eeab5ce46917173ac475478d7b47d",
+    "semantic_hash": ""
+  },
+  "tests/helpers/loader.js": {
+    "mtime": 1795839800.708267,
+    "seen": 1795840478.1046264,
+    "ast_hash": "ca406640118dbf65bed4b2a98013019c",
+    "semantic_hash": ""
+  },
+  "tests/hero.spec.js": {
+    "mtime": 1795839837.8482692,
+    "seen": 1795840478.104628,
+    "ast_hash": "68a9c4e165ce9de7b150e8f7e5f72b1c",
+    "semantic_hash": ""
+  },
+  "docs/DESIGN.md": {
+    "mtime": 1795839784.804266,
+    "seen": 1795840478.1046371,
+    "ast_hash": "20dda690f57fcddd1f10448d2819374a",
+    "semantic_hash": ""
+  },
+  "docs/REDESIGN.md": {
+    "mtime": 1795839792.9522665,
+    "seen": 1795840478.1046443,
+    "ast_hash": "c9159396eb5f26e9c27576eef72006a7",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-11-28-redesign-v3.md": {
+    "mtime": 1795839798.3510046,
+    "seen": 1795840478.1046567,
+    "ast_hash": "4794562a9a48565b1ca3bd5c9738cc52",
     "semantic_hash": ""
   },
   "package-lock.json": {

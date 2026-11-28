@@ -24,7 +24,8 @@ const frameUrl = (name, set, i) => `${BASE}film/${name}/${set}/frame_${String(i)
 
 // `trigger` (optional) is the element whose scroll drives the scrub; it defaults to the enclosing section.
 // `intro` (optional, 0–1) autoplays the film to that point after load; scroll continues from there.
-export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 'bottom bottom', trigger, intro = 0, introDuration = 2.5 }) {
+// `introGate` (optional promise) delays the intro, e.g. until the loader's curtain lifts (default: window load).
+export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 'bottom bottom', trigger, intro = 0, introDuration = 2.5, introGate }) {
   const mq = matchMedia(MOBILE_QUERY);
   const rq = matchMedia(REDUCED_QUERY);
 
@@ -39,7 +40,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   canvas.className = 'film__canvas';
   const label = document.createElement('span');
   label.className = 'film__label';
-  label.textContent = 'Illustrative footage';
+  label.textContent = 'AI-generated footage';
   el.append(poster, canvas, label);
   const ctx = canvas.getContext('2d');
 
@@ -79,14 +80,17 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     // --film-fit: "contain" (default) or "cover". Cover must be anchored at the watermark
     // corner (--film-x/--film-y = 1) so the Flow watermark is never cropped.
     const fit = cs.getPropertyValue('--film-fit').trim() === 'cover' ? 'cover' : 'contain';
-    const W = canvas.width, H = canvas.height;
+    // --film-inset-b: CSS px kept clear at the bottom (e.g. the mobile bar), so the frame's
+    // bottom edge, and the watermark with it, is drawn above it rather than under it.
+    const inset = (parseFloat(cs.getPropertyValue('--film-inset-b')) || 0) * (canvas.width / (el.clientWidth || canvas.width));
+    const W = canvas.width, H = Math.max(1, canvas.height - Math.round(inset));
     const s = (fit === 'cover' ? Math.max : Math.min)(W / bmp.width, H / bmp.height);
     const dw = bmp.width * s, dh = bmp.height * s;
     const x = (W - dw) * (isNaN(ax) ? 0.5 : ax), y = (H - dh) * (isNaN(ay) ? 0 : ay);
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, W, canvas.height);
     ctx.drawImage(bmp, x, y, dw, dh);
     el.dataset.fit = fit;
-    el.dataset.draw = JSON.stringify({ x: Math.round(x), y: Math.round(y), w: Math.round(dw), h: Math.round(dh), cw: W, ch: H });
+    el.dataset.draw = JSON.stringify({ x: Math.round(x), y: Math.round(y), w: Math.round(dw), h: Math.round(dh), cw: W, ch: canvas.height });
   }
 
   // ── Display: a rAF loop eases the shown frame (`disp`) toward the target, but only across
@@ -314,7 +318,8 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
         onComplete: () => { el.dataset.intro = 'done'; },
       });
     };
-    if (document.readyState === 'complete') go();
+    if (introGate) introGate.then(go);
+    else if (document.readyState === 'complete') go();
     else addEventListener('load', go, { once: true });
   }
 

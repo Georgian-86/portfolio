@@ -17,12 +17,12 @@ async function frameSet(page) {
   return page.locator(`${HERO}`).getAttribute('data-set');
 }
 
-test('hero film creates canvas, poster and "Illustrative footage" label', async ({ page }) => {
+test('hero film creates canvas, poster and "AI-generated footage" label', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await expect(page.locator(`${HERO} canvas`)).toHaveCount(1);
   await expect(page.locator(`${HERO} img.film__poster`)).toHaveCount(1);
-  await expect(page.locator(HERO)).toContainText('Illustrative footage');
+  await expect(page.locator(HERO)).toContainText('AI-generated footage');
   const fs = await page.locator(`${HERO} .film__label`).evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
   expect(fs).toBeGreaterThanOrEqual(12);
 });

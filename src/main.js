@@ -2,37 +2,32 @@ import './tokens.css';
 import './style.css';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
 import { brand, sections, nav, menu, waLink, bookLink } from './content.js';
 import { renderLateSections } from './sections-late.js';
 import { mountFilm } from './film.js';
-import { esc, tbc, icon } from './ui.js';
+import { esc, tbc, icon, easeOut } from './ui.js';
+import { runLoader } from './loader.js';
 import { mountSections } from './sections.js';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const $ = (s, el = document) => el.querySelector(s);
 const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)');
 const status = (text = 'Online · replies within') =>
   `<span class="status"><span class="status__dot" aria-hidden="true"></span><span class="label">${esc(text)}</span> ${tbc(brand.replyTime)}</span>`;
 
-const progress = () =>
-  `<span class="untangled" aria-label="Untangled 0 of 4"><span class="label">Untangled 0/4</span><span class="untangled__segs" aria-hidden="true"><i></i><i></i><i></i><i></i></span></span>`;
-
 function renderHeader() {
   $('[data-hdr]').innerHTML = `
     <a class="hdr__brand" href="#main" aria-label="${esc(brand.fullName)}, back to top">${icon.mark}</a>
     <div class="hdr__id">
-      <div class="hdr__row">
-        <span class="hdr__name"><span class="m-only">${esc(brand.name)}</span><span class="d-only">${esc(brand.fullName)}</span></span>
-        <span class="m-only">${progress()}</span>
-      </div>
+      <span class="hdr__name"><span class="m-only">${esc(brand.name)}</span><span class="d-only">${esc(brand.fullName)}</span></span>
       ${status()}
     </div>
     <ul class="hdr__links" role="list">
       ${nav.slice(0, 3).map((l) => `<li><a href="${l.href}">${esc(l.label)}</a></li>`).join('')}
     </ul>
-    <span class="hdr__progress label">Untangled 0/4</span>
     <a class="btn btn--primary hdr__cta" href="${waLink()}" target="_blank" rel="noopener">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>
     <button class="hdr__menu" type="button" aria-controls="menu" aria-expanded="false" aria-label="Open menu"><i></i><i></i><i></i></button>`;
   $('#menu').innerHTML = `
@@ -82,74 +77,76 @@ function renderBar() {
   });
 }
 
-function prop(p) {
-  const cls = `prop prop--${p.kind} prop--${p.id}${p.where === 'desktop' ? ' d-only' : ''}`;
-  if (p.kind === 'sticky') return `<div class="${cls}"><span class="prop__tape"></span><p>${esc(p.text)}</p></div>`;
-  if (p.kind === 'call') {
-    return `<div class="${cls}"><span class="prop__icon${p.alert ? ' is-alert' : ''}">${icon.missed}</span>
-      <span class="prop__text"><b${p.alert ? ' class="is-alert"' : ''}>${esc(p.title)}</b><span>${esc(p.text)}</span></span></div>`;
-  }
-  if (p.kind === 'sheet') {
-    return `<div class="${cls}"><p class="prop__sheet-hd label"><span>${esc(p.title)}</span><span>#REF!</span></p>
-      <table>${p.rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
-  }
-  const text = p.textMobile
-    ? `<span class="d-only">${esc(p.text)}</span><span class="m-only">${esc(p.textMobile)}</span>`
-    : esc(p.text);
-  return `<div class="${cls}"><span class="prop__avatar">${esc(p.initials)}</span>
-    <span class="prop__text"><b>${esc(p.title)}</b><span>${text}</span></span><span class="prop__badge label">${esc(p.badge)}</span></div>`;
-}
-
+// ── 01 Hero: full-bleed film, focus pull, three headline lines across the pin ──
+let revealHero = () => {};
 function renderHero() {
   const h = sections.hero;
   const el = $('[data-sec="01"]');
   el.innerHTML = `
     <div class="hero__stage">
       <div class="hero__film" data-film></div>
-      <div class="hero__props" aria-hidden="true">${h.props.map(prop).join('')}</div>
       <div class="hero__copy">
-        <p class="hero__kicker label d-only">${esc(h.kicker)}</p>
-        <h1 id="hero-h1" class="hero__h1">${h.h1.map((l) => `<span class="is-${l.tone}">${esc(l.text)}</span>`).join(' ')}</h1>
-        <p class="hero__sub"><span class="m-only">${esc(h.subMobile)}</span><span class="d-only">${esc(h.subDesktop)}</span></p>
+        <p class="hero__kicker label">${esc(h.kicker)}</p>
+        <h1 id="hero-h1" class="hero__h1">${h.lines.map((l) => `<span class="hero__line">${esc(l)}</span>`).join(' ')}</h1>
         <div class="hero__ctas">
           <a class="btn btn--primary" href="${waLink()}" target="_blank" rel="noopener">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>
-          <a class="btn btn--ghost d-only" href="#contact">${icon.calendar}<span>${esc(h.secondaryCta)}</span></a>
+          <a class="btn btn--ghost" href="#contact">${icon.calendar}<span>${esc(h.secondaryCta)}</span></a>
+          <p class="hero__status">${status('Online · usually replies within')}</p>
         </div>
-        <p class="hero__status d-only">${status('Online · usually replies within')}</p>
-        <p class="hero__cue label" aria-hidden="true">${esc(h.scrollCue)} <span class="hero__cue-arrow">↓</span></p>
       </div>
+      <p class="hero__cue label" aria-hidden="true">${esc(h.scrollCue)} <span class="hero__cue-arrow">↓</span></p>
     </div>`;
-  // The scrub starts when the hero meets the header (it sits below it at scroll 0).
-  const fromHeader = () => `top ${parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hdr-h')) || 60}px`;
-  mountFilm($('[data-film]', el), { ...h.film, start: fromHeader });
-  // Desktop legibility scrim: inside the film, above the frames but below its "Illustrative footage" label.
+  const revealed = new Promise((ok) => { revealHero = ok; });
+  const film = $('[data-film]', el);
+  mountFilm(film, { ...h.film, start: 'top top', end: 'bottom bottom', introGate: revealed });
+  // Over the frames, under the "AI-generated footage" label: the focus-pull blur and the navy scrim.
+  // Both are kept out of the watermark corner (see .hero__focus / .hero__scrim in style.css).
+  const focus = Object.assign(document.createElement('div'), { className: 'hero__focus' });
   const scrim = Object.assign(document.createElement('div'), { className: 'hero__scrim' });
-  $('.film__label', el).before(scrim);
-  // The scroll cue fades once the visitor starts scrolling (and comes back at the very top).
+  $('.film__label', el).before(focus, scrim);
+
   const cue = $('.hero__cue', el);
   const syncCue = () => cue.classList.toggle('is-gone', scrollY > 8);
   addEventListener('scroll', syncCue, { passive: true });
   syncCue();
-  // Live props fade out by the first snap keyframe (38.2%) while the film tidies the desk.
-  let fade = null;
-  const syncProps = () => {
-    fade?.scrollTrigger?.kill();
-    fade?.kill();
-    fade = null;
-    const props = $('.hero__props', el);
-    gsap.set(props, { clearProps: 'all' });
-    if (reducedQuery.matches) return;
-    fade = gsap.to(props, {
-      autoAlpha: 0,
-      y: -24,
-      ease: 'none',
-      scrollTrigger: { trigger: el, start: fromHeader, end: '38.2% top', scrub: 1 },
-    });
-  };
-  syncProps();
-  reducedQuery.addEventListener('change', syncProps);
-}
 
+  const lines = [...el.querySelectorAll('.hero__line')];
+  const splits = lines.map((l) => SplitText.create(l, { type: 'words', mask: 'words', wordsClass: 'hero__word' }));
+  const words = splits.map((s) => s.words);
+  const ctas = $('.hero__ctas', el);
+  let tl = null;
+  const build = () => {
+    tl?.scrollTrigger?.kill();
+    tl?.kill();
+    tl = null;
+    gsap.set([...lines, ...words.flat(), ctas, focus], { clearProps: 'all' });
+    if (reducedQuery.matches) return;
+    gsap.set([lines[1], lines[2], ctas], { autoAlpha: 0 });
+    gsap.set(ctas, { y: 16 });
+    gsap.set([...words[1], ...words[2]], { yPercent: 110 });
+    tl = gsap.timeline({
+      defaults: { ease: easeOut },
+      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: 0.8 },
+    });
+    tl.to(focus, { autoAlpha: 0, duration: 0.3, ease: 'none' }, 0)
+      .to(lines[0], { autoAlpha: 0, y: -24, duration: 0.08 }, 0.22)
+      .to(lines[1], { autoAlpha: 1, duration: 0.03 }, 0.33)
+      .to(words[1], { yPercent: 0, duration: 0.1, stagger: 0.012 }, 0.33)
+      .to(lines[1], { autoAlpha: 0, y: -24, duration: 0.07 }, 0.55)
+      .to(lines[2], { autoAlpha: 1, duration: 0.03 }, 0.66)
+      .to(words[2], { yPercent: 0, duration: 0.1, stagger: 0.012 }, 0.66)
+      .to(ctas, { autoAlpha: 1, y: 0, duration: 0.08 }, 0.76)
+      .to({}, { duration: 0.0001 }, 1); // the timeline spans the whole pin
+  };
+  build();
+  reducedQuery.addEventListener('change', build);
+  // Line 1 rises into its mask as the loader's curtain lifts.
+  revealed.then(() => {
+    if (reducedQuery.matches || scrollY > 8) return;
+    gsap.from(words[0], { yPercent: 110, duration: 1.1, ease: easeOut, stagger: 0.06, delay: 0.15 });
+  });
+  return film;
+}
 
 function smoothScroll() {
   let lenis = null;
@@ -172,6 +169,7 @@ function smoothScroll() {
 renderHeader();
 wireMenu();
 renderBar();
-renderHero();
+const heroFilm = renderHero();
 mountSections(renderLateSections);
 smoothScroll();
+runLoader(heroFilm, () => revealHero());

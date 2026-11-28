@@ -181,23 +181,8 @@ function wireSnaps() {
   });
 }
 
-// Header "Untangled n/4" progress and the navy header/bar over 02b.
-function setUntangled(n) {
-  // n = 5 means every tangle is done: the header reads "All clear · 4/4".
-  const text = n > 4 ? 'All clear · 4/4' : `Untangled ${n}/4`;
-  $$('.hdr .untangled .label, .hdr__progress').forEach((l) => { l.textContent = text; });
-  $$('.hdr .untangled__segs i').forEach((seg, i) => seg.classList.toggle('is-on', i < n));
-  $('.hdr .untangled')?.setAttribute('aria-label', n > 4 ? 'All clear, 4 of 4 untangled' : `Untangled ${n} of 4`);
-}
 const hdrH = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hdr-h')) || 60;
 function wireProgress() {
-  $$('[data-untangled]').forEach((sec) => {
-    const n = Number(sec.dataset.untangled);
-    ScrollTrigger.create({
-      trigger: sec, start: 'top center',
-      onEnter: () => setUntangled(n), onLeaveBack: () => setUntangled(n - 1),
-    });
-  });
   // Navy header and bar while a navy section (02b, 07) sits under the header.
   $$('[data-theme="navy"]').forEach((sec) => ScrollTrigger.create({
     trigger: sec, start: () => `top ${hdrH() + 1}px`, end: () => `bottom ${hdrH() + 1}px`,

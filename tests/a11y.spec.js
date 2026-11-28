@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { gotoReady } from './helpers/loader.js';
 
 const OG_TITLE = 'Golu Kumar — AI agents, automations & websites';
 
@@ -87,7 +88,7 @@ for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
   test(`at ${vp.width}: sampled body text contrast is ≥ 4.5`, async ({ page }) => {
     await page.setViewportSize(vp);
     await page.goto('/');
-    for (const sel of ['.hero__sub', '[data-sec="02"] .tangle__body', '.agent__body', '.story__desc', '.team-card__blurb', '.rail__body', '.about__body', '.cta-sec__body']) {
+    for (const sel of ['[data-sec="02"] .tangle__body', '.agent__body', '.story__desc', '.team-card__blurb', '.rail__body', '.about__body', '.cta-sec__body']) {
       const visible = await page.locator(sel).first().isVisible();
       if (!visible) continue;
       expect(await contrastOf(page, sel), sel).toBeGreaterThanOrEqual(4.5);
@@ -152,23 +153,26 @@ async function compositedContrast(page, sel) {
 }
 
 for (const vp of [{ width: 1440, height: 900 }, { width: 1920, height: 880 }, { width: 390, height: 844 }]) {
-  test(`at ${vp.width}: hero text stays legible over the film (frame 1 and after the intro)`, async ({ page }) => {
+  test(`at ${vp.width}: each hero line stays legible over the film when it is on screen`, async ({ page }) => {
+    test.setTimeout(60000);
     await page.setViewportSize(vp);
-    await page.goto('/');
+    await gotoReady(page);
     const hero = page.locator('[data-sec="01"] .film');
-    for (const moment of ['start', 'intro']) {
-      if (moment === 'start') await expect(hero).toHaveAttribute('data-frame', /^\d+$/);
-      else await expect(hero).toHaveAttribute('data-intro', 'done', { timeout: 10000 });
-      const sub = await compositedContrast(page, '.hero__sub > span');
-      const h1 = await compositedContrast(page, '.hero__h1 .is-ink');
-      console.log(`hero contrast ${vp.width} ${moment} (frame ${await hero.getAttribute('data-frame')}): sub ${sub.toFixed(2)}, h1 ${h1.toFixed(2)}`);
-      expect(sub, 'sub copy').toBeGreaterThanOrEqual(4.5);
-      expect(h1, 'H1 (large text)').toBeGreaterThanOrEqual(3);
+    await expect(hero).toHaveAttribute('data-intro', 'done', { timeout: 10000 });
+    for (const [p, n] of [[0, 1], [0.47, 2], [0.9, 3]]) {
+      await page.evaluate((p) => {
+        const h = document.querySelector('[data-sec="01"]');
+        scrollTo(0, Math.round(p * (h.offsetHeight - innerHeight)));
+      }, p);
+      await page.waitForTimeout(1400);
+      const c = await compositedContrast(page, `.hero__line:nth-child(${n})`);
+      console.log(`hero contrast ${vp.width} line ${n} (frame ${await hero.getAttribute('data-frame')}): ${c.toFixed(2)}`);
+      expect(c, `line ${n}`).toBeGreaterThanOrEqual(4.5);
     }
   });
 }
 
-test('the scrim never covers the hero "Illustrative footage" label (desktop)', async ({ page }) => {
+test('the scrim never covers the hero "AI-generated footage" label (desktop)', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   const onTop = await page.locator('[data-sec="01"] .film__label').evaluate((el) => {
