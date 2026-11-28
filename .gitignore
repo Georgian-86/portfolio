@@ -6,3 +6,4 @@ graphify-out/.graphify_*
 test-results
 playwright-report
 graphify-out/graph.html
+.claude/worktrees/
