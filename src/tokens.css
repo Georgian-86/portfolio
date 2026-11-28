@@ -1,27 +1,27 @@
-/* "Atelier" look, tangerine colourway (docs/DESIGN.md). Swiss poster meets engineering:
+/* "Atelier" look, ink + marigold colourway (docs/DESIGN.md). Swiss poster meets engineering:
    full-width colour fields alternate with calm reading sections. Each look branch swaps only the
    colourway block below; the schemes map it onto the semantic tokens every component uses. */
 :root {
   /* ── Colourway ── */
-  --cw-field: #e4572e;        /* tangerine: loader, header, hero panel, key sections */
-  --cw-field-rgb: 228, 87, 46;
-  --cw-on-field: #1a1a1a;     /* body text on the field (4.7:1); warm white fails body sizes (3.4:1) */
-  --cw-display: #fff6ee;      /* large display text only on the field (3.4:1 ≥ 3, WCAG large) */
-  --cw-key: #1a1a1a;          /* highlighted key word on the field */
-  --cw-field-muted: #1a1a1a;  /* secondary text on the field: ink too (nothing lighter passes) */
-  --cw-field-surface: #fff6ee;/* cards inside a field */
-  --cw-field-surface-2: #fbebdd;
-  --cw-field-hair: rgba(26, 26, 26, 0.24);
-  --cw-paper: #fff6ee;        /* warm white reading sections */
-  --cw-on-paper: #1a1a1a;
-  --cw-paper-muted: #5c534c;  /* 7.0:1 on paper */
-  --cw-paper-surface: #fbebdd;
-  --cw-paper-surface-2: #f6dfcc;
-  --cw-paper-hair: rgba(26, 26, 26, 0.14);
-  --cw-btn: #1a1a1a;          /* primary button: ink fill, warm white text (16:1) */
-  --cw-on-btn: #fff6ee;
-  --cw-btn-hover: #333333;
-  --cw-accent-on-paper: #c2410c; /* non-text accents (rules, dots) on paper */
+  --cw-field: #151515;        /* ink: loader, header, hero panel, key sections */
+  --cw-field-rgb: 21, 21, 21;
+  --cw-on-field: #f1eee8;     /* chalk on ink (15.8:1) */
+  --cw-display: #f1eee8;
+  --cw-key: #ffb627;          /* marigold key word on ink (10.4:1) */
+  --cw-field-muted: #b3aea6;  /* 8.3:1 on ink */
+  --cw-field-surface: #f1eee8;/* cards inside a field read like chalk paper */
+  --cw-field-surface-2: #e6e2da;
+  --cw-field-hair: rgba(241, 238, 232, 0.2);
+  --cw-paper: #f1eee8;        /* chalk reading sections */
+  --cw-on-paper: #151515;
+  --cw-paper-muted: #57524c;  /* 6.7:1 on chalk */
+  --cw-paper-surface: #e6e2da;
+  --cw-paper-surface-2: #dcd7cd;
+  --cw-paper-hair: rgba(21, 21, 21, 0.14);
+  --cw-btn: #ffb627;          /* primary button: marigold fill, ink text (10.4:1) */
+  --cw-on-btn: #151515;
+  --cw-btn-hover: #ffc552;
+  --cw-accent-on-paper: #ffb627; /* non-text accents (rules, dots) on paper */
 
   --paper: var(--cw-paper);
   --alert: #b42318;     /* at most one per screen */
@@ -114,14 +114,15 @@
   --dot: var(--cw-on-field);
 }
 /* Cards inside a field read like paper again. */
-.scheme-field .scheme-paper, .board, .chat, .booking, .kpi, .quote, .outcome, .team-card, .desk__running, .desk__list {
+.scheme-field .scheme-paper, .board, .chat, .booking, .kpi, .quote, .outcome, .team-card, .desk__running, .desk__list, .bar__field, .step {
   --text: var(--cw-on-paper);
   --muted: var(--cw-paper-muted);
   --hair: var(--cw-paper-hair);
   --display: var(--cw-on-paper);
+  color: var(--text);
 }
 :root, .scheme-paper, .scheme-field, .loader, .hdr, .menu, .bar, .hero, .agent, .railed--navy, .tangle__sheet, .film--night, .film--sheet, .cta-sec,
-.board, .chat, .booking, .kpi, .quote, .outcome, .team-card, .desk__running, .desk__list {
+.board, .chat, .booking, .kpi, .quote, .outcome, .team-card, .desk__running, .desk__list, .bar__field, .step {
   /* Legacy aliases (sections not yet rebuilt) resolve inside each scheme. */
   --ink: var(--text);
   --navy: var(--surface);
