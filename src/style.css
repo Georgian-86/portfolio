@@ -657,3 +657,73 @@ html.has-node input { cursor: text; }
   .chat { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(14, 27, 39, 0.96); }
   .hero__focus { display: none; }
 }
+
+/* ── Phone layout pass ─────────────────────────────────────────
+   One idea per screen on phones too: the subject (film, figure, 3D desk) owns one band of the
+   screen and the copy owns another, so nothing is set on top of busy imagery. */
+
+/* The bar's input sized itself to its own text width and pushed the send button off a 320 px screen. */
+.bar__field { min-width: 0; }
+.bar input { width: 0; }
+
+@media (max-width: 767px) {
+  /* Header: name with the live dot; the reply-time line is in the hero and the contact section. */
+  .hdr { gap: var(--s-3); }
+  .hdr__id { flex-direction: row; align-items: center; gap: var(--s-2); }
+  .hdr__id .status { order: -1; }
+  .hdr__id .status .label, .hdr__id .status .tbc { display: none; }
+  .hdr__name { font-size: 16px; }
+}
+
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  /* Hero: the film's subject (phone, notes) sits in the top half; the copy is one compact block
+     in the lower half on the paper wash, and the CTAs take the place of the headline when they
+     arrive instead of stacking under it. The kicker repeats the header, so it goes. */
+  .hero__kicker { display: none; }
+  .hero__scrim { top: 40%; }
+}
+@media ((max-width: 767px) or (max-aspect-ratio: 1/1)) and (prefers-reduced-motion: no-preference) {
+  .hero__copy { display: grid; align-content: end; }
+  .hero__h1, .hero__ctas { grid-area: 1 / 1; }
+  /* Tall enough for line 3 (two short lines) above the two stacked CTAs, so they never overlap. */
+  .hero__h1 { min-height: 204px; align-content: stretch; }
+  .hero__line:nth-child(3) { align-self: start; }
+  .hero__ctas { align-self: end; z-index: 1; }
+  .hero__ctas .btn { flex: 1 1 100%; min-height: 50px; }
+}
+
+@media (max-width: 767px) {
+  /* Services: the figure gets the band between the heading and the copy (services.js sets it). */
+  .services__copy { gap: var(--s-3); }
+  .services__head .h2 { font-size: clamp(32px, 9vw, 44px); }
+  .svc { gap: var(--s-2); }
+  .svc__title { font-size: clamp(36px, 11vw, 52px); }
+  .svc__line { font-size: 15px; }
+}
+
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  /* 03/04: the solid block after each pin fades in from the 3D desk instead of a hard grey edge. */
+  .scene__after::before {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 96px; pointer-events: none;
+    background: linear-gradient(180deg, rgba(var(--wash), 0) 0%, rgb(var(--wash)) 100%);
+  }
+}
+
+@media (max-width: 899px) {
+  /* Work panels: the poster shrinks to fit so the info is never cut off by the bar, and the
+     "Screenshot TBC" chip moves to the top corner where the poster can't cover it. */
+  .panel__card { grid-template-rows: minmax(88px, 1fr) auto; }
+  .panel__media { padding: var(--s-4); }
+  .panel__poster { font-size: clamp(32px, calc(130cqi / var(--len, 6)), 120px); }
+  .panel__shot { left: auto; right: var(--s-3); top: var(--s-3); bottom: auto; }
+}
+@media (max-width: 767px) and (max-height: 700px) {
+  .panel__info { padding: var(--s-3); }
+  .panel__name { font-size: 30px; }
+}
+
+@media (max-width: 767px) {
+  /* "How this site is built": label above value; two columns were 10 characters wide at 320 px. */
+  .readout div { grid-template-columns: 1fr; gap: 2px; }
+  .readout dt { font-size: 13px; }
+}

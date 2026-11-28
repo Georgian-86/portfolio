@@ -1,7 +1,7 @@
 # Graph Report - portfolio  (2026-11-28)
 
 ## Corpus Check
-- 49 files · ~59,467 words
+- 49 files · ~60,190 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 2 file(s) not represented in the graph (top: (none) 1, .wip 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7af37d34`
+- Built from commit: `f91c2660`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -56,12 +56,12 @@
   docs/DESIGN.md → src/ui.js
 - `Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline)` --references--> `mountFilm()`  [INFERRED]
   docs/superpowers/plans/2026-11-27-website-build.md → src/film.js
+- `renderServices()` --calls--> `esc()`  [EXTRACTED]
+  src/services.js → src/ui.js
 - `renderHero()` --calls--> `mountFilm()`  [EXTRACTED]
   src/hero.js → src/film.js
-- `themeEngine()` --calls--> `clamp()`  [EXTRACTED]
-  src/main.js → src/ui.js
-- `sceneShell()` --calls--> `esc()`  [EXTRACTED]
-  src/scenes.js → src/ui.js
+- `renderWhatsapp()` --calls--> `waLink()`  [EXTRACTED]
+  src/scenes.js → src/content.js
 
 ## Import Cycles
 - None detected.

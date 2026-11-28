@@ -98,6 +98,7 @@ export function createField(canvas, { count, THREE = null, reduced = false }) {
   let tilt = { x: 0, y: 0 };
   let running = false, raf = 0, t0 = performance.now();
   let layout = { cx: 0, cy: 0, scale: 1, w: 1, h: 1 };
+  let band = null; // phones: { top, bottom } in canvas px, the free strip between the heading and the copy
 
   function targets(time) {
     const m = Math.max(0, Math.min(3, morph));
@@ -172,8 +173,13 @@ export function createField(canvas, { count, THREE = null, reduced = false }) {
       camera.updateProjectionMatrix();
       const vh = 2 * Math.tan((35 * Math.PI) / 360) * 5, vw = vh * camera.aspect;
       const wide = w >= 768;
-      const scale = wide ? Math.min((vh * 0.62) / 1.8, (vw * 0.4) / 2.4) : Math.min((vh * 0.34) / 1.8, (vw * 0.78) / 2.4);
-      layout = { cx: wide ? vw * 0.2 : 0, cy: wide ? 0 : vh * 0.02, scale, w: vw, h: vh, px: w, py: h };
+      let scale = wide ? Math.min((vh * 0.62) / 1.8, (vw * 0.4) / 2.4) : Math.min((vh * 0.34) / 1.8, (vw * 0.78) / 2.4);
+      let cy = wide ? 0 : vh * 0.02;
+      if (!wide && band) {
+        scale = Math.min((((band.bottom - band.top) / h) * vh * 0.86) / 1.8, (vw * 0.84) / 2.4);
+        cy = (0.5 - (band.top + band.bottom) / 2 / h) * vh;
+      }
+      layout = { cx: wide ? vw * 0.2 : 0, cy, scale, w: vw, h: vh, px: w, py: h };
       group.position.set(layout.cx, layout.cy, 0);
       group.scale.setScalar(scale);
     };
@@ -191,8 +197,10 @@ export function createField(canvas, { count, THREE = null, reduced = false }) {
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const wide = w >= 768;
-      const unit = wide ? Math.min((h * 0.62) / 1.8, (w * 0.4) / 2.4) : Math.min((h * 0.34) / 1.8, (w * 0.78) / 2.4);
-      layout = { cx: wide ? w * 0.7 : w / 2, cy: h / 2, scale: unit, px: w, py: h, flat: true };
+      let unit = wide ? Math.min((h * 0.62) / 1.8, (w * 0.4) / 2.4) : Math.min((h * 0.34) / 1.8, (w * 0.78) / 2.4);
+      let cy = h / 2;
+      if (!wide && band) { unit = Math.min(((band.bottom - band.top) * 0.86) / 1.8, (w * 0.84) / 2.4); cy = (band.top + band.bottom) / 2; }
+      layout = { cx: wide ? w * 0.7 : w / 2, cy, scale: unit, px: w, py: h, flat: true };
     };
     draw = () => {
       const { cx, cy, scale, px, py } = layout;
@@ -231,6 +239,8 @@ export function createField(canvas, { count, THREE = null, reduced = false }) {
   return {
     setMorph(m, snap = false) { morph = m; if (snap || reduced) { settle(); draw(0); } },
     pointer: setPointer,
+    /** Phones: fit the figure into this strip of the canvas (px from its top). */
+    setBand(b) { band = b; resize(); if (!running) draw(performance.now() - t0); },
     release() { pointer.active = false; tilt = { x: 0, y: 0 }; },
     resize() { resize(); if (!running) draw(performance.now() - t0); },
     start() { if (reduced || running) return; running = true; raf = requestAnimationFrame(loop); },
