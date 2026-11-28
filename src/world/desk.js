@@ -30,13 +30,19 @@ const SALON = { name: 'Glow Salon', ask: 'Hi, I just tried calling. Any slot tom
 
 /** `hero`: build the printed headlines (the lab's day chapter). `convo`: the phone's first conversation.
  *  `maxDpr`: cap the pixel ratio (the site uses 1.5 to stay at 60 fps on mid-range phones). */
-export async function createDesk(canvas, { onProgress = () => {}, hero = true, convo = SALON, maxDpr = 2 } = {}) {
+/** `lite`: phones and low-end machines get no shadow map, fewer lights, no clearcoat and smaller screen textures. */
+export async function createDesk(canvas, { onProgress = () => {}, hero = true, convo = SALON, maxDpr = 2, lite = false } = {}) {
   try { await Promise.all([document.fonts.load('600 92px Caveat'), document.fonts.load('600 40px Inter')]); } catch { /* fallbacks */ }
+  // MSAA stays on for lite: phone GPUs are tile-based, so it is nearly free there, and edges were jagged without it.
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  // Clearcoat doubles the lighting work per pixel; lite drops it (and the rest of MeshPhysicalMaterial).
+  const Physical = lite
+    ? class extends THREE.MeshStandardMaterial { constructor({ clearcoat, clearcoatRoughness, ...o }) { super(o); } } // eslint-disable-line no-unused-vars
+    : THREE.MeshPhysicalMaterial;
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, maxDpr));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.enabled = !lite; // lite: the soft contact-shadow blobs under each object carry the grounding
   renderer.shadowMap.type = THREE.PCFShadowMap;
 
   const scene = new THREE.Scene();
@@ -49,7 +55,7 @@ export async function createDesk(canvas, { onProgress = () => {}, hero = true, c
   // ── Lights: warm window key, cool night fill, the phone's own glow ──
   const key = new THREE.DirectionalLight('#fff1dd', 3.2);
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.mapSize.set(lite ? 1024 : 2048, lite ? 1024 : 2048);
   Object.assign(key.shadow.camera, { left: -50, right: 50, top: 50, bottom: -50, near: 1, far: 300 });
   key.shadow.radius = 3;
   key.shadow.bias = -0.0004;
@@ -59,15 +65,13 @@ export async function createDesk(canvas, { onProgress = () => {}, hero = true, c
   moon.position.set(60, 80, -40);
   scene.add(moon);
   // The screen's spill: two low lights beside the phone, so the glass shows no hotspot.
-  const glows = [new THREE.PointLight('#c4f2df', 0, 55, 1.6), new THREE.PointLight('#c4f2df', 0, 55, 1.6)];
+  // Lite: one glow light instead of two (every light is a loop in every lit pixel's shader).
+  const glows = lite ? [new THREE.PointLight('#c4f2df', 0, 55, 1.6)] : [new THREE.PointLight('#c4f2df', 0, 55, 1.6), new THREE.PointLight('#c4f2df', 0, 55, 1.6)];
   scene.add(...glows);
   // Window light: a broad soft spot that gives the desk a real falloff instead of flat studio light.
   const windowLight = new THREE.SpotLight('#fff3e4', 1.1, 0, 0.62, 1, 0);
-  scene.add(windowLight, windowLight.target);
-  const lampSpot = new THREE.SpotLight('#ffd9a8', 0, 140, 0.5, 0.7, 1.6); // morning desk lamp warmth on the laptop
-  lampSpot.position.set(-30, 70, -40);
-  lampSpot.target.position.set(LAPTOP.x, 0, LAPTOP.z);
-  scene.add(lampSpot, lampSpot.target);
+  if (!lite) scene.add(windowLight, windowLight.target); // lite: the key light and environment carry the day
+  // (The morning lamp spot was removed: it was always at intensity 0 but still cost a light in every shader.)
   onProgress(0.1);
 
   // ── Desk ──
@@ -111,13 +115,13 @@ export async function createDesk(canvas, { onProgress = () => {}, hero = true, c
 
   // ── Phones ──
   const phoneBody = new RoundedBoxGeometry(PHONE.w, PHONE.h, PHONE.l, 6, 1.05);
-  const bodyMat = new THREE.MeshPhysicalMaterial({ color: '#2a2d31', metalness: 0.8, roughness: 0.28, clearcoat: 0.8, clearcoatRoughness: 0.15 });
-  const screen = phoneScreen(convo);
-  const screenMat = new THREE.MeshPhysicalMaterial({
+  const bodyMat = new Physical({ color: '#2a2d31', metalness: 0.8, roughness: 0.28, clearcoat: 0.8, clearcoatRoughness: 0.15 });
+  const screen = phoneScreen(convo, lite ? 0.6 : 1);
+  const screenMat = new Physical({
     color: '#040506', roughness: 0.08, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04,
     emissive: '#ffffff', emissiveMap: screen.texture, emissiveIntensity: 0,
   });
-  const darkGlass = new THREE.MeshPhysicalMaterial({ color: '#050607', roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.05 });
+  const darkGlass = new Physical({ color: '#050607', roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.05 });
   function makePhone(glass, faceDown) {
     const g = new THREE.Group();
     const body = new THREE.Mesh(phoneBody, bodyMat);
@@ -269,7 +273,7 @@ export async function createDesk(canvas, { onProgress = () => {}, hero = true, c
     m.rotation.z = lerp(r, 0.06 - i * 0.03, k);
   });
 
-  const alu = new THREE.MeshPhysicalMaterial({ color: '#8e9095', metalness: 0.9, roughness: 0.34, clearcoat: 0.2 });
+  const alu = new Physical({ color: '#8e9095', metalness: 0.9, roughness: 0.34, clearcoat: 0.2 });
   const laptop = new THREE.Group();
   laptop.position.set(LAPTOP.x, 0, LAPTOP.z);
   const base = new THREE.Mesh(new RoundedBoxGeometry(31, 1.4, 21.5, 4, 0.6), alu);
@@ -284,8 +288,8 @@ export async function createDesk(canvas, { onProgress = () => {}, hero = true, c
   const lidShell = new THREE.Mesh(new RoundedBoxGeometry(31, 0.55, 21.5, 4, 0.25), alu);
   lidShell.position.set(0, 0.28, 10.75);
   lidShell.castShadow = true;
-  const dash = dashboardScreen();
-  const bezel = new THREE.Mesh(new THREE.PlaneGeometry(30, 20.6), new THREE.MeshPhysicalMaterial({ color: '#050607', roughness: 0.4, clearcoat: 0.3, envMapIntensity: 0.3 }));
+  const dash = dashboardScreen(lite ? 0.6 : 1);
+  const bezel = new THREE.Mesh(new THREE.PlaneGeometry(30, 20.6), new Physical({ color: '#050607', roughness: 0.4, clearcoat: 0.3, envMapIntensity: 0.3 }));
   bezel.rotation.x = Math.PI / 2;
   bezel.position.set(0, -0.005, 10.75);
   const display = new THREE.Mesh(new THREE.PlaneGeometry(28, 18), new THREE.MeshStandardMaterial({ color: '#000', emissive: '#fff', emissiveMap: dash.texture, emissiveIntensity: 0, roughness: 0.7, envMapIntensity: 0.12 }));
@@ -300,14 +304,15 @@ export async function createDesk(canvas, { onProgress = () => {}, hero = true, c
   const look = new THREE.Vector3();
   const right = new THREE.Vector3();
   const pointer = { x: 0, y: 0, sx: 0, sy: 0 };
-  addEventListener('pointermove', (e) => { pointer.x = e.clientX / innerWidth - 0.5; pointer.y = e.clientY / innerHeight - 0.5; }, { passive: true });
+  // Mouse parallax (not on lite: a touch-drag would shake the camera while scrolling).
+  if (!lite) addEventListener('pointermove', (e) => { pointer.x = e.clientX / innerWidth - 0.5; pointer.y = e.clientY / innerHeight - 0.5; }, { passive: true });
   let fit = 1;
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     // Portrait screens pull the camera back so the same desk width stays in frame.
-    fit = camera.aspect < 1 ? clamp(0.8 / camera.aspect, 1, 1.9) : clamp(1.25 / camera.aspect, 1, 1.4);
+    fit = camera.aspect < 1 ? clamp(0.95 / camera.aspect, 1, 2.3) : clamp(1.25 / camera.aspect, 1, 1.4); // phones: the whole phone / laptop screen stays in frame
     camera.updateProjectionMatrix();
   }
 
@@ -340,15 +345,14 @@ export async function createDesk(canvas, { onProgress = () => {}, hero = true, c
     renderer.toneMappingExposure = lerp(1.0, 1.35, n);
     screenMat.emissiveIntensity = S.screen * 1.15;
     screen.draw(S.chat, S.chat < 1 ? '11:42' : '11:43');
-    glows.forEach((g, i) => {
-      g.position.set(i ? 5.2 : -5.2, 2.6, 0);
+    glows.forEach((g, i) => { // lite's single glow sits beside the phone at double strength
+      g.position.set(lite ? 0 : i ? 5.2 : -5.2, lite ? 3.2 : 2.6, 0);
       heroPhone.localToWorld(g.position);
-      g.intensity = S.screen * 9;
+      g.intensity = S.screen * (lite ? 18 : 9);
     });
     windowLight.intensity = lerp(1.1, 0, n);
     windowLight.target.position.copy(look);
     windowLight.position.copy(look).add(new THREE.Vector3(-110, 140, -60));
-    lampSpot.intensity = S.dawn * 0;
 
     // Camera: keyframed path + pointer parallax + a whisper of handheld drift
     pointer.sx += (pointer.x - pointer.sx) * 0.05;
@@ -356,8 +360,9 @@ export async function createDesk(canvas, { onProgress = () => {}, hero = true, c
     look.set(S.tx, S.ty, S.tz);
     const off = new THREE.Vector3(S.cx - S.tx, S.cy - S.ty, S.cz - S.tz).multiplyScalar(fit);
     camera.position.copy(look).add(off);
-    camera.position.x += pointer.sx * 3 + Math.sin(clock * 0.37) * 0.12;
-    camera.position.z += pointer.sy * 3 + Math.cos(clock * 0.29) * 0.12;
+    const drift = lite ? 0 : 0.12; // lite holds still, so it can skip frames when nothing changes
+    camera.position.x += pointer.sx * 3 + Math.sin(clock * 0.37) * drift;
+    camera.position.z += pointer.sy * 3 + Math.cos(clock * 0.29) * drift;
     // Looking straight down, "up" is the far edge of the desk; it blends to world-up as the camera tilts.
     const dy = Math.abs(look.y - camera.position.y) / camera.position.distanceTo(look);
     const w = clamp((dy - 0.86) / 0.12);
@@ -380,6 +385,8 @@ export async function createDesk(canvas, { onProgress = () => {}, hero = true, c
   }
 
   resize();
+  // Compile every shader now (off the scroll path), so the first frame on screen doesn't stall.
+  try { await renderer.compileAsync?.(scene, camera); } catch { /* compiled on first render instead */ }
   onProgress(1);
-  return { render, resize, renderer, setConvo: (c) => screen.set(c) };
+  return { render, resize, renderer, lite, setConvo: (c) => screen.set(c) };
 }

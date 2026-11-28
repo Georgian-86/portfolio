@@ -4,7 +4,7 @@
 // No WebGL: the canvas stays hidden and the sections fall back to the plain night/paper page.
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { reducedQuery, clamp } from '../ui.js';
+import { reducedQuery, clamp, liteGpu } from '../ui.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,10 +25,6 @@ const STILL = {
   night: { ...START, ...CAM.closeup, screen: 1, chat: 4.3 },
   morning: { ...START, ...CAM.screen, dusk: 0, dawn: 1, sheets: 1, lid: 1, dash: 1 },
 };
-
-function webglOk() {
-  try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; }
-}
 
 /** Mounts the world behind `night` and `morning`. Returns { setConvo(demo) } for the WhatsApp pills. */
 export function mountWorld(night, morning, { convo, before }) {
@@ -55,9 +51,10 @@ export function mountWorld(night, morning, { convo, before }) {
   };
 
   const load = () => {
-    if (loading || !webglOk()) return loading;
+    if (loading) return loading; // no WebGL: createDesk throws and the world stays off
     loading = import('./desk.js').then(async ({ createDesk }) => {
-      desk = await createDesk(canvas, { hero: false, convo, maxDpr: 1.5 });
+      const lite = liteGpu();
+      desk = await createDesk(canvas, { hero: false, convo, maxDpr: lite ? 1.25 : 1.5, lite });
       addEventListener('resize', () => desk.resize());
       document.documentElement.dataset.world = 'ready';
       draw();
@@ -120,10 +117,14 @@ export function mountWorld(night, morning, { convo, before }) {
   addEventListener('resize', fade);
   fade();
 
+  // Lite (phones): the camera holds still between scroll updates, so a frame is drawn only when the
+  // scene state changed. Desktop keeps drawing for the handheld drift and mouse parallax.
+  let lastSig = '';
   const loop = () => {
     if (visible && !reducedQuery.matches) {
       if (S.chat < 1) replay = -1; // scrolled back before the chat: the scroll owns it again
-      draw();
+      const sig = desk?.lite ? `${Object.values(S).join()}|${replay}|${canvas.width}x${canvas.height}` : '';
+      if (!sig || sig !== lastSig) { lastSig = sig; draw(); }
     }
     requestAnimationFrame(loop);
   };

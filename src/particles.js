@@ -132,9 +132,12 @@ export function createField(canvas, { count, THREE = null, reduced = false }) {
   }
 
   // ── Renderers ──
-  let draw, resize;
+  let draw, resize, dispose = () => {};
   if (THREE) {
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: 'low-power' });
+    // Same power preference as the desk world (world/desk.js). Mixing 'low-power' and 'high-performance'
+    // makes dual-GPU laptops switch GPUs when the world loads, which loses this context (the figure vanished).
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: 'high-performance' });
+    dispose = () => { renderer.dispose(); geo.dispose(); mat.map.dispose(); mat.dispose(); };
     renderer.setClearColor(0x000000, 0);
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 50);
@@ -233,5 +236,7 @@ export function createField(canvas, { count, THREE = null, reduced = false }) {
     start() { if (reduced || running) return; running = true; raf = requestAnimationFrame(loop); },
     stop() { running = false; cancelAnimationFrame(raf); raf = 0; },
     get running() { return running; },
+    /** Stops and frees the GPU resources (the canvas is left to the caller). */
+    destroy() { running = false; cancelAnimationFrame(raf); raf = 0; try { dispose(); } catch { /* context already lost */ } },
   };
 }

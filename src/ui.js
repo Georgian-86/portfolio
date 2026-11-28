@@ -28,6 +28,11 @@ export const easeOut = cubicBezier(0.16, 1, 0.3, 1);
 export const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)');
 export const fineQuery = matchMedia('(hover: hover) and (pointer: fine)');
 export const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+/** Runs `fn` when the main thread is free (or after `timeout` ms at the latest). */
+export const idle = (fn, timeout = 600) => (window.requestIdleCallback ? requestIdleCallback(() => fn(), { timeout }) : setTimeout(fn, 60));
+/** Lighter 3D on phones, tablets and low-end machines: lower pixel ratio, no MSAA, cheaper materials. */
+export const liteGpu = () => matchMedia('(pointer: coarse), (max-width: 767px)').matches
+  || (navigator.deviceMemory || 8) <= 4 || (navigator.hardwareConcurrency || 8) <= 4;
 
 /** Magnetic pull: the element drifts toward the pointer while it is within `reach` px of its box. */
 export function magnetic(el, gsap, { strength = 0.32, reach = 36 } = {}) {

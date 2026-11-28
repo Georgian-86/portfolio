@@ -68,29 +68,43 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     if (w && h && (canvas.width !== w || canvas.height !== h)) {
       canvas.width = w;
       canvas.height = h;
+      knobs = null; // breakpoints may have changed the CSS knobs too
       return true;
     }
     return false;
   }
 
-  function paint(bmp) {
+  // The film's CSS knobs, read once per canvas size instead of on every painted frame
+  // (getComputedStyle per frame forced a style recalc in the middle of scrolling).
+  let knobs = null;
+  function readKnobs() {
     const cs = getComputedStyle(el);
-    const ax = parseFloat(cs.getPropertyValue('--film-x'));
-    const ay = parseFloat(cs.getPropertyValue('--film-y'));
-    // --film-fit: "contain" (default) or "cover". Cover must be anchored at the watermark
-    // corner (--film-x/--film-y = 1) so the Flow watermark is never cropped.
-    const fit = cs.getPropertyValue('--film-fit').trim() === 'cover' ? 'cover' : 'contain';
-    // --film-inset-b: CSS px kept clear at the bottom (e.g. the mobile bar), so the frame's
-    // bottom edge, and the watermark with it, is drawn above it rather than under it.
-    const inset = (parseFloat(cs.getPropertyValue('--film-inset-b')) || 0) * (canvas.width / (el.clientWidth || canvas.width));
+    knobs = {
+      ax: parseFloat(cs.getPropertyValue('--film-x')),
+      ay: parseFloat(cs.getPropertyValue('--film-y')),
+      // --film-fit: "contain" (default) or "cover". Cover must be anchored at the watermark
+      // corner (--film-x/--film-y = 1) so the Flow watermark is never cropped.
+      fit: cs.getPropertyValue('--film-fit').trim() === 'cover' ? 'cover' : 'contain',
+      // --film-inset-b: CSS px kept clear at the bottom (e.g. the mobile bar), so the frame's
+      // bottom edge, and the watermark with it, is drawn above it rather than under it.
+      insetCss: parseFloat(cs.getPropertyValue('--film-inset-b')) || 0,
+      clientW: el.clientWidth,
+    };
+  }
+  function paint(bmp) {
+    if (!knobs) readKnobs();
+    const { ax, ay, fit, insetCss, clientW } = knobs;
+    const inset = insetCss * (canvas.width / (clientW || canvas.width));
     const W = canvas.width, H = Math.max(1, canvas.height - Math.round(inset));
     const s = (fit === 'cover' ? Math.max : Math.min)(W / bmp.width, H / bmp.height);
     const dw = bmp.width * s, dh = bmp.height * s;
     const x = (W - dw) * (isNaN(ax) ? 0.5 : ax), y = (H - dh) * (isNaN(ay) ? 0 : ay);
     ctx.clearRect(0, 0, W, canvas.height);
     ctx.drawImage(bmp, x, y, dw, dh);
-    el.dataset.fit = fit;
-    el.dataset.draw = JSON.stringify({ x: Math.round(x), y: Math.round(y), w: Math.round(dw), h: Math.round(dh), cw: W, ch: canvas.height });
+    // Attribute writes invalidate style, so only write when the values change (not on every frame).
+    const draw = JSON.stringify({ x: Math.round(x), y: Math.round(y), w: Math.round(dw), h: Math.round(dh), cw: W, ch: canvas.height });
+    if (el.dataset.fit !== fit) el.dataset.fit = fit;
+    if (el.dataset.draw !== draw) el.dataset.draw = draw;
   }
 
   // ── Display: a rAF loop eases the shown frame (`disp`) toward the target, but only across

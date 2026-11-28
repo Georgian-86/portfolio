@@ -4,7 +4,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { services as s } from './content.js';
-import { esc, reducedQuery, clamp } from './ui.js';
+import { esc, reducedQuery, clamp, idle } from './ui.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,14 +17,10 @@ export function morphAt(p) {
   }
   return 3;
 }
-const groupAt = (p) => (p < 0.35 ? 0 : p < 0.65 ? 1 : 2);
-
-function webglOk() {
-  try {
-    const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
-  } catch { return false; }
-}
+// The copy follows the figure, not a separate clock: a group is active while its shape is the nearest
+// one (the cloud counts as Grow), and its text is fully in only when its shape has formed.
+export const groupOf = (m) => clamp(Math.round(m) - 1, 0, 2);
+export const copyWeight = (m, g) => clamp(1 - Math.abs(m - (g + 1)) * 2.2);
 
 export function renderServices() {
   const el = document.querySelector('[data-sec="02"]');
@@ -51,10 +47,11 @@ export function renderServices() {
       </div>
     </div>`;
 
-  const canvas = el.querySelector('.services__canvas');
+  let canvas = el.querySelector('.services__canvas');
+  const stage = el.querySelector('.services__stage');
   const groups = [...el.querySelectorAll('.svc')];
   const ticks = [...el.querySelectorAll('.services__index li')];
-  let field = null, loading = null, progress = 0, visible = false, active = 0;
+  let field = null, loading = null, progress = 0, visible = false, active = 0, losses = 0;
 
   const setGroup = (i) => {
     if (i === active) return;
@@ -62,21 +59,63 @@ export function renderServices() {
     groups.forEach((g, k) => g.classList.toggle('is-on', k === i));
     ticks.forEach((t, k) => t.classList.toggle('is-on', k === i));
   };
+  // Scrubs each group's copy with the morph (opacity + translate only). Reduced motion: the CSS end state.
+  const syncCopy = () => {
+    const m = morphAt(progress);
+    setGroup(groupOf(m));
+    const on = !reducedQuery.matches;
+    stage.classList.toggle('is-scrubbed', on);
+    groups.forEach((g, k) => {
+      if (!on) { g.style.opacity = ''; g.style.translate = ''; return; }
+      const w = copyWeight(m, k);
+      g.style.opacity = w.toFixed(3);
+      g.style.translate = `0 ${((1 - w) * (m < k + 1 ? 24 : -24)).toFixed(1)}px`;
+    });
+  };
 
+  const ro = new ResizeObserver(() => field?.resize());
+  ro.observe(canvas);
+  // A canvas that has held a WebGL context can't be reused for 2D or a second WebGL context: swap in a new one.
+  const freshCanvas = () => {
+    const c = canvas.cloneNode(false);
+    ro.unobserve(canvas);
+    canvas.replaceWith(c);
+    canvas = c;
+    ro.observe(c);
+  };
+  const count = innerWidth < 768 ? 1100 : 2200;
+  const build = (THREE) => {
+    const reduced = reducedQuery.matches;
+    try {
+      field = createField(canvas, { count, THREE, reduced });
+    } catch {
+      THREE = null; // WebGL context failed: draw in 2D on a clean canvas
+      freshCanvas();
+      field = createField(canvas, { count, THREE: null, reduced });
+    }
+    el.dataset.renderer = THREE ? 'webgl' : '2d';
+    field.setMorph(reduced ? 3 : morphAt(progress), true);
+    if (visible) field.start();
+    if (THREE) {
+      // The GPU can drop the context (GPU switch, driver reset, too many contexts). Rebuild on a new
+      // canvas instead of leaving an empty stage; after repeated losses, settle on 2D.
+      canvas.addEventListener('webglcontextlost', (e) => {
+        e.preventDefault();
+        field?.destroy();
+        field = null;
+        el.dataset.renderer = 'lost';
+        losses += 1;
+        setTimeout(() => { freshCanvas(); build(losses > 2 ? null : THREE); }, 200);
+      }, { once: true });
+    }
+  };
+  let createField = null;
   const ensureField = () => {
     if (field || loading) return loading;
-    const count = innerWidth < 768 ? 1100 : 2200;
-    const reduced = reducedQuery.matches;
-    loading = (webglOk() ? import('./three-lite.js').catch(() => null) : Promise.resolve(null)).then(async (THREE) => {
-      const { createField } = await import('./particles.js');
-      try {
-        field = createField(canvas, { count, THREE, reduced });
-      } catch {
-        field = createField(canvas, { count, THREE: null, reduced }); // WebGL context failed: 2D
-      }
-      el.dataset.renderer = THREE ? 'webgl' : '2d';
-      field.setMorph(reduced ? 3 : morphAt(progress), true);
-      if (visible) field.start();
+    // No separate WebGL probe: creating a probe context costs as much as the real one. build() falls back to 2D.
+    loading = Promise.all([import('./three-lite.js').catch(() => null), import('./particles.js')]).then(([THREE, mod]) => {
+      createField = mod.createField;
+      build(THREE);
     });
     return loading;
   };
@@ -86,21 +125,27 @@ export function renderServices() {
     onUpdate: (st) => {
       progress = st.progress;
       field?.setMorph(morphAt(progress));
-      setGroup(groupAt(progress));
+      syncCopy();
       el.dataset.progress = progress.toFixed(3);
     },
   });
+  syncCopy();
 
+  // Build a viewport early; render only while the stage is actually on screen (it used to keep
+  // rendering a full viewport past the section, on top of the desk world's own WebGL frames).
+  new IntersectionObserver(([e]) => { if (e.isIntersecting) ensureField(); }, { rootMargin: '100% 0px' }).observe(el);
   new IntersectionObserver(([e]) => {
     visible = e.isIntersecting;
     if (visible) { ensureField(); field?.start(); } else field?.stop();
-  }, { rootMargin: '100% 0px' }).observe(el);
+  }).observe(el);
 
   el.addEventListener('pointermove', (e) => field?.pointer(e.clientX, e.clientY), { passive: true });
   el.addEventListener('pointerleave', () => field?.release());
-  new ResizeObserver(() => field?.resize()).observe(canvas);
   reducedQuery.addEventListener('change', () => {
+    syncCopy();
     if (reducedQuery.matches) { field?.stop(); field?.setMorph(3, true); }
     else { field?.setMorph(morphAt(progress), true); if (visible) field?.start(); }
   });
+  // main.js warms the field up right after the loader, so it is drawn before anyone scrolls to it.
+  return { warm: () => ensureField() || Promise.resolve() };
 }

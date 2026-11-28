@@ -139,4 +139,5 @@ export function renderScenes() {
     world.setConvo(d);
   }));
   el.dataset.demo = w.demos[0].id;
+  return { warm: () => world.ready() };
 }

@@ -77,8 +77,10 @@ export async function headlineTexture(lines, { width = 4096, size = 300 } = {}) 
 
 /** Phone UI: a lock-screen missed call, then a chat that types itself. `step` 0–5 reveals it. */
 /** `convo`: { name, ask, reply, follow, booked } — the sample conversation drawn on the phone. */
-export function phoneScreen(convo) {
-  const W = 600, H = 1300, c = canvas(W, H), g = c.getContext('2d');
+/** `k` scales the texture resolution (phones use a smaller one: it is re-uploaded as the chat types). */
+export function phoneScreen(convo, k = 1) {
+  const W = 600, H = 1300, c = canvas(Math.round(W * k), Math.round(H * k)), g = c.getContext('2d');
+  g.scale(k, k);
   const t = tex(c, { aniso: 4 });
   const round = (x, y, w, h, r) => { g.beginPath(); g.roundRect(x, y, w, h, r); g.fill(); };
   const wrap = (text, maxW) => {
@@ -179,15 +181,16 @@ export function keyboardTexture() {
 }
 
 /** Dashboard on the laptop screen; `t` 0–1 grows the bars and counts up. Numbers labelled as sample. */
-export function dashboardScreen() {
-  const W = 1280, H = 820, c = canvas(W, H), g = c.getContext('2d');
+export function dashboardScreen(k = 1) {
+  const W = 1280, H = 820, c = canvas(Math.round(W * k), Math.round(H * k)), g = c.getContext('2d');
+  g.scale(k, k);
   const t = tex(c, { aniso: 4 });
   const bars = [0.32, 0.46, 0.4, 0.62, 0.55, 0.86, 0.44];
   let last = -1;
   function draw(p) {
-    const k = Math.round(p * 200);
-    if (k === last) return;
-    last = k;
+    const step = Math.round(p * 120); // each redraw re-uploads the texture: 120 steps is smooth enough
+    if (step === last) return;
+    last = step;
     g.fillStyle = '#0e1b27'; g.fillRect(0, 0, W, H);
     g.fillStyle = '#e9eef0'; g.font = '600 44px Inter, system-ui, sans-serif'; g.fillText('This week', 70, 110);
     g.fillStyle = '#8fa0a6'; g.font = '400 26px Inter, system-ui, sans-serif'; g.fillText('Sample data', 70, 150);
