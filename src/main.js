@@ -16,7 +16,7 @@ import { renderProcess, renderAbout, renderContact } from './late.js';
 gsap.registerPlugin(ScrollTrigger);
 
 const $ = (s, el = document) => el.querySelector(s);
-const status = (text = 'Online · replies within') =>
+const status = (text = 'Online, replies within') =>
   `<span class="status"><span class="status__dot" aria-hidden="true"></span><span class="label">${esc(text)}</span> ${tbc(brand.replyTime)}</span>`;
 
 function renderHeader() {
@@ -33,7 +33,7 @@ function renderHeader() {
     <button class="hdr__menu" type="button" aria-controls="menu" aria-expanded="false" aria-label="Open menu"><i></i><i></i><i></i></button>`;
   $('#menu').innerHTML = `
     <p class="label">Menu</p>
-    <ul role="list">${menu.map((l) => `<li><a href="${l.href}"><span class="label">${esc(l.n)}</span>${esc(l.label)}</a></li>`).join('')}</ul>
+    <ul role="list">${menu.map((l) => `<li><a href="${l.href}">${esc(l.label)}</a></li>`).join('')}</ul>
     <a class="btn btn--primary menu__book" href="${bookLink()}" target="_blank" rel="noopener">${icon.calendar}<span>Book a call</span></a>`;
   magnetic($('.hdr__cta'), gsap, { strength: 0.2, reach: 20 });
 }

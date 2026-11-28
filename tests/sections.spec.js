@@ -64,7 +64,7 @@ test('04 automations: the wire draws and every step lights by the end of the pin
   await page.setViewportSize({ width: 1440, height: 900 });
   await gotoReady(page);
   const sec = page.locator('[data-sec="04"]');
-  await expect(sec).toContainText('Sample flow · illustrative');
+  await expect(sec).toContainText('Sample flow with illustrative steps');
   await scrollToSec(page, '04', 0.05);
   await page.waitForTimeout(800);
   expect(await sec.locator('.flow__step.is-on').count()).toBeLessThan(4);

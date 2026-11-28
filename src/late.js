@@ -22,7 +22,7 @@ export function renderProcess() {
   el.innerHTML = `
     <div class="wrap">
       <div class="sec-head">
-        <p class="label">${esc(pr.kicker)}</p>
+        ${pr.kicker ? `<p class="label">${esc(pr.kicker)}</p>` : ''}
         <h2 id="process-h2" class="h2">${esc(pr.h2)}</h2>
       </div>
       <ol class="steps" role="list">
@@ -66,7 +66,7 @@ export function renderAbout() {
   el.innerHTML = `
     <div class="wrap about__grid">
       <div class="about__text">
-        <p class="label">${esc(ab.kicker)}</p>
+        ${ab.kicker ? `<p class="label">${esc(ab.kicker)}</p>` : ''}
         <h2 id="about-h2" class="h2">${esc(ab.h2)}</h2>
         <p class="lead">${esc(ab.body)}</p>
         <ul class="about__links" role="list">
@@ -88,7 +88,7 @@ export function renderContact() {
   const words = ct.h2.split(' ');
   el.innerHTML = `
     <div class="wrap">
-      <p class="label">${esc(ct.kicker)}</p>
+      ${ct.kicker ? `<p class="label">${esc(ct.kicker)}</p>` : ''}
       <h2 id="contact-h2" class="contact__big" aria-label="${esc(ct.h2)}">${words.map((wd, i) => `<span style="display:inline-block;white-space:nowrap" aria-hidden="true">${[...wd].map((c) => `<span class="contact__char">${esc(c)}</span>`).join('')}</span>${i < words.length - 1 ? ' ' : ''}`).join('')}</h2>
     </div>
     <div class="wrap contact__row">

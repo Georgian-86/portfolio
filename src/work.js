@@ -21,7 +21,7 @@ export function renderWork() {
   el.innerHTML = `
     <div class="work__head wrap">
       <div class="sec-head">
-        <p class="label">${esc(w.kicker)}</p>
+        ${w.kicker ? `<p class="label">${esc(w.kicker)}</p>` : ''}
         <h2 id="work-h2" class="h2">${esc(w.h2)}</h2>
       </div>
       <div class="toggle" role="group" aria-label="View work as">
@@ -35,12 +35,11 @@ export function renderWork() {
           <div class="panel__card tone-${p.tone}">
             <span class="panel__dim" aria-hidden="true"></span>
             <div class="panel__media" aria-hidden="true">
-              <span class="panel__ch">CH ${p.ch}</span>
               <p class="panel__poster" style="--len:${Math.max(5, ...p.name.split(' ').map((x) => x.length))}">${esc(p.name)}</p>
               <span class="panel__shot chip">${esc(w.shot)}</span>
             </div>
             <div class="panel__info">
-              <p class="label">${esc(p.kind)} · ${tbc(p.year)}</p>
+              <p class="label">${esc(p.kind)}, year ${tbc(p.year)}</p>
               <h3 id="p-${p.id}" class="panel__name">${esc(p.name)}</h3>
               <p class="panel__credit label">${credit(p)}</p>
               <p class="panel__blurb">${esc(p.blurb)}</p>
@@ -53,7 +52,6 @@ export function renderWork() {
       ${w.projects.map((p) => `
         <div class="row" role="listitem" data-id="${p.id}">
           <button class="row__btn" type="button" aria-expanded="false" aria-controls="row-${p.id}" data-node="Open">
-            <span class="label">${p.ch}</span>
             <span class="row__name">${esc(p.name)}</span>
             <span class="row__kind label">${esc(p.kind)}</span>
             <span class="row__plus" aria-hidden="true"></span>

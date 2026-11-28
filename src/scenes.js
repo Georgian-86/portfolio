@@ -17,7 +17,7 @@ function sceneShell({ id, kicker, h2, body, extra }) {
       <div class="scene__stage">
         <div class="scene__wash" aria-hidden="true"></div>
         <div class="scene__copy">
-          <p class="label">${esc(kicker)}</p>
+          ${kicker ? `<p class="label">${esc(kicker)}</p>` : ''}
           <h2 id="${id}-h2" class="h2">${esc(h2)}</h2>
           <p class="lead">${esc(body)}</p>
           <div class="scene__slot"></div>
@@ -62,7 +62,7 @@ export function renderWhatsapp() {
         <span class="label">${esc(w.pick)}</span>
         ${w.demos.map((d, i) => `<button type="button" class="pill" data-demo="${d.id}" aria-pressed="${i === 0}" data-node="Play">${esc(d.label)}</button>`).join('')}
       </div>
-      <p class="demo__tag chip">${esc(w.tag)} · on the phone</p>
+      <p class="demo__tag chip">${esc(w.tag)}, shown on the phone</p>
       <p class="sr-only demo__transcript" aria-live="polite">${esc(transcript(w.demos[0]))}</p>
       <a class="btn btn--primary" href="${waLink(w.ctaMessage)}" target="_blank" rel="noopener" style="justify-self:start">${icon.whatsapp}<span>${esc(w.cta)}</span></a>
     </div>`;

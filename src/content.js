@@ -4,7 +4,7 @@
 export const brand = {
   name: 'Golu',
   fullName: 'Golu Kumar',
-  role: 'AI agents · automations · websites · apps',
+  role: 'AI agents, automations, websites and apps',
   replyTime: 'TBC',
   // Placeholder contact details: replace before launch.
   whatsapp: '910000000000', // digits only, international format
@@ -15,18 +15,18 @@ export const brand = {
   cv: 'TBC',
   ctaLabel: 'WhatsApp me',
   barPlaceholder: 'Message Golu',
-  barLabel: 'Message Golu · opens WhatsApp',
+  barLabel: 'Message Golu, opens WhatsApp',
   defaultMessage: 'Hi Golu, I found your website.',
 };
 
 export const hero = {
-  kicker: 'Golu Kumar — independent developer',
+  kicker: 'Golu Kumar, independent developer',
   // One line on screen at a time, revealed in sequence across the pinned scroll.
   // {word} marks the interactive / highlighted word of the line.
   lines: [
     'Every business runs on a little {chaos}.',
     'I build the systems that {untangle} it.',
-    'AI agents · automations · websites · apps.',
+    'AI agents, automations, websites and apps.',
   ],
   secondaryCta: 'Book a call',
   film: { name: 'hero', desktop: 188, mobile: 190, intro: 0.382 }, // autoplays to 38.2% after the loader
@@ -34,7 +34,6 @@ export const hero = {
 };
 
 export const services = {
-  kicker: '01 — What I build',
   h2: 'Three kinds of systems.',
   groups: [
     {
@@ -53,7 +52,6 @@ export const services = {
 };
 
 export const whatsapp = {
-  kicker: '02 — WhatsApp agents',
   h2: 'The 11:42 PM call gets answered.',
   body: 'At 11:42 pm a customer calls and nobody picks up. My agent replies in seconds, in your tone, and books the slot.',
   pick: 'Pick a business',
@@ -64,19 +62,19 @@ export const whatsapp = {
       id: 'salon', label: 'Salon', name: 'Glow Salon',
       ask: 'Hi, I just tried calling. Any slot tomorrow evening?',
       reply: 'Sorry we missed you! 6:30 or 7:15 pm tomorrow are free. Which one?',
-      follow: '6:30 please', booked: 'Booked · Wed 6:30 pm',
+      follow: '6:30 please', booked: 'Booked for Wed, 6:30 pm',
     },
     {
       id: 'clinic', label: 'Clinic', name: 'City Dental',
       ask: 'Tooth pain since this evening. Can I see a doctor tomorrow?',
       reply: 'Sorry to hear that. Dr Rao has 9:15 am free tomorrow. Shall I book it?',
-      follow: 'Yes please', booked: 'Booked · Wed 9:15 am',
+      follow: 'Yes please', booked: 'Booked for Wed, 9:15 am',
     },
     {
       id: 'store', label: 'Store', name: 'Kiran Store',
       ask: 'Is the blue kurta in size M back in stock?',
       reply: 'It is, 3 left. Want me to hold one and send a payment link?',
-      follow: 'Yes, hold it', booked: 'Held · Blue kurta · M',
+      follow: 'Yes, hold it', booked: 'Held: blue kurta, size M',
     },
   ],
   cta: 'Get an agent like this',
@@ -84,7 +82,6 @@ export const whatsapp = {
 };
 
 export const automations = {
-  kicker: '03 — Automations',
   h2: 'The messy sheet runs itself.',
   body: 'By morning the messy sheets are a dashboard that updates itself. One order comes in; everything after it happens on its own.',
   flow: [
@@ -93,17 +90,16 @@ export const automations = {
     { k: 'CRM', title: 'CRM updated', text: 'No copy-paste' },
     { k: 'YOU', title: 'You’re told', text: 'One-line summary' },
   ],
-  tag: 'Sample flow · illustrative',
+  tag: 'Sample flow with illustrative steps',
 };
 
 export const work = {
-  kicker: '04 — Selected work',
   h2: 'Things I’ve built.',
   modes: [['stage', 'Stage'], ['list', 'List']],
   projects: [
     {
       id: 'stepq', ch: '01', name: 'StepQ', credit: 'Client project · Website + iOS + Android',
-      year: 'TBC', kind: 'Website · iOS · Android', tone: 'note',
+      year: 'TBC', kind: 'Website, iOS and Android', tone: 'note',
       blurb: 'A walking-rewards app for India, fronted by a mascot called Piko. I built the website and both mobile apps.',
     },
     {
@@ -127,7 +123,6 @@ export const work = {
 };
 
 export const process = {
-  kicker: '05 — How I work',
   h2: 'Four steps. No surprises.',
   steps: [
     { n: '01', title: 'Listen', text: 'A call about what’s tangled. You talk, I take notes.' },
@@ -138,14 +133,13 @@ export const process = {
 };
 
 export const about = {
-  kicker: '06 — About',
   h2: 'Hi, I’m Golu.',
   body: 'I’m an independent developer. I build AI agents, automations, websites and apps for businesses that want more leads and less manual work, and I’ve been on the founding team of two products.',
   links: [['CV', 'cv'], ['LinkedIn', 'linkedin'], ['GitHub', 'github']],
   built: {
     title: 'How this site is built',
     rows: [
-      ['Stack', 'Vite · vanilla JS · GSAP · Lenis · three.js'],
+      ['Stack', 'Vite, vanilla JS, GSAP, Lenis and three.js'],
       ['Films', 'AI-generated, scrubbed frame by frame on a canvas'],
       ['Budget', 'First screen under 2 MB on mobile, 60 fps target'],
       ['Tests', 'Playwright: no jumps, no stalls, reduced motion, 320–1920 px'],
@@ -155,12 +149,11 @@ export const about = {
 };
 
 export const contact = {
-  kicker: '07 — Contact',
   h2: 'Let’s build yours.',
   body: 'Tell me what’s tangled. I’ll reply with a plan, in plain English.',
   book: 'Book a call',
   email: 'Email',
-  foot: '© 2026 Golu Kumar · Independent developer',
+  foot: '© 2026 Golu Kumar, independent developer',
 };
 
 export const nav = [

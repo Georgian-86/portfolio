@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "src/main.js": {
-    "mtime": 1795883019.435171,
-    "seen": 1795883430.7323573,
-    "ast_hash": "d3b6963f9447c77210d692ffeb3a0fd3",
+    "mtime": 1795884264.7810583,
+    "seen": 1795884524.851036,
+    "ast_hash": "d389276d1d91b92ed0c53a60ea135826",
     "semantic_hash": ""
   },
   "README.md": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "index.html": {
-    "mtime": 1795872587.6769118,
-    "seen": 1795873712.6289961,
-    "ast_hash": "9334bf776c2db1f4a89acec2201a9f99",
+    "mtime": 1795884283.4637768,
+    "seen": 1795884524.8510942,
+    "ast_hash": "0f02e8070eb4226f81b861dc85608dd9",
     "semantic_hash": ""
   },
   "public/favicon.svg": {
@@ -1242,9 +1242,9 @@
     "semantic_hash": ""
   },
   "src/content.js": {
-    "mtime": 1795882952.6807156,
-    "seen": 1795883430.732336,
-    "ast_hash": "89ba4a476a74bdddfad18d471736f97d",
+    "mtime": 1795884264.7795532,
+    "seen": 1795884524.8510153,
+    "ast_hash": "f8b874b57dc6bad99dcc120b8ca6c56a",
     "semantic_hash": ""
   },
   "src/film.js": {
@@ -2472,9 +2472,9 @@
     "semantic_hash": ""
   },
   "tests/sections.spec.js": {
-    "mtime": 1795883242.855869,
-    "seen": 1795883430.732389,
-    "ast_hash": "693beed67b4a005528d4774f80e61093",
+    "mtime": 1795884283.4641714,
+    "seen": 1795884524.8510668,
+    "ast_hash": "1752b917bc8a4050871210679b35001a",
     "semantic_hash": ""
   },
   "tests/a11y.spec.js": {
@@ -2502,15 +2502,15 @@
     "semantic_hash": ""
   },
   "tests/hero.spec.js": {
-    "mtime": 1795871623.5833118,
-    "seen": 1795872147.9388857,
-    "ast_hash": "68a9c4e165ce9de7b150e8f7e5f72b1c",
+    "mtime": 1795884283.463948,
+    "seen": 1795884524.8510635,
+    "ast_hash": "692bdaf42b4e33853cecc5270c581c85",
     "semantic_hash": ""
   },
   "docs/DESIGN.md": {
-    "mtime": 1795883429.169261,
-    "seen": 1795883430.7323954,
-    "ast_hash": "f9bc0d286155ac30a5c51aaa007c7b37",
+    "mtime": 1795884290.1845803,
+    "seen": 1795884524.8510728,
+    "ast_hash": "e5ec9ee49b33b76decc82e594dfabfe0",
     "semantic_hash": ""
   },
   "docs/REDESIGN.md": {
@@ -2526,9 +2526,9 @@
     "semantic_hash": ""
   },
   "src/style.css": {
-    "mtime": 1795883179.5570357,
-    "seen": 1795883430.7323635,
-    "ast_hash": "bf8668c6c01e75c2e9daf2942175cdc6",
+    "mtime": 1795884347.7493992,
+    "seen": 1795884524.8510418,
+    "ast_hash": "dc25a02874daecc0fe34f479441c4a83",
     "semantic_hash": ""
   },
   "src/tokens.css": {
@@ -2550,15 +2550,15 @@
     "semantic_hash": ""
   },
   "src/hero.js": {
-    "mtime": 1795873195.6908157,
-    "seen": 1795873712.6289299,
-    "ast_hash": "5251a46e92b249a78f0e77e94e3d21d3",
+    "mtime": 1795884264.781649,
+    "seen": 1795884524.8510246,
+    "ast_hash": "94eae904d158761b908ce827c440ac4d",
     "semantic_hash": ""
   },
   "src/late.js": {
-    "mtime": 1795872967.2506971,
-    "seen": 1795873712.6289332,
-    "ast_hash": "471fd376d335e86f08502a707559bb14",
+    "mtime": 1795884264.7807422,
+    "seen": 1795884524.8510308,
+    "ast_hash": "ac64e0551f60853e16e1009219463ac7",
     "semantic_hash": ""
   },
   "src/particles.js": {
@@ -2568,15 +2568,15 @@
     "semantic_hash": ""
   },
   "src/scenes.js": {
-    "mtime": 1795883019.4349313,
-    "seen": 1795883430.7323601,
-    "ast_hash": "62761088e47230fb83b75c5f16dd96b0",
+    "mtime": 1795884264.7808967,
+    "seen": 1795884524.8510385,
+    "ast_hash": "3022e7f1eaa34e73e26f98fdc77ae117",
     "semantic_hash": ""
   },
   "src/services.js": {
-    "mtime": 1795874260.364459,
-    "seen": 1795874412.0954125,
-    "ast_hash": "cde9f74a9ad84a06056ea8c926c9391b",
+    "mtime": 1795884264.7817745,
+    "seen": 1795884524.85104,
+    "ast_hash": "750639499b3a770ea9f4d7648af0bd8a",
     "semantic_hash": ""
   },
   "src/three-lite.js": {
@@ -2586,9 +2586,9 @@
     "semantic_hash": ""
   },
   "src/work.js": {
-    "mtime": 1795873136.869169,
-    "seen": 1795873712.6289544,
-    "ast_hash": "b01a34cfff02c377e4a171be5fa18979",
+    "mtime": 1795884264.7819335,
+    "seen": 1795884524.8510485,
+    "ast_hash": "f9aafc2dda50a8acdbcb912f20a4b84a",
     "semantic_hash": ""
   },
   "src/lab/lab.css": {

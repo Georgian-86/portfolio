@@ -19,9 +19,8 @@ function lineHtml(text, i) {
       return `<span class="hero__mask"><span class="hero__word">${inner}</span></span>`;
     }
     const [, word, tail] = m;
-    const body = i === 0
-      ? `<span class="serif">${[...word].map((c) => `<span class="hero__char">${esc(c)}</span>`).join('')}</span>`
-      : `<span class="hero__mark" aria-hidden="true"></span><span class="serif">${esc(word)}</span>`;
+    // "chaos" is split into letters that scatter from the cursor; the word keeps the headline's own face.
+    const body = i === 0 ? [...word].map((c) => `<span class="hero__char">${esc(c)}</span>`).join('') : esc(word);
     return `<span class="hero__mask"><span class="hero__word hero__accent">${body}</span>${esc(tail)}</span>`;
   }).join(' ');
 }
@@ -40,7 +39,7 @@ export function renderHero() {
         <div class="hero__ctas">
           <a class="btn btn--primary" href="${waLink()}" target="_blank" rel="noopener" data-node="Chat">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>
           <a class="btn btn--ghost" href="${bookLink()}" target="_blank" rel="noopener" data-node="Book">${icon.calendar}<span>${esc(h.secondaryCta)}</span></a>
-          <p class="hero__status">${status('Online · usually replies within')}</p>
+          <p class="hero__status">${status('Online, usually replies within')}</p>
         </div>
       </div>
       <div class="hero__cue" aria-hidden="true"><span class="label">${esc(h.scrollCue)}</span><span class="hero__cue-line"></span></div>
@@ -64,7 +63,6 @@ export function renderHero() {
   const lines = [...el.querySelectorAll('.hero__line')];
   const words = lines.map((l) => [...l.querySelectorAll('.hero__word')]);
   const chars = [...el.querySelectorAll('.hero__char')];
-  const mark = el.querySelector('.hero__mark');
   const ctas = el.querySelector('.hero__ctas');
 
   // The jumbled rest pose of "chaos": fixed, so it reads the same on every visit.
@@ -74,13 +72,12 @@ export function renderHero() {
     tl?.scrollTrigger?.kill();
     tl?.kill();
     tl = null;
-    gsap.set([...lines, ...words.flat(), ctas, focus, mark, ...chars], { clearProps: 'transform,opacity,visibility' });
+    gsap.set([...lines, ...words.flat(), ctas, focus, ...chars], { clearProps: 'transform,opacity,visibility' });
     if (reducedQuery.matches) return;
     chars.forEach((c, i) => gsap.set(c, { rotation: jumble[i % 5][0], yPercent: jumble[i % 5][1] }));
     gsap.set([lines[1], lines[2], ctas], { autoAlpha: 0 });
     gsap.set(ctas, { y: 16 });
     gsap.set([...words[1], ...words[2]], { yPercent: 110 });
-    gsap.set(mark, { scaleX: 0 });
     tl = gsap.timeline({
       defaults: { ease: easeOut },
       scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: 0.8 },
@@ -90,7 +87,6 @@ export function renderHero() {
       .to(lines[0], { autoAlpha: 0, y: -24, duration: 0.08 }, 0.22)
       .to(lines[1], { autoAlpha: 1, duration: 0.03 }, 0.33)
       .to(words[1], { yPercent: 0, duration: 0.1, stagger: 0.012 }, 0.33)
-      .to(mark, { scaleX: 1, duration: 0.1 }, 0.42)
       .to(lines[1], { autoAlpha: 0, y: -24, duration: 0.07 }, 0.57)
       .to(lines[2], { autoAlpha: 1, duration: 0.03 }, 0.66)
       .to(words[2], { yPercent: 0, duration: 0.1, stagger: 0.012 }, 0.66)

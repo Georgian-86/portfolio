@@ -33,10 +33,10 @@ export function renderServices() {
       <canvas class="services__canvas" aria-hidden="true"></canvas>
       <div class="services__copy">
         <div class="services__head">
-          <p class="label">${esc(s.kicker)}</p>
+          ${s.kicker ? `<p class="label">${esc(s.kicker)}</p>` : ''}
           <h2 id="services-h2" class="h2">${esc(s.h2)}</h2>
           <ol class="services__index label" role="list" aria-hidden="true">
-          ${s.groups.map((g, i) => `<li${i === 0 ? ' class="is-on"' : ''}>${g.n} ${esc(g.title)}</li>`).join('')}
+          ${s.groups.map((g, i) => `<li${i === 0 ? ' class="is-on"' : ''}>${esc(g.title)}</li>`).join('')}
         </ol>
         </div>
         <ol class="services__groups" role="list">
