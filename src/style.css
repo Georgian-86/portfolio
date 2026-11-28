@@ -727,3 +727,17 @@ html.has-node input { cursor: text; }
   .readout div { grid-template-columns: 1fr; gap: 2px; }
   .readout dt { font-size: 13px; }
 }
+
+/* Phones: the footage has a grey vignette along its bottom edge, which read as a dirty patch under
+   the CTAs. The paper wash now runs down to the bar, so the hero ends on clean paper. It is cut away
+   around the watermark corner (hard clip plus a soft mask), which stays uncovered. */
+@media (max-width: 767px), (max-aspect-ratio: 1/1) {
+  .hero__scrim {
+    --fh: calc(100svh - var(--bar-h)); /* the film's drawn height */
+    top: 34%; bottom: var(--bar-h);
+    background: linear-gradient(180deg, rgba(var(--wash), 0) 0%, rgba(var(--wash), 0.9) 26%, rgba(var(--wash), 0.97) 100%);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 0.18 * var(--fh)), calc(100% - var(--wm-w)) calc(100% - 0.18 * var(--fh)), calc(100% - var(--wm-w)) 100%, 0 100%);
+    -webkit-mask-image: radial-gradient(ellipse calc(var(--wm-w) * 2.2) calc(0.4 * var(--fh)) at 100% 100%, transparent 62%, #000 100%);
+    mask-image: radial-gradient(ellipse calc(var(--wm-w) * 2.2) calc(0.4 * var(--fh)) at 100% 100%, transparent 62%, #000 100%);
+  }
+}

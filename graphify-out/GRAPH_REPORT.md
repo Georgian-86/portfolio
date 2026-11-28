@@ -1,17 +1,17 @@
 # Graph Report - portfolio  (2026-11-28)
 
 ## Corpus Check
-- 49 files · ~60,190 words
+- 49 files · ~60,775 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 2 file(s) not represented in the graph (top: (none) 1, .wip 1)
 
 ## Summary
-- 426 nodes · 678 edges · 22 communities (21 shown, 1 thin omitted)
+- 427 nodes · 682 edges · 22 communities (21 shown, 1 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 4 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f91c2660`
+- Built from commit: `a6a21962`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -37,11 +37,11 @@
 - Tasks
 - DESIGN.md · v3 "Systems in motion"
 - Reel study → brand and interaction strategy (2026-11-28)
-- scenes.js
+- services.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `esc()` - 23 edges
-2. `mountFilm()` - 21 edges
+2. `mountFilm()` - 22 edges
 3. `createDesk()` - 18 edges
 4. `waLink()` - 13 edges
 5. `gsap` - 13 edges
@@ -56,12 +56,12 @@
   docs/DESIGN.md → src/ui.js
 - `Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline)` --references--> `mountFilm()`  [INFERRED]
   docs/superpowers/plans/2026-11-27-website-build.md → src/film.js
-- `renderServices()` --calls--> `esc()`  [EXTRACTED]
-  src/services.js → src/ui.js
 - `renderHero()` --calls--> `mountFilm()`  [EXTRACTED]
   src/hero.js → src/film.js
-- `renderWhatsapp()` --calls--> `waLink()`  [EXTRACTED]
-  src/scenes.js → src/content.js
+- `renderServices()` --calls--> `esc()`  [EXTRACTED]
+  src/services.js → src/ui.js
+- `themeEngine()` --calls--> `clamp()`  [EXTRACTED]
+  src/main.js → src/ui.js
 
 ## Import Cycles
 - None detected.
@@ -118,7 +118,7 @@ Nodes (5): 1. Make the clip in Flow, 2. Export frames, 3. Switch it on, Google F
 
 ### Community 13 - "mountFilm"
 Cohesion: 0.13
-Nodes (26): Global Constraints, Portfolio Website Build (Concept B v2) Implementation Plan, Review Focus, Task 1: Foundation: tokens, shell, FrameSequence v2, test harness, Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline), Task 3: Sections 04–09 and menu content (dashboard with the sheet film, StepQ, founding team, services, about, CTA), Task 4: Polish, performance and accessibility pass, frameUrl() (+18 more)
+Nodes (27): Global Constraints, Portfolio Website Build (Concept B v2) Implementation Plan, Review Focus, Task 1: Foundation: tokens, shell, FrameSequence v2, test harness, Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline), Task 3: Sections 04–09 and menu content (dashboard with the sheet film, StepQ, founding team, services, about, CTA), Task 4: Polish, performance and accessibility pass, frameUrl() (+19 more)
 
 ### Community 14 - "Nexora — Selected Works"
 Cohesion: 0.50
@@ -129,12 +129,12 @@ Cohesion: 0.09
 Nodes (10): @playwright/test, BAR_H, expectClearsBar(), HDR_H, scrollToEnd(), scrollToSectionEnd(), gotoReady(), waitForLoader() (+2 more)
 
 ### Community 16 - "sections.js"
-Cohesion: 0.10
-Nodes (45): gsap, about, automations, bookLink(), brand, contact, hero, menu (+37 more)
+Cohesion: 0.09
+Nodes (54): gsap, about, automations, bookLink(), brand, contact, hero, menu (+46 more)
 
 ### Community 17 - "main.js"
-Cohesion: 0.15
-Nodes (20): themeEngine(), box(), compose(), createField(), settle(), step(), targets(), disc() (+12 more)
+Cohesion: 0.25
+Nodes (12): box(), compose(), createField(), settle(), step(), targets(), disc(), line() (+4 more)
 
 ### Community 18 - "Tasks"
 Cohesion: 0.22
@@ -148,9 +148,9 @@ Nodes (6): Components, DESIGN.md · v3.1 "Desk by day, agent by night", Hard rul
 Cohesion: 0.20
 Nodes (9): 1. What each reel actually shows, 2. What makes these feel premium (distilled), 3. Brand strategy (Brand Architect), 4. Interaction strategy: what to adopt, mapped to the v3 sections, 5. Guardrails for every new interaction, 6. Needs the owner, Explicitly not adopting, Reel study → brand and interaction strategy (2026-11-28) (+1 more)
 
-### Community 21 - "scenes.js"
-Cohesion: 0.23
-Nodes (14): narrow, placeExtra(), renderAutomations(), renderScenes(), renderWhatsapp(), revealCopy(), sceneShell(), transcript() (+6 more)
+### Community 21 - "services.js"
+Cohesion: 0.20
+Nodes (13): themeEngine(), copyWeight(), groupOf(), KEYS, morphAt(), renderServices(), clamp(), liteGpu() (+5 more)
 
 ## Knowledge Gaps
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
@@ -158,8 +158,8 @@ Nodes (14): narrow, placeExtra(), renderAutomations(), renderScenes(), renderWha
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `gsap` connect `sections.js` to `package.json`, `main.js`, `scenes.js`?**
-  _High betweenness centrality (0.100) - this node is a cross-community bridge._
+- **Why does `gsap` connect `sections.js` to `package.json`, `services.js`?**
+  _High betweenness centrality (0.101) - this node is a cross-community bridge._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.07671957671957672 - nodes in this community are weakly interconnected._
 - **Why does `@playwright/test` connect `@playwright/test` to `package.json`?**
@@ -167,7 +167,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._
 - **Why does `mountFilm()` connect `mountFilm` to `sections.js`?**
-  _High betweenness centrality (0.057) - this node is a cross-community bridge._
+  _High betweenness centrality (0.059) - this node is a cross-community bridge._
 - **Should `Video prompt sheet — Concept B v2 "The Untangling"` be split into smaller, more focused modules?**
   _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
 - **Should `Portfolio Design Guide — from zero to three Figma concepts` be split into smaller, more focused modules?**

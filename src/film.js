@@ -15,7 +15,10 @@ const REDUCED_QUERY = '(prefers-reduced-motion: reduce)';
 const PRELOAD = 20; // frames fetched first; the rest stream in the background
 // Decoded frames kept around the displayed one, biased toward the direction of travel.
 const WINDOW_DESKTOP = { ahead: 30, behind: 10 };
-const WINDOW_MOBILE = { ahead: 18, behind: 6 };
+// Phone frames are decoded down to the canvas size (below), so a wider window still costs far less
+// memory than the old full-size one, and fast flicks in either direction stay on decoded frames.
+const WINDOW_MOBILE = { ahead: 28, behind: 14 };
+const MOBILE_ASPECT = 9 / 16; // the 9:16 phone frame set
 const LERP = 0.2; // share of the remaining distance the shown frame moves per 60 Hz frame
 const MAX_STEP = 3; // most frames the display may advance in one animation frame
 const BASE = import.meta.env.BASE_URL;
@@ -63,7 +66,8 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   const current = () => Math.round(progress * (count - 1));
 
   function size() {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
+    // Phones: 1.5x is indistinguishable on soft footage and halves the pixels to decode and draw.
+    const dpr = Math.min(devicePixelRatio || 1, set === 'mobile' ? 1.5 : 2);
     const w = Math.round(el.clientWidth * dpr), h = Math.round(el.clientHeight * dpr);
     if (w && h && (canvas.width !== w || canvas.height !== h)) {
       canvas.width = w;
@@ -130,6 +134,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     return true;
   }
 
+  let winAt = -1; // displayed frame the decode window was last centred on
   let disp = -1; // displayed frame index (float); -1 until the first frame is shown
   let lastT = 0;
   function render(now = performance.now()) {
@@ -157,6 +162,10 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     step = Math.max(-MAX_STEP, Math.min(MAX_STEP, step));
     disp = Math.abs(goal - disp) < 0.02 ? goal : disp + step;
     show(Math.round(disp), resized) || (resized && shown && paint(shown));
+    // Slide the decode window along with the displayed frame. Without this, a fast flick stopped
+    // once the display reached the edge of the window decoded at the last scroll event, and sat
+    // there (e.g. frame 119 of 190) until the next scroll.
+    if (Math.round(disp) !== winAt && Math.round(disp) !== target) ensureWindow();
   }
 
   // Ahead-biased decode window around the displayed frame (and the direction of travel).
@@ -164,6 +173,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     if (!abort) return;
     const c = disp < 0 ? current() : Math.round(disp);
     const ahead = current() >= c;
+    winAt = c;
     const [back, fwd] = ahead ? [win().behind, win().ahead] : [win().ahead, win().behind];
     for (const [i, bmp] of bitmaps) {
       if (i < c - back || i > c + fwd) {
@@ -178,11 +188,23 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     el.dataset.decoded = String(bitmaps.size);
   }
 
+  // Phones decode each 1080x1920 frame straight to the size it is drawn at ("cover"), instead of
+  // full size: about a third of the memory and a much cheaper draw on every scrolled frame.
+  function decodeSize() {
+    if (set !== 'mobile' || !canvas.width) return undefined;
+    if (!knobs) readKnobs();
+    const inset = knobs.insetCss * (canvas.width / (knobs.clientW || canvas.width));
+    const W = canvas.width, H = Math.max(1, canvas.height - inset);
+    return W / H > MOBILE_ASPECT
+      ? { resizeWidth: Math.ceil(W), resizeQuality: 'medium' }
+      : { resizeHeight: Math.ceil(H), resizeQuality: 'medium' };
+  }
+
   function decode(i, signal) {
     const blob = blobs[i];
     if (!blob || bitmaps.has(i) || decoding.has(i)) return;
     decoding.add(i);
-    createImageBitmap(blob)
+    createImageBitmap(blob, decodeSize())
       .then((bmp) => {
         decoding.delete(i);
         const c = disp < 0 ? current() : Math.round(disp);
@@ -281,6 +303,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
     if (next === set) return false;
     set = next;
     count = set === 'mobile' ? mobile : desktop;
+    if (set === 'mobile') { introTween?.kill(); introA = 0; } // no autoplay offset on phones
     blobs = [];
     disp = -1;
     el.dataset.set = set;
@@ -316,6 +339,9 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   // Optional autoplay intro: after the page loads, play forward to `intro` (0–1) on its own,
   // so the film visibly moves before the visitor scrolls.
   function playIntro() {
+    // Phones have no autoplay: the film sits on the mess (frame 1) until you scroll, so scrolling
+    // down clears it and scrolling back up brings it back, every time.
+    if (set === 'mobile') { el.dataset.intro = 'done'; return; }
     if (!intro || reduced) return;
     if (scrollY > innerHeight) { // arrived mid-page: no intro, just start from its end state
       introA = intro;
@@ -344,7 +370,7 @@ export function mountFilm(el, { name, desktop, mobile, start = 'top top', end = 
   const onReduced = () => {
     reduced = rq.matches;
     introTween?.kill();
-    if (intro) { introA = intro; el.dataset.intro = 'done'; }
+    if (intro && set !== 'mobile') { introA = intro; el.dataset.intro = 'done'; }
     scrub();
     scrollP = tween?.scrollTrigger?.progress ?? 0;
     progress = reduced ? 1 : introA + scrollP * (1 - introA);
