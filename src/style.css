@@ -351,27 +351,38 @@ html.has-node input { cursor: text; }
 .services__fallback { position: absolute; inset: 0; width: 100%; height: 100%; }
 .services__copy {
   position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  padding: calc(var(--hdr-h) + var(--s-5)) var(--gutter) var(--s-6);
+  display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-5);
+  width: min(52vw, 760px);
+  padding: calc(var(--hdr-h) + var(--s-5)) 0 var(--s-6) var(--gutter);
 }
 .services__copy > * { pointer-events: auto; }
-.services__head { align-self: start; display: grid; gap: var(--s-3); }
-.services__groups { grid-column: 1; align-self: end; display: grid; gap: var(--s-2); }
-.svc { display: grid; grid-template-columns: 3.2ch 1fr; column-gap: var(--s-3); align-items: baseline; opacity: 0.32; transition: opacity 0.5s var(--ease); }
-.svc.is-on { opacity: 1; }
-.svc__n { grid-row: 1 / span 3; color: var(--signal); }
-.svc__title { font-size: clamp(48px, 6.4vw, 120px); font-weight: 600; letter-spacing: -0.045em; line-height: 0.95; }
-.svc__line { font-size: var(--t-lead); color: var(--fg-2); line-height: 1.3; max-height: 0; overflow: hidden; transition: max-height 0.6s var(--ease); }
-.svc__items { display: flex; flex-wrap: wrap; gap: 6px; max-height: 0; overflow: hidden; transition: max-height 0.6s var(--ease); }
-.svc.is-on .svc__line { max-height: 4em; }
-.svc.is-on .svc__items { max-height: 6em; padding-top: var(--s-2); }
-.services__meter { position: absolute; right: var(--gutter); bottom: var(--s-6); z-index: 1; display: flex; gap: 6px; }
-.services__meter i { width: 28px; height: 2px; background: var(--night-3); }
-.services__meter i.is-on { background: var(--signal); }
+.services__head { display: grid; gap: var(--s-3); }
+.services__head .h2 { font-size: clamp(36px, 3.6vw, 68px); }
+/* One group on screen at a time; a small index shows where you are. */
+.services__index { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); margin-top: var(--s-2); }
+.services__index li { white-space: nowrap; }
+.services__index li { display: flex; align-items: center; gap: var(--s-2); color: var(--fg-2); transition: color 0.4s var(--ease); }
+.services__index li::before { content: ''; width: 18px; height: 1.5px; background: currentColor; opacity: 0.5; transition: width 0.5s var(--ease), opacity 0.4s; }
+.services__index li.is-on { color: var(--signal); }
+.services__index li.is-on::before { width: 36px; opacity: 1; }
+.services__groups { display: grid; }
+.svc {
+  grid-area: 1 / 1; display: grid; gap: var(--s-3); align-content: end;
+  opacity: 0; translate: 0 24px; pointer-events: none;
+  transition: opacity 0.5s var(--ease), translate 0.7s var(--ease);
+}
+.svc.is-on { opacity: 1; translate: 0 0; pointer-events: auto; }
+.svc__n { display: none; }
+.svc__title { font-size: clamp(56px, 6vw, 112px); font-weight: 600; letter-spacing: -0.045em; line-height: 0.92; }
+.svc__line { font-size: clamp(18px, 1.4vw, 24px); color: var(--fg-2); line-height: 1.35; max-width: 32ch; }
+.svc__items { display: flex; flex-wrap: wrap; gap: 6px; }
 @media (max-width: 767px) {
-  .services__copy { grid-template-columns: 1fr; padding-bottom: calc(var(--bar-h) + var(--s-5)); }
-  .svc__title { font-size: clamp(40px, 12vw, 64px); }
-  .services__meter { bottom: auto; top: calc(var(--hdr-h) + var(--s-5)); }
+  .services__copy { width: auto; padding: calc(var(--hdr-h) + var(--s-4)) var(--gutter) calc(var(--bar-h) + var(--s-5)); }
+  .svc__title { font-size: clamp(44px, 13vw, 64px); }
+  .svc__line { font-size: 16px; }
+  .services__index { gap: var(--s-3); }
+  .services__index li::before { width: 10px; }
+  .services__index li.is-on::before { width: 20px; }
 }
 
 /* ── 03/04 Film scenes ────────────────────────────────────── */
@@ -623,8 +634,9 @@ html.has-node input { cursor: text; }
   .services { height: auto; }
   .services__stage { position: relative; height: auto; min-height: 100svh; }
   .services__copy { position: relative; }
-  .svc { opacity: 1; }
-  .svc .svc__line, .svc .svc__items { max-height: none; }
+  .services__copy { width: auto; }
+  .services__groups { gap: var(--s-5); }
+  .svc { grid-area: auto; opacity: 1; translate: none; }
   .scene__track { height: auto; }
   .scene__stage { position: relative; height: 100svh; }
   .flow__wire i, .steps__wire i { transform: none; }

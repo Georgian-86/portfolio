@@ -35,6 +35,9 @@ export function renderServices() {
         <div class="services__head">
           <p class="label">${esc(s.kicker)}</p>
           <h2 id="services-h2" class="h2">${esc(s.h2)}</h2>
+          <ol class="services__index label" role="list" aria-hidden="true">
+          ${s.groups.map((g, i) => `<li${i === 0 ? ' class="is-on"' : ''}>${g.n} ${esc(g.title)}</li>`).join('')}
+        </ol>
         </div>
         <ol class="services__groups" role="list">
           ${s.groups.map((g, i) => `
@@ -46,19 +49,18 @@ export function renderServices() {
             </li>`).join('')}
         </ol>
       </div>
-      <div class="services__meter" aria-hidden="true">${s.groups.map((_, i) => `<i${i === 0 ? ' class="is-on"' : ''}></i>`).join('')}</div>
     </div>`;
 
   const canvas = el.querySelector('.services__canvas');
   const groups = [...el.querySelectorAll('.svc')];
-  const ticks = [...el.querySelectorAll('.services__meter i')];
+  const ticks = [...el.querySelectorAll('.services__index li')];
   let field = null, loading = null, progress = 0, visible = false, active = 0;
 
   const setGroup = (i) => {
     if (i === active) return;
     active = i;
     groups.forEach((g, k) => g.classList.toggle('is-on', k === i));
-    ticks.forEach((t, k) => t.classList.toggle('is-on', k <= i));
+    ticks.forEach((t, k) => t.classList.toggle('is-on', k === i));
   };
 
   const ensureField = () => {

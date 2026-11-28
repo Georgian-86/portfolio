@@ -21,6 +21,16 @@ export function mountNode() {
   const xTo = gsap.quickTo(node, 'x', { duration: 0.22, ease: 'power3' });
   const yTo = gsap.quickTo(node, 'y', { duration: 0.22, ease: 'power3' });
   let seen = false;
+  let last = null;
+  const read = (el) => {
+    const target = el?.closest?.('a, button, [data-node], input, label');
+    const interactive = !!target && !target.matches('input, label');
+    const verb = VERB(target);
+    node.classList.toggle('is-active', interactive);
+    node.classList.toggle('has-label', !!verb);
+    if (verb && label.textContent !== verb) label.textContent = verb;
+    node.classList.toggle('is-hidden', !!target?.matches('input'));
+  };
 
   const on = () => fineQuery.matches && !reducedQuery.matches;
   const sync = () => root.classList.toggle('has-node', on() && seen);
@@ -30,14 +40,11 @@ export function mountNode() {
     if (!seen) { seen = true; gsap.set(node, { x: e.clientX, y: e.clientY }); sync(); }
     xTo(e.clientX);
     yTo(e.clientY);
-    const target = e.target.closest?.('a, button, [data-node], input, label');
-    const interactive = !!target && !target.matches('input, label');
-    const verb = VERB(target);
-    node.classList.toggle('is-active', interactive);
-    node.classList.toggle('has-label', !!verb);
-    if (verb && label.textContent !== verb) label.textContent = verb;
-    node.classList.toggle('is-hidden', !!target?.matches('input'));
+    last = { x: e.clientX, y: e.clientY };
+    read(e.target);
   }, { passive: true });
+  // The page scrolls under a still mouse: re-read what is under the Node, so labels never go stale.
+  addEventListener('scroll', () => { if (seen && last) read(document.elementFromPoint(last.x, last.y)); }, { passive: true });
   addEventListener('pointerdown', () => node.classList.add('is-down'));
   addEventListener('pointerup', () => node.classList.remove('is-down'));
   document.addEventListener('pointerleave', () => node.classList.add('is-hidden'));

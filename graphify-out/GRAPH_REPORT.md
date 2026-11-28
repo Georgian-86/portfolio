@@ -1,7 +1,7 @@
 # Graph Report - portfolio  (2026-11-28)
 
 ## Corpus Check
-- 42 files · ~51,344 words
+- 42 files · ~51,467 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 2 file(s) not represented in the graph (top: (none) 1, .wip 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f384360e`
+- Built from commit: `7e352ed4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -47,19 +47,19 @@
 6. `gsap` - 11 edges
 7. `Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"` - 11 edges
 8. `@playwright/test` - 10 edges
-9. `Portfolio Research Playbook — tools, connectors, skills & prompts` - 10 edges
-10. `6. Prompt library` - 10 edges
+9. `6. Prompt library` - 10 edges
+10. `Portfolio Research Playbook — tools, connectors, skills & prompts` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline)` --references--> `mountFilm()`  [INFERRED]
   docs/superpowers/plans/2026-11-27-website-build.md → src/film.js
 - `Signature elements` --references--> `magnetic()`  [INFERRED]
   docs/DESIGN.md → src/ui.js
+- `renderServices()` --calls--> `esc()`  [EXTRACTED]
+  src/services.js → src/ui.js
 - `renderHero()` --calls--> `mountFilm()`  [EXTRACTED]
   src/hero.js → src/film.js
 - `renderAutomations()` --calls--> `mountFilm()`  [EXTRACTED]
-  src/scenes.js → src/film.js
-- `renderWhatsapp()` --calls--> `mountFilm()`  [EXTRACTED]
   src/scenes.js → src/film.js
 
 ## Import Cycles
