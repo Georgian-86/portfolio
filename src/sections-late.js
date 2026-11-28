@@ -190,7 +190,7 @@ function renderCta() {
       <p class="cta-sec__body">${esc(c.body)}</p>
       <div class="cta-sec__actions">
         <a class="btn btn--primary cta" href="${waLink()}" target="_blank" rel="noopener">${icon.whatsapp}<span>${esc(brand.ctaLabel)}</span></a>
-        <a class="btn btn--ghost cta-sec__book" href="${bookLink()}" target="_blank" rel="noopener">${icon.calendar}<span>${esc(c.book)}</span></a>
+        <a class="btn btn--ghost cta-sec__book" data-cursor="BOOK" href="${bookLink()}" target="_blank" rel="noopener">${icon.calendar}<span>${esc(c.book)}</span></a>
       </div>
       <p class="cta-sec__status"><span class="status"><span class="status__dot" aria-hidden="true"></span><span class="label">Online · usually replies within</span> ${tbc(brand.replyTime)}</span></p>
       <p class="label cta-sec__foot" data-end>${esc(c.foot)}</p>

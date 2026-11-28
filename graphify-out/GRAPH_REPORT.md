@@ -1,17 +1,17 @@
 # Graph Report - portfolio  (2026-11-28)
 
 ## Corpus Check
-- 34 files · ~40,959 words
+- 39 files · ~47,638 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 3 file(s) not represented in the graph (top: (none) 1, .css 1, .wip 1)
+- Unclassified: 2 file(s) not represented in the graph (top: (none) 1, .wip 1)
 
 ## Summary
-- 345 nodes · 511 edges · 20 communities (19 shown, 1 thin omitted)
+- 353 nodes · 525 edges · 20 communities (19 shown, 1 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 4 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `aca76de5`
+- Built from commit: `da9e419e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -26,12 +26,12 @@
 - START HERE: portfolio redesign workflow
 - Review Focus
 - Review Focus
-- CLAUDE.md
+- START HERE
 - Review Focus
 - Google Flow → scroll animation
 - mountFilm
 - Nexora — Selected Works
-- bar.js
+- @playwright/test
 - sections.js
 - main.js
 - Tasks
@@ -42,24 +42,24 @@
 2. `mountFilm()` - 24 edges
 3. `Design — Three portfolio concepts in Figma` - 13 edges
 4. `renderMissedCalls()` - 12 edges
-5. `waLink()` - 11 edges
-6. `tbc()` - 11 edges
+5. `tbc()` - 11 edges
+6. `waLink()` - 11 edges
 7. `Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"` - 11 edges
-8. `@playwright/test` - 10 edges
+8. `@playwright/test` - 11 edges
 9. `6. Prompt library` - 10 edges
 10. `Portfolio Research Playbook — tools, connectors, skills & prompts` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline)` --references--> `mountFilm()`  [INFERRED]
   docs/superpowers/plans/2026-11-27-website-build.md → src/film.js
-- `renderCta()` --calls--> `waLink()`  [EXTRACTED]
-  src/sections-late.js → src/content.js
-- `renderTeam()` --calls--> `waLink()`  [EXTRACTED]
-  src/sections-late.js → src/content.js
-- `mintCta()` --calls--> `waLink()`  [EXTRACTED]
-  src/sections.js → src/content.js
-- `renderCta()` --calls--> `bookLink()`  [EXTRACTED]
-  src/sections-late.js → src/content.js
+- `status()` --calls--> `esc()`  [EXTRACTED]
+  src/main.js → src/ui.js
+- `status()` --calls--> `tbc()`  [EXTRACTED]
+  src/main.js → src/ui.js
+- `renderHeader()` --calls--> `esc()`  [EXTRACTED]
+  src/main.js → src/ui.js
+- `renderBar()` --calls--> `esc()`  [EXTRACTED]
+  src/main.js → src/ui.js
 
 ## Import Cycles
 - None detected.
@@ -122,7 +122,7 @@ Nodes (18): frameUrl(), mountFilm(), decode(), ensureWindow(), fetchFrame(), loa
 Cohesion: 0.50
 Nodes (3): Make it yours, Nexora — Selected Works, Run
 
-### Community 15 - "bar.js"
+### Community 15 - "@playwright/test"
 Cohesion: 0.08
 Nodes (12): @playwright/test, BAR_H, expectClearsBar(), HDR_H, scrollToEnd(), scrollToSectionEnd(), gotoReady(), waitForLoader() (+4 more)
 
@@ -131,8 +131,8 @@ Cohesion: 0.18
 Nodes (33): bookingCard(), bubble(), callCard(), chatHead(), cue(), desktopQuery, hdrH(), cellTone() (+25 more)
 
 ### Community 17 - "main.js"
-Cohesion: 0.09
-Nodes (26): gsap@3.13.0, gsap, mountAgentDemo(), build(), endState(), bookLink(), brand, faqs (+18 more)
+Cohesion: 0.08
+Nodes (31): gsap@3.13.0, gsap, mountAgentDemo(), build(), endState(), bookLink(), brand, faqs (+23 more)
 
 ### Community 18 - "Tasks"
 Cohesion: 0.22
@@ -148,16 +148,16 @@ Nodes (5): Components, DESIGN.md · v3 "Systems in motion", Hard rule: the water
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `@playwright/test` connect `bar.js` to `package.json`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
+- **Why does `@playwright/test` connect `@playwright/test` to `package.json`?**
+  _High betweenness centrality (0.073) - this node is a cross-community bridge._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.1323529411764706 - nodes in this community are weakly interconnected._
 - **Why does `gsap` connect `main.js` to `package.json`, `sections.js`?**
-  _High betweenness centrality (0.063) - this node is a cross-community bridge._
+  _High betweenness centrality (0.068) - this node is a cross-community bridge._
 - **Should `Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._
 - **Why does `mountFilm()` connect `mountFilm` to `Review Focus`, `main.js`, `sections.js`?**
-  _High betweenness centrality (0.054) - this node is a cross-community bridge._
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
 - **Should `Video prompt sheet — Concept B v2 "The Untangling"` be split into smaller, more focused modules?**
   _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
 - **Should `Portfolio Design Guide — from zero to three Figma concepts` be split into smaller, more focused modules?**

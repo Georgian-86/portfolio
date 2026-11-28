@@ -10,6 +10,7 @@ import { mountFilm } from './film.js';
 import { esc, tbc, icon, easeOut } from './ui.js';
 import { runLoader } from './loader.js';
 import { mountSections } from './sections.js';
+import { mountNodeCursor } from './node-cursor.js';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -33,7 +34,7 @@ function renderHeader() {
   $('#menu').innerHTML = `
     <p class="label menu__kicker">Menu · jump to a section</p>
     <ul role="list">${menu.map((l) => `<li><a href="${l.href}"><span class="label">${esc(l.n)}</span>${esc(l.label)}</a></li>`).join('')}</ul>
-    <a class="btn menu__book" href="${bookLink()}" target="_blank" rel="noopener">Book a call</a>`;
+    <a class="btn menu__book" data-cursor="BOOK" href="${bookLink()}" target="_blank" rel="noopener">Book a call</a>`;
 }
 
 function wireMenu() {
@@ -172,4 +173,5 @@ renderBar();
 const heroFilm = renderHero();
 mountSections(renderLateSections);
 smoothScroll();
+mountNodeCursor();
 runLoader(heroFilm, () => revealHero());
