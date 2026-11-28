@@ -1,3 +1,7 @@
+# START HERE
+
+Read docs/REDESIGN.md first: it holds the current phase, decisions already made (do not re-open them), and how to resume work in a new session. three.js is allowed where a scene needs real 3D (lazy-loaded; see docs/REDESIGN.md §4).
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
