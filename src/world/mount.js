@@ -27,7 +27,12 @@ const STILL = {
 };
 
 function webglOk() {
-  try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')); } catch { return false; }
+  try {
+    const c = document.createElement('canvas');
+    const gl = c.getContext('webgl2') || c.getContext('webgl');
+    gl?.getExtension('WEBGL_lose_context')?.loseContext(); // free the probe's context at once
+    return !!gl;
+  } catch { return false; }
 }
 
 /** Mounts the world behind `night` and `morning`. Returns { setConvo(demo) } for the WhatsApp pills. */

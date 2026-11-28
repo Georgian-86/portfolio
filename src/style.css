@@ -374,6 +374,8 @@ html.has-node input { cursor: text; }
   transition: opacity 0.5s var(--ease), translate 0.7s var(--ease);
 }
 .svc.is-on { opacity: 1; translate: 0 0; pointer-events: auto; }
+/* JS scrubs opacity/translate with the morph (services.js syncCopy); no lagging transition on top. */
+.services__stage.is-scrubbed .svc { transition: none; }
 .svc__n { display: none; }
 .svc__title { font-size: clamp(56px, 6vw, 112px); font-weight: 600; letter-spacing: -0.045em; line-height: 0.92; }
 .svc__line { font-size: clamp(18px, 1.4vw, 24px); color: var(--fg-2); line-height: 1.35; max-width: 32ch; }

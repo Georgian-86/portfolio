@@ -17,12 +17,18 @@ export function morphAt(p) {
   }
   return 3;
 }
-const groupAt = (p) => (p < 0.35 ? 0 : p < 0.65 ? 1 : 2);
+// The copy follows the figure, not a separate clock: a group is active while its shape is the nearest
+// one (the cloud counts as Grow), and its text is fully in only when its shape has formed.
+export const groupOf = (m) => clamp(Math.round(m) - 1, 0, 2);
+export const copyWeight = (m, g) => clamp(1 - Math.abs(m - (g + 1)) * 2.2);
 
+/** WebGL probe that frees its context at once, so it never counts against the browser's live-context cap. */
 function webglOk() {
   try {
     const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    const gl = c.getContext('webgl2') || c.getContext('webgl');
+    gl?.getExtension('WEBGL_lose_context')?.loseContext();
+    return !!gl;
   } catch { return false; }
 }
 
@@ -51,10 +57,11 @@ export function renderServices() {
       </div>
     </div>`;
 
-  const canvas = el.querySelector('.services__canvas');
+  let canvas = el.querySelector('.services__canvas');
+  const stage = el.querySelector('.services__stage');
   const groups = [...el.querySelectorAll('.svc')];
   const ticks = [...el.querySelectorAll('.services__index li')];
-  let field = null, loading = null, progress = 0, visible = false, active = 0;
+  let field = null, loading = null, progress = 0, visible = false, active = 0, losses = 0;
 
   const setGroup = (i) => {
     if (i === active) return;
@@ -62,21 +69,64 @@ export function renderServices() {
     groups.forEach((g, k) => g.classList.toggle('is-on', k === i));
     ticks.forEach((t, k) => t.classList.toggle('is-on', k === i));
   };
+  // Scrubs each group's copy with the morph (opacity + translate only). Reduced motion: the CSS end state.
+  const syncCopy = () => {
+    const m = morphAt(progress);
+    setGroup(groupOf(m));
+    const on = !reducedQuery.matches;
+    stage.classList.toggle('is-scrubbed', on);
+    groups.forEach((g, k) => {
+      if (!on) { g.style.opacity = ''; g.style.translate = ''; return; }
+      const w = copyWeight(m, k);
+      g.style.opacity = w.toFixed(3);
+      g.style.translate = `0 ${((1 - w) * (m < k + 1 ? 24 : -24)).toFixed(1)}px`;
+    });
+  };
 
+  const ro = new ResizeObserver(() => field?.resize());
+  ro.observe(canvas);
+  // A canvas that has held a WebGL context can't be reused for 2D or a second WebGL context: swap in a new one.
+  const freshCanvas = () => {
+    const c = canvas.cloneNode(false);
+    ro.unobserve(canvas);
+    canvas.replaceWith(c);
+    canvas = c;
+    ro.observe(c);
+  };
+  const count = innerWidth < 768 ? 1100 : 2200;
+  const build = (THREE) => {
+    const reduced = reducedQuery.matches;
+    try {
+      field = createField(canvas, { count, THREE, reduced });
+    } catch {
+      THREE = null; // WebGL context failed: draw in 2D on a clean canvas
+      freshCanvas();
+      field = createField(canvas, { count, THREE: null, reduced });
+    }
+    el.dataset.renderer = THREE ? 'webgl' : '2d';
+    field.setMorph(reduced ? 3 : morphAt(progress), true);
+    if (visible) field.start();
+    if (THREE) {
+      // The GPU can drop the context (GPU switch, driver reset, too many contexts). Rebuild on a new
+      // canvas instead of leaving an empty stage; after repeated losses, settle on 2D.
+      canvas.addEventListener('webglcontextlost', (e) => {
+        e.preventDefault();
+        field?.destroy();
+        field = null;
+        el.dataset.renderer = 'lost';
+        losses += 1;
+        setTimeout(() => { freshCanvas(); build(losses > 2 ? null : THREE); }, 200);
+      }, { once: true });
+    }
+  };
+  let createField = null;
+  // Build the field when the main thread is free, so it never delays the loader or first paint.
+  const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 600 }) : setTimeout(fn, 60));
   const ensureField = () => {
     if (field || loading) return loading;
-    const count = innerWidth < 768 ? 1100 : 2200;
-    const reduced = reducedQuery.matches;
     loading = (webglOk() ? import('./three-lite.js').catch(() => null) : Promise.resolve(null)).then(async (THREE) => {
-      const { createField } = await import('./particles.js');
-      try {
-        field = createField(canvas, { count, THREE, reduced });
-      } catch {
-        field = createField(canvas, { count, THREE: null, reduced }); // WebGL context failed: 2D
-      }
-      el.dataset.renderer = THREE ? 'webgl' : '2d';
-      field.setMorph(reduced ? 3 : morphAt(progress), true);
-      if (visible) field.start();
+      ({ createField } = await import('./particles.js'));
+      build(THREE);
     });
     return loading;
   };
@@ -86,20 +136,21 @@ export function renderServices() {
     onUpdate: (st) => {
       progress = st.progress;
       field?.setMorph(morphAt(progress));
-      setGroup(groupAt(progress));
+      syncCopy();
       el.dataset.progress = progress.toFixed(3);
     },
   });
+  syncCopy();
 
   new IntersectionObserver(([e]) => {
     visible = e.isIntersecting;
-    if (visible) { ensureField(); field?.start(); } else field?.stop();
+    if (visible) { idle(ensureField); field?.start(); } else field?.stop();
   }, { rootMargin: '100% 0px' }).observe(el);
 
   el.addEventListener('pointermove', (e) => field?.pointer(e.clientX, e.clientY), { passive: true });
   el.addEventListener('pointerleave', () => field?.release());
-  new ResizeObserver(() => field?.resize()).observe(canvas);
   reducedQuery.addEventListener('change', () => {
+    syncCopy();
     if (reducedQuery.matches) { field?.stop(); field?.setMorph(3, true); }
     else { field?.setMorph(morphAt(progress), true); if (visible) field?.start(); }
   });
