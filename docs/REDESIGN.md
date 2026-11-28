@@ -14,6 +14,7 @@ Any agent or session working on this repo starts here. This file holds the curre
 - **Plan:** `docs/superpowers/plans/2026-11-28-redesign-v3.md`. This is the spec: section flow, constraints and tasks.
 - **Ledger:** `.superpowers/sdd/2026-11-28-redesign-v3/progress.md` and `task-N-report.md`. This folder is git-ignored, so in a fresh cloud session it may be missing; if so, use `git log` and the plan checkboxes.
 - **Design tokens and section specs:** `docs/DESIGN.md`, written in Task 1.
+- **Reel study and brand/interaction strategy:** `docs/research/2026-11-28-reel-study-and-brand-strategy.md`. It extends v3 with the Node cursor, the Wire, the work List/Stage toggle and the "How this site is built" card; see its §6 for owner sign-off.
 
 ## 3. Decisions already made (do not re-open)
 1. **Direction:** "Balanced: Systems in motion". Dark navy stage (`#0B1426`), one mint accent (`#3DDC97`), Inter with JetBrains Mono labels, φ type and space scales, one idea per screen, full-screen scenes, no collage clutter.
