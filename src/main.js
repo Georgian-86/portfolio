@@ -4,7 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { brand, nav, menu, waLink, bookLink } from './content.js';
-import { esc, tbc, icon, reducedQuery, clamp, magnetic } from './ui.js';
+import { esc, tbc, icon, reducedQuery, clamp, magnetic, idle } from './ui.js';
 import { runLoader } from './loader.js';
 import { renderHero } from './hero.js';
 import { mountNode } from './cursor.js';
@@ -143,8 +143,8 @@ function smoothScroll() {
 renderHeader();
 renderBar();
 const hero = renderHero();
-renderServices();
-renderScenes();
+const services = renderServices();
+const scenes = renderScenes();
 renderWork();
 renderProcess();
 renderAbout();
@@ -153,6 +153,10 @@ const lenis = smoothScroll();
 wireMenu(lenis);
 themeEngine();
 mountNode();
-runLoader(hero.film, () => hero.reveal());
+runLoader(hero.film, () => hero.reveal()).then(() => {
+  // Warm the 3D scenes one after another while the visitor is still on the hero, so neither builds
+  // (and stalls a frame) mid-scroll, and the services figure is already there when 02 arrives.
+  idle(() => services.warm().then(() => idle(() => scenes.warm(), 1500)), 1000);
+});
 addEventListener('load', () => ScrollTrigger.refresh());
 document.fonts?.ready.then(() => ScrollTrigger.refresh());

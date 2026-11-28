@@ -4,7 +4,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { services as s } from './content.js';
-import { esc, reducedQuery, clamp } from './ui.js';
+import { esc, reducedQuery, clamp, idle } from './ui.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,16 +21,6 @@ export function morphAt(p) {
 // one (the cloud counts as Grow), and its text is fully in only when its shape has formed.
 export const groupOf = (m) => clamp(Math.round(m) - 1, 0, 2);
 export const copyWeight = (m, g) => clamp(1 - Math.abs(m - (g + 1)) * 2.2);
-
-/** WebGL probe that frees its context at once, so it never counts against the browser's live-context cap. */
-function webglOk() {
-  try {
-    const c = document.createElement('canvas');
-    const gl = c.getContext('webgl2') || c.getContext('webgl');
-    gl?.getExtension('WEBGL_lose_context')?.loseContext();
-    return !!gl;
-  } catch { return false; }
-}
 
 export function renderServices() {
   const el = document.querySelector('[data-sec="02"]');
@@ -120,12 +110,11 @@ export function renderServices() {
     }
   };
   let createField = null;
-  // Build the field when the main thread is free, so it never delays the loader or first paint.
-  const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 600 }) : setTimeout(fn, 60));
   const ensureField = () => {
     if (field || loading) return loading;
-    loading = (webglOk() ? import('./three-lite.js').catch(() => null) : Promise.resolve(null)).then(async (THREE) => {
-      ({ createField } = await import('./particles.js'));
+    // No separate WebGL probe: creating a probe context costs as much as the real one. build() falls back to 2D.
+    loading = Promise.all([import('./three-lite.js').catch(() => null), import('./particles.js')]).then(([THREE, mod]) => {
+      createField = mod.createField;
       build(THREE);
     });
     return loading;
@@ -142,10 +131,13 @@ export function renderServices() {
   });
   syncCopy();
 
+  // Build a viewport early; render only while the stage is actually on screen (it used to keep
+  // rendering a full viewport past the section, on top of the desk world's own WebGL frames).
+  new IntersectionObserver(([e]) => { if (e.isIntersecting) ensureField(); }, { rootMargin: '100% 0px' }).observe(el);
   new IntersectionObserver(([e]) => {
     visible = e.isIntersecting;
-    if (visible) { idle(ensureField); field?.start(); } else field?.stop();
-  }, { rootMargin: '100% 0px' }).observe(el);
+    if (visible) { ensureField(); field?.start(); } else field?.stop();
+  }).observe(el);
 
   el.addEventListener('pointermove', (e) => field?.pointer(e.clientX, e.clientY), { passive: true });
   el.addEventListener('pointerleave', () => field?.release());
@@ -154,4 +146,6 @@ export function renderServices() {
     if (reducedQuery.matches) { field?.stop(); field?.setMorph(3, true); }
     else { field?.setMorph(morphAt(progress), true); if (visible) field?.start(); }
   });
+  // main.js warms the field up right after the loader, so it is drawn before anyone scrolls to it.
+  return { warm: () => ensureField() || Promise.resolve() };
 }

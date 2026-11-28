@@ -1,17 +1,17 @@
 # Graph Report - portfolio  (2026-11-28)
 
 ## Corpus Check
-- 49 files · ~58,804 words
+- 49 files · ~59,467 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 2 file(s) not represented in the graph (top: (none) 1, .wip 1)
 
 ## Summary
-- 423 nodes · 672 edges · 22 communities (21 shown, 1 thin omitted)
+- 426 nodes · 678 edges · 22 communities (21 shown, 1 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 4 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c39df856`
+- Built from commit: `7af37d34`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -41,7 +41,7 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `esc()` - 23 edges
-2. `mountFilm()` - 20 edges
+2. `mountFilm()` - 21 edges
 3. `createDesk()` - 18 edges
 4. `waLink()` - 13 edges
 5. `gsap` - 13 edges
@@ -56,12 +56,12 @@
   docs/DESIGN.md → src/ui.js
 - `Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline)` --references--> `mountFilm()`  [INFERRED]
   docs/superpowers/plans/2026-11-27-website-build.md → src/film.js
-- `renderServices()` --calls--> `esc()`  [EXTRACTED]
-  src/services.js → src/ui.js
-- `mountWorld()` --calls--> `clamp()`  [EXTRACTED]
-  src/world/mount.js → src/ui.js
 - `renderHero()` --calls--> `mountFilm()`  [EXTRACTED]
   src/hero.js → src/film.js
+- `themeEngine()` --calls--> `clamp()`  [EXTRACTED]
+  src/main.js → src/ui.js
+- `sceneShell()` --calls--> `esc()`  [EXTRACTED]
+  src/scenes.js → src/ui.js
 
 ## Import Cycles
 - None detected.
@@ -118,7 +118,7 @@ Nodes (5): 1. Make the clip in Flow, 2. Export frames, 3. Switch it on, Google F
 
 ### Community 13 - "mountFilm"
 Cohesion: 0.13
-Nodes (25): Global Constraints, Portfolio Website Build (Concept B v2) Implementation Plan, Review Focus, Task 1: Foundation: tokens, shell, FrameSequence v2, test harness, Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline), Task 3: Sections 04–09 and menu content (dashboard with the sheet film, StepQ, founding team, services, about, CTA), Task 4: Polish, performance and accessibility pass, frameUrl() (+17 more)
+Nodes (26): Global Constraints, Portfolio Website Build (Concept B v2) Implementation Plan, Review Focus, Task 1: Foundation: tokens, shell, FrameSequence v2, test harness, Task 2: Sections 01b–03 (proof, missed calls with the night film, live agent, notes pipeline), Task 3: Sections 04–09 and menu content (dashboard with the sheet film, StepQ, founding team, services, about, CTA), Task 4: Polish, performance and accessibility pass, frameUrl() (+18 more)
 
 ### Community 14 - "Nexora — Selected Works"
 Cohesion: 0.50
@@ -130,7 +130,7 @@ Nodes (10): @playwright/test, BAR_H, expectClearsBar(), HDR_H, scrollToEnd(), sc
 
 ### Community 16 - "sections.js"
 Cohesion: 0.10
-Nodes (43): gsap, about, automations, bookLink(), brand, contact, hero, menu (+35 more)
+Nodes (45): gsap, about, automations, bookLink(), brand, contact, hero, menu (+37 more)
 
 ### Community 17 - "main.js"
 Cohesion: 0.15
@@ -167,7 +167,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Concept critique: A "24 Hours" · B "The Untangling" · C "The Conversation"` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._
 - **Why does `mountFilm()` connect `mountFilm` to `sections.js`?**
-  _High betweenness centrality (0.055) - this node is a cross-community bridge._
+  _High betweenness centrality (0.057) - this node is a cross-community bridge._
 - **Should `Video prompt sheet — Concept B v2 "The Untangling"` be split into smaller, more focused modules?**
   _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._
 - **Should `Portfolio Design Guide — from zero to three Figma concepts` be split into smaller, more focused modules?**

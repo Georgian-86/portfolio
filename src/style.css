@@ -647,3 +647,13 @@ html.has-node input { cursor: text; }
   .flow__wire i, .steps__wire i { transform: none; }
   .panel { position: relative; height: auto; min-height: 80svh; }
 }
+
+/* Phones and tablets: backdrop blur over moving content (the hero film, the 3D desk) is re-computed on
+   every frame and was the main cause of stutter while scrolling. Use near-solid surfaces instead,
+   and skip the hero's full-screen focus-pull blur (the film itself carries the reveal). */
+@media (pointer: coarse), (max-width: 767px) {
+  .hdr::before { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(var(--wash), 0.94); }
+  .bar { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(7, 17, 27, 0.96); }
+  .chat { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(14, 27, 39, 0.96); }
+  .hero__focus { display: none; }
+}
