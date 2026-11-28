@@ -100,6 +100,41 @@ test('no retired navy/mint colour renders anywhere', async ({ page }) => {
   expect(await page.locator('meta[name="theme-color"]').getAttribute('content')).toBe(LOOK.field);
 });
 
+for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+  test(`at ${vp.width}: every visible text meets contrast on its own background (4.5, display 3)`, async ({ page }) => {
+    await page.setViewportSize(vp);
+    await gotoReady(page);
+    const fails = await page.evaluate(() => {
+      const parse = (c) => (c.match(/[\d.]+/g) || []).map(Number);
+      const L = ([r, g, b]) => {
+        const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+        return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+      };
+      const out = [];
+      for (const el of document.querySelectorAll('body *')) {
+        if (el.closest('.loader, .film, .tbc, .mess-sticky, .desk__sticky, [hidden], [aria-hidden="true"]')) continue;
+        if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) continue;
+        const s = getComputedStyle(el);
+        if (s.visibility === 'hidden' || !el.getClientRects().length) continue;
+        let bg = null;
+        for (let n = el; n; n = n.parentElement) {
+          const c = parse(getComputedStyle(n).backgroundColor);
+          if (c.length === 3 || (c.length === 4 && c[3] > 0.5)) { bg = c.slice(0, 3); break; }
+        }
+        bg ||= [255, 255, 255];
+        const fg = parse(s.color);
+        if (fg.length === 4 && fg[3] < 0.5) continue;
+        const [a, b] = [L(fg), L(bg)].sort((x, y) => y - x);
+        const r = (a + 0.05) / (b + 0.05);
+        const need = parseFloat(s.fontSize) >= 24 ? 3 : 4.5;
+        if (r < need) out.push(`${el.tagName.toLowerCase()}.${el.className} "${el.textContent.trim().slice(0, 24)}" ${r.toFixed(2)}`);
+      }
+      return out.slice(0, 15);
+    });
+    expect(fails).toEqual([]);
+  });
+}
+
 test('favicon is the G·K mark on the field colour', async ({ page, request }) => {
   await page.goto('/');
   const svg = await (await request.get(await page.locator('link[rel="icon"]').getAttribute('href'))).text();
