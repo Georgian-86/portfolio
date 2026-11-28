@@ -26,6 +26,7 @@ export const sections = {
       'I build the systems that untangle it.',
       'AI agents · automations · websites · apps.',
     ],
+    keys: ['chaos', 'systems', 'agents'], // one highlighted word per line (Atelier key colour)
     secondaryCta: 'Book a call',
     film: { name: 'hero', desktop: 188, mobile: 190, intro: 0.382 }, // autoplays to 38.2% after the loader
     scrollCue: 'Scroll',

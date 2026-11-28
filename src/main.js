@@ -99,11 +99,8 @@ function renderHero() {
   const revealed = new Promise((ok) => { revealHero = ok; });
   const film = $('[data-film]', el);
   mountFilm(film, { ...h.film, start: 'top top', end: 'bottom bottom', introGate: revealed });
-  // Over the frames, under the "AI-generated footage" label: the focus-pull blur and the navy scrim.
-  // Both are kept out of the watermark corner (see .hero__focus / .hero__scrim in style.css).
-  const focus = Object.assign(document.createElement('div'), { className: 'hero__focus' });
-  const scrim = Object.assign(document.createElement('div'), { className: 'hero__scrim' });
-  $('.film__label', el).before(focus, scrim);
+  // Atelier: no blur or scrim over the frames. The copy sits on its own solid field panel
+  // (.hero__copy), which never reaches the watermark corner.
 
   const cue = $('.hero__cue', el);
   const syncCue = () => cue.classList.toggle('is-gone', scrollY > 8);
@@ -113,13 +110,15 @@ function renderHero() {
   const lines = [...el.querySelectorAll('.hero__line')];
   const splits = lines.map((l) => SplitText.create(l, { type: 'words', mask: 'words', wordsClass: 'hero__word' }));
   const words = splits.map((s) => s.words);
+  // One key word per line, highlighted in the look's key colour.
+  words.forEach((ws, i) => ws.find((w) => w.textContent.replace(/[^\p{L}]/gu, '') === h.keys?.[i])?.classList.add('is-key'));
   const ctas = $('.hero__ctas', el);
   let tl = null;
   const build = () => {
     tl?.scrollTrigger?.kill();
     tl?.kill();
     tl = null;
-    gsap.set([...lines, ...words.flat(), ctas, focus], { clearProps: 'all' });
+    gsap.set([...lines, ...words.flat(), ctas], { clearProps: 'all' });
     if (reducedQuery.matches) return;
     gsap.set([lines[1], lines[2], ctas], { autoAlpha: 0 });
     gsap.set(ctas, { y: 16 });
@@ -128,8 +127,7 @@ function renderHero() {
       defaults: { ease: easeOut },
       scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: 0.8 },
     });
-    tl.to(focus, { autoAlpha: 0, duration: 0.3, ease: 'none' }, 0)
-      .to(lines[0], { autoAlpha: 0, y: -24, duration: 0.08 }, 0.22)
+    tl.to(lines[0], { autoAlpha: 0, y: -24, duration: 0.08 }, 0.22)
       .to(lines[1], { autoAlpha: 1, duration: 0.03 }, 0.33)
       .to(words[1], { yPercent: 0, duration: 0.1, stagger: 0.012 }, 0.33)
       .to(lines[1], { autoAlpha: 0, y: -24, duration: 0.07 }, 0.55)

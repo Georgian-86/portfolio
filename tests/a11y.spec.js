@@ -56,14 +56,7 @@ test('fonts use preconnect and display=swap', async ({ page }) => {
   await expect(page.locator('link[rel="stylesheet"][href*="fonts.googleapis.com"]')).toHaveAttribute('href', /display=swap/);
 });
 
-test('favicon matches the brand (G·K mark on Navy)', async ({ page, request }) => {
-  await page.goto('/');
-  const href = await page.locator('link[rel="icon"]').getAttribute('href');
-  const svg = await (await request.get(href)).text();
-  expect(svg).toMatch(/#0F1E3D/i);
-  expect(svg).toContain('G');
-  expect(svg).toContain('K');
-});
+// Favicon colour: see atelier.spec.js ('favicon is the G·K mark on the field colour').
 
 // WCAG relative-luminance contrast between an element's text colour and its effective background.
 const contrastOf = (page, sel) =>
@@ -166,23 +159,12 @@ for (const vp of [{ width: 1440, height: 900 }, { width: 1920, height: 880 }, { 
       }, p);
       await page.waitForTimeout(1400);
       const c = await compositedContrast(page, `.hero__line:nth-child(${n})`);
-      console.log(`hero contrast ${vp.width} line ${n} (frame ${await hero.getAttribute('data-frame')}): ${c.toFixed(2)}`);
-      expect(c, `line ${n}`).toBeGreaterThanOrEqual(4.5);
+      // WCAG: display text (≥ 24px) needs 3:1, smaller text 4.5:1.
+      const px = await page.locator(`.hero__line:nth-child(${n})`).evaluate((e) => parseFloat(getComputedStyle(e).fontSize));
+      console.log(`hero contrast ${vp.width} line ${n} (${px}px, frame ${await hero.getAttribute('data-frame')}): ${c.toFixed(2)}`);
+      expect(c, `line ${n}`).toBeGreaterThanOrEqual(px >= 24 ? 3 : 4.5);
     }
   });
 }
 
-test('the scrim never covers the hero "AI-generated footage" label (desktop)', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-  const onTop = await page.locator('[data-sec="01"] .film__label').evaluate((el) => {
-    // Both are absolutely positioned siblings with z-index auto, so paint order is DOM order:
-    // the label must come after the scrim (painted above it).
-    const scrim = el.parentElement.querySelector('.hero__scrim');
-    const z = (n) => getComputedStyle(n).zIndex;
-    return !!scrim && getComputedStyle(scrim).display !== 'none'
-      && !!(scrim.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)
-      && z(scrim) === 'auto' && z(el) === 'auto';
-  });
-  expect(onTop).toBe(true);
-});
+// The film label staying on top of the hero panel: see atelier.spec.js.

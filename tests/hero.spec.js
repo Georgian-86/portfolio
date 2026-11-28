@@ -170,17 +170,7 @@ for (const vp of VPS) {
     await expect(page.locator(`${HERO} .hero__ctas`)).toBeVisible();
     expect(await page.locator(`${HERO} .hero__ctas`).evaluate((e) => Number(getComputedStyle(e).opacity))).toBeGreaterThan(0.9);
   });
-
-  test(`at ${vp.width}x${vp.height} the film starts soft and pulls into focus`, async ({ page }) => {
-    await page.setViewportSize(vp);
-    await gotoReady(page);
-    const focus = page.locator(`${HERO} .hero__focus`);
-    const o = () => focus.evaluate((e) => Number(getComputedStyle(e).opacity));
-    expect(await focus.evaluate((e) => getComputedStyle(e).backdropFilter)).toContain('blur(8px)');
-    expect(await o()).toBeGreaterThan(0.9);
-    await toPin(page, 0.4);
-    expect(await o()).toBeLessThan(0.05);
-  });
+  // The Atelier look drops the focus-pull blur: the film is unfiltered (atelier.spec.js).
 }
 
 test('hero copy: the v3 headline, no clutter props, no Untangled counter', async ({ page }) => {
@@ -194,14 +184,13 @@ test('hero copy: the v3 headline, no clutter props, no Untangled counter', async
   await expect(page.locator(FILM)).toContainText('AI-generated footage');
 });
 
-test('reduced motion: hero shows every line and the CTA statically, no blur, no pin', async ({ browser }) => {
+test('reduced motion: hero shows every line and the CTA statically, no pin', async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await gotoReady(page);
   const o = await page.locator(`${HERO} .hero__line`).evaluateAll((els) => els.map((e) => Number(getComputedStyle(e).opacity)));
   expect(o).toEqual([1, 1, 1]);
   await expect(page.locator(`${HERO} .hero__ctas`)).toBeVisible();
-  await expect(page.locator(`${HERO} .hero__focus`)).toBeHidden();
   expect(await page.locator(`${HERO} .hero__stage`).evaluate((e) => getComputedStyle(e).position)).not.toBe('sticky');
   await context.close();
 });

@@ -3,6 +3,18 @@
 Source of truth for tokens and section specs. Plan: `docs/superpowers/plans/2026-11-28-redesign-v3.md`.
 Maturity: L1 (this file + `src/tokens.css`; no component library). All values below live in `src/tokens.css`.
 
+> **Look override: "Atelier" (preview branches `claude/look-atelier-tangerine`, `claude/look-atelier-ink`).**
+> Swiss poster meets engineering: full-width colour fields (loader, header, hero panel, 02b agent, 07 services,
+> 09 contact, bar, menu) alternate with calm reading sections. Fonts: Bricolage Grotesque 700–800 (opsz, −3%
+> tracking) for display, Geist body, Geist Mono labels; φ sizes unchanged. The colourway lives in the `--cw-*`
+> block of `src/tokens.css`; `.scheme-field` / `.scheme-paper` map it to the semantic tokens below.
+> Tangerine: field #E4572E, ink #1A1A1A, warm white #FFF6EE. Warm white on tangerine is 3.4:1, so it is used
+> only for display text (≥24px); body text on tangerine is ink (4.7:1); the key word is ink; buttons ink/warm white.
+> Ink: field #151515, chalk #F1EEE8 text and reading sections, marigold #FFB627 key word and buttons (ink text).
+> Hero: no blur or scrim; the copy sits on a solid field panel (desktop left half, mobile band above the
+> watermark zone); the film is unfiltered and its corner untouched. Loader: G·K in Bricolage on the field.
+> Tests: `tests/atelier.spec.js` + `tests/helpers/look.js`.
+
 ## Tokens
 
 | Token | Value | Use |

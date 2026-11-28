@@ -1,33 +1,39 @@
-/* v3 "Systems in motion" tokens (docs/DESIGN.md). Dark-first; Mint is the only saturated colour. */
+/* "Atelier" look, tangerine colourway (docs/DESIGN.md). Swiss poster meets engineering:
+   full-width colour fields alternate with calm reading sections. Each look branch swaps only the
+   colourway block below; the schemes map it onto the semantic tokens every component uses. */
 :root {
-  /* Palette */
-  --stage: #0b1426;
-  --surface: #12203a;
-  --line-solid: #1e2e4d;
-  --text: #eef1f7;
-  --muted: #9da9c2;
-  --mint: #3ddc97;
-  --paper: #f3f1ec;     /* the light contact section only (Task 3) */
-  --hair: rgba(238, 241, 247, 0.14);
-  --scrim: 11, 20, 38;  /* rgb of --stage, for rgba() gradients over films */
-  --alert: #e5484d;     /* at most one per screen */
+  /* ── Colourway ── */
+  --cw-field: #e4572e;        /* tangerine: loader, header, hero panel, key sections */
+  --cw-field-rgb: 228, 87, 46;
+  --cw-on-field: #1a1a1a;     /* body text on the field (4.7:1); warm white fails body sizes (3.4:1) */
+  --cw-display: #fff6ee;      /* large display text only on the field (3.4:1 ≥ 3, WCAG large) */
+  --cw-key: #1a1a1a;          /* highlighted key word on the field */
+  --cw-field-muted: #1a1a1a;  /* secondary text on the field: ink too (nothing lighter passes) */
+  --cw-field-surface: #fff6ee;/* cards inside a field */
+  --cw-field-surface-2: #fbebdd;
+  --cw-field-hair: rgba(26, 26, 26, 0.24);
+  --cw-paper: #fff6ee;        /* warm white reading sections */
+  --cw-on-paper: #1a1a1a;
+  --cw-paper-muted: #5c534c;  /* 7.0:1 on paper */
+  --cw-paper-surface: #fbebdd;
+  --cw-paper-surface-2: #f6dfcc;
+  --cw-paper-hair: rgba(26, 26, 26, 0.14);
+  --cw-btn: #1a1a1a;          /* primary button: ink fill, warm white text (16:1) */
+  --cw-on-btn: #fff6ee;
+  --cw-btn-hover: #333333;
+  --cw-accent-on-paper: #c2410c; /* non-text accents (rules, dots) on paper */
+
+  --paper: var(--cw-paper);
+  --alert: #b42318;     /* at most one per screen */
   --sticky: #f7d154;    /* legacy props only; never as text */
 
-  /* Legacy aliases: sections not yet restyled (Tasks 2–3) render on the dark set. */
-  --ink: var(--text);
-  --navy: var(--surface);
-  --navy-2: var(--line-solid);
-  --mint-deep: var(--mint);
-  --fog: var(--muted);
-  --white: var(--surface);
-  --line: var(--hair);
-  --line-soft: rgba(238, 241, 247, 0.1);
-
   /* Fonts */
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-display: 'Bricolage Grotesque', 'Helvetica Neue', Arial, system-ui, sans-serif;
+  --font-sans: 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --track-display: -0.03em;
 
-  /* phi type scale, mobile (<768): 12/16/26/42/68 */
+/* phi type scale, mobile (<768): 12/16/26/42/68 */
   --t-label: 12px;
   --t-body: 16px;
   --t-lead: 26px;
@@ -77,4 +83,52 @@
 }
 @media (min-width: 768px) and (max-width: 1279px) {
   :root { --gutter: 40px; }
+}
+
+/* ── Schemes: semantic tokens per surface. Reading sections (default) and colour fields. ── */
+:root, .scheme-paper {
+  --stage: var(--cw-paper);
+  --surface: var(--cw-paper-surface);
+  --line-solid: var(--cw-paper-surface-2);
+  --text: var(--cw-on-paper);
+  --display: var(--cw-on-paper);
+  --muted: var(--cw-paper-muted);
+  --hair: var(--cw-paper-hair);
+  --key: var(--cw-on-paper);
+  --mint: var(--cw-btn);           /* legacy name: the one accent = primary button fill */
+  --on-accent: var(--cw-on-btn);
+  --accent-hover: var(--cw-btn-hover);
+  --dot: var(--cw-accent-on-paper);
+  --scrim: var(--cw-field-rgb);
+}
+.scheme-field,
+.loader, .hdr, .menu, .bar, .hero, .agent, .railed--navy, .tangle__sheet, .film--night, .film--sheet, .cta-sec {
+  --stage: var(--cw-field);
+  --surface: var(--cw-field-surface);
+  --line-solid: var(--cw-field-surface-2);
+  --text: var(--cw-on-field);
+  --display: var(--cw-display);
+  --muted: var(--cw-field-muted);
+  --hair: var(--cw-field-hair);
+  --key: var(--cw-key);
+  --dot: var(--cw-on-field);
+}
+/* Cards inside a field read like paper again. */
+.scheme-field .scheme-paper, .board, .chat, .booking, .kpi, .quote, .outcome, .team-card, .desk__running, .desk__list {
+  --text: var(--cw-on-paper);
+  --muted: var(--cw-paper-muted);
+  --hair: var(--cw-paper-hair);
+  --display: var(--cw-on-paper);
+}
+:root, .scheme-paper, .scheme-field, .loader, .hdr, .menu, .bar, .hero, .agent, .railed--navy, .tangle__sheet, .film--night, .film--sheet, .cta-sec,
+.board, .chat, .booking, .kpi, .quote, .outcome, .team-card, .desk__running, .desk__list {
+  /* Legacy aliases (sections not yet rebuilt) resolve inside each scheme. */
+  --ink: var(--text);
+  --navy: var(--surface);
+  --navy-2: var(--line-solid);
+  --mint-deep: var(--text);
+  --fog: var(--muted);
+  --white: var(--surface);
+  --line: var(--hair);
+  --line-soft: var(--hair);
 }
