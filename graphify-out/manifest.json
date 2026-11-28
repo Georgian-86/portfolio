@@ -6461,6 +6461,42 @@
     "ast_hash": "b01a34cfff02c377e4a171be5fa18979",
     "semantic_hash": ""
   },
+  "src/lab/desk.js": {
+    "mtime": 1795881982.8373132,
+    "seen": 1795882328.8459089,
+    "ast_hash": "285de8bdf2d6100b6bbdc68d198c1630",
+    "semantic_hash": ""
+  },
+  "src/lab/lab.css": {
+    "mtime": 1795881617.936399,
+    "seen": 1795882328.8459122,
+    "ast_hash": "9685d1cbd25d46c76e0c8f46ba75d84e",
+    "semantic_hash": ""
+  },
+  "src/lab/main.js": {
+    "mtime": 1795881920.7978163,
+    "seen": 1795882328.8459146,
+    "ast_hash": "915deaf8f9fe22728c9d59829ce77749",
+    "semantic_hash": ""
+  },
+  "src/lab/textures.js": {
+    "mtime": 1795881789.7111406,
+    "seen": 1795882328.8459172,
+    "ast_hash": "c06dff5bbad70b9dad8c11d9f4cd600b",
+    "semantic_hash": ""
+  },
+  "vite.config.js": {
+    "mtime": 1795881427.651361,
+    "seen": 1795882328.8459702,
+    "ast_hash": "c7527d34840a6b326f15603bb56bfc87",
+    "semantic_hash": ""
+  },
+  "lab/scenes.html": {
+    "mtime": 1795881789.7114694,
+    "seen": 1795882328.8460143,
+    "ast_hash": "6f3c03767dda25a9a0f8c7203dde7090",
+    "semantic_hash": ""
+  },
   "package-lock.json": {
     "mtime": 1795872502.014718,
     "seen": 1795873712.6301417,
