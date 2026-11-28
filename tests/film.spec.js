@@ -100,37 +100,6 @@ test('slow network: poster image is visible before frames load', async ({ page }
   await expect.poll(() => poster.evaluate((img) => img.complete && img.naturalWidth > 0)).toBe(true);
 });
 
-test('films only fetch and decode near the viewport (hero vs night)', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  const night = [];
-  page.on('request', (r) => { if (/\/film\/night\//.test(r.url())) night.push(r.url()); });
-  await page.goto('/');
-  const heroFilm = page.locator('[data-sec="01"] .film');
-  const nightFilm = page.locator('[data-sec="03"] .film');
-  await expect.poll(async () => Number(await heroFilm.getAttribute('data-decoded'))).toBeGreaterThan(0);
-  await page.waitForTimeout(1000);
-  expect(Number((await nightFilm.getAttribute('data-decoded')) || 0)).toBe(0);
-  expect(night).toEqual([]);
-  await page.evaluate(() => {
-    const t = document.querySelector('[data-sec="03"] .scene__track');
-    scrollTo(0, t.getBoundingClientRect().top + scrollY + t.offsetHeight / 2); // mid-film, > 1 viewport past the hero
-  });
-  await expect.poll(async () => Number(await nightFilm.getAttribute('data-decoded'))).toBeGreaterThan(0);
-  expect(night.length).toBeGreaterThan(0);
-  await expect.poll(async () => Number(await heroFilm.getAttribute('data-decoded'))).toBe(0);
-});
-
-for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
-  test(`at ${vp.width}: sheet film frames are not requested at load`, async ({ page }) => {
-    await page.setViewportSize(vp);
-    const sheet = [];
-    page.on('request', (r) => { if (/\/film\/sheet\//.test(r.url())) sheet.push(r.url()); });
-    await page.goto('/');
-    await page.waitForTimeout(1500);
-    expect(sheet).toEqual([]);
-  });
-}
-
 test('far-away films drop their compressed frames too', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
@@ -192,23 +161,21 @@ for (const w of [1440, 1920, 2560]) {
   });
 }
 
-for (const id of ['03', '04']) {
-  test(`at 1920px the ${id} film covers its stage anchored bottom-right (no seam)`, async ({ page }) => {
-    await page.setViewportSize({ width: 1920, height: 880 });
-    await page.goto('/');
-    const film = page.locator(`[data-sec="${id}"] .film`);
-    await page.evaluate((id) => {
-      const t = document.querySelector(`[data-sec="${id}"] .scene__track`);
-      scrollTo(0, t.getBoundingClientRect().top + scrollY + t.offsetHeight * 0.3);
-    }, id);
-    await expect(film).toHaveAttribute('data-fit', 'cover', { timeout: 8000 });
-    const r = await film.evaluate((el) => JSON.parse(el.dataset.draw));
-    expect(Math.abs(r.x + r.w - r.cw)).toBeLessThanOrEqual(1);
-    expect(Math.abs(r.y + r.h - r.ch)).toBeLessThanOrEqual(1);
-    expect(r.x).toBeLessThanOrEqual(0);
-    expect(r.y).toBeLessThanOrEqual(0);
+test('the night and sheet films are gone: sections 03–04 use the code-built world, loaded lazily', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const old = [], three = [];
+  page.on('request', (r) => {
+    if (/\/film\/(night|sheet)\//.test(r.url())) old.push(r.url());
+    if (/three-lite|desk-/.test(r.url())) three.push(r.url());
   });
-}
+  await page.goto('/');
+  await page.waitForTimeout(1200);
+  expect(three, 'no 3D code on the first screen').toEqual([]);
+  await page.evaluate(() => scrollTo(0, document.querySelector('[data-sec="03"]').offsetTop));
+  await expect(page.locator('html')).toHaveAttribute('data-world', /ready|off/, { timeout: 30000 });
+  expect(old).toEqual([]);
+  await expect(page.locator('[data-sec="03"] .film, [data-sec="04"] .film')).toHaveCount(0);
+});
 
 // ── Smooth scrubbing (live-site feedback: "changing in a sec, like it is stuck") ──
 // Samples the hero's displayed frame every animation frame while wheel-scrolling in small steps.

@@ -19,7 +19,8 @@ Any agent or session working on this repo starts here. This file holds the curre
 ## 3. Decisions already made (do not re-open)
 1. **Direction:** "Desk by day, agent by night" (v3.1, owner-approved 2026-11-28; it replaces the navy/mint stage). The palette is sampled from the films: paper `#EFE7DC`, ink `#14171C`, night `#07111B`, signal mint `#74D8B2`, sticky-note `#F0D890`, alert `#E05C5C`. The page goes day → night → day with the films. Inter + one Instrument Serif italic accent word + JetBrains Mono labels. One idea per screen, full-screen scenes, no collage clutter. The Node cursor and the work List/Stage toggle are approved. Full spec: `docs/DESIGN.md`.
 2. **Build approach:** build on the existing code. Do not start from scratch.
-3. **Flow films** (`public/film/{hero,night,sheet}/{desktop,mobile}`) are used full-bleed as scroll-scrubbed scenes.
+3. **Films:** only the hero film (`public/film/hero/`) remains, kept by the owner's choice. Sections 03–04 use the code-built desk world (`src/world/`) instead of the night and sheet films (owner decision 2026-11-28).
+   **The hero film** is used full-bleed as a scroll-scrubbed scene.
    - **Their visible Flow watermark must stay visible.** Never crop, blur, cover, darken or scale it out of view. Keep the "AI-generated footage" label.
    - The owner asked to hide it several times. The answer is no. Offer the alternatives instead: free stock footage (Pexels/Pixabay), the owner's own phone footage, a paid tool's legitimately clean export, or code or three.js scenes.
 4. **Honesty rules:**

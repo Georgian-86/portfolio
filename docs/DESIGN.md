@@ -62,9 +62,15 @@ watermark zone (desktop 12%×14% CSS guard, mobile 30%×18%). On mobile the fram
    "AI agents · automations · websites · apps." + magnetic CTAs. Focus pull over the first 30%.
 2. **What I build** (night, 340svh pin): particle field (three.js lazy via `three-lite.js`, canvas 2D fallback) morphs
    cloud → browser → chat bubble → phone; pointer repels points and tilts the field. Grow / Automate / Ship light in turn.
-3. **WhatsApp agents** (night, 320svh pin): night film; demo with Salon / Clinic / Store pills that replays a "Sample
-   conversation" (owner to confirm industries). On phones the demo follows the pinned film.
-4. **Automations** (paper, 320svh pin): sheet film; the Wire runs New order → Invoice → CRM → You, lighting each node.
+3–4. **The desk world** (`src/world/`, owner-approved 2026-11-28): one code-built three.js desk behind both sections,
+   on a fixed canvas that fades in/out (opacity only) and renders only while on screen. No footage, no watermark.
+   - **03 WhatsApp** (night, 320svh pin): the phone wakes on the dark desk, a missed call becomes a chat that types
+     itself to "Booked"; the camera circles in. Salon / Clinic / Store pills swap the conversation on the phone
+     (screen-reader transcript in `.demo__transcript`). Subject framed right (`shift` 0.2), copy left.
+   - **04 Automations** (paper, 320svh pin): dawn; printed sheets tidy away, the laptop opens, the sample dashboard
+     fills in, camera pushes toward the screen. The Wire runs New order → Invoice → CRM → You.
+   - three.js loads when 02–04 come within 1.5 viewports; DPR ≤ 1.5; no WebGL → plain night/paper page.
+   - Preview of the full desk (with a code-built hero chapter that was *not* adopted): `/lab/scenes.html`.
 5. **Selected work** (paper): **Stage** = sticky full-screen tone panels that stack (the one below scales to .92 and
    dims via an overlay); **List** = big rows that expand, with a preview card following the pointer.
 6. **How I work** (paper): Listen → Map → Build → Hand over on a drawing Wire.

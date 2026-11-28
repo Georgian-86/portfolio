@@ -55,29 +55,28 @@ export const services = {
 export const whatsapp = {
   kicker: '02 — WhatsApp agents',
   h2: 'The 11:42 PM call gets answered.',
-  body: 'A WhatsApp agent that replies in seconds, in your tone, checks your calendar and books the slot.',
-  film: { name: 'night', desktop: 190, mobile: 188 },
+  body: 'At 11:42 pm a customer calls and nobody picks up. My agent replies in seconds, in your tone, and books the slot.',
   pick: 'Pick a business',
   tag: 'Sample conversation',
   // Owner to confirm the three industries (docs/research/…brand-strategy.md §6).
   demos: [
     {
-      id: 'salon', label: 'Salon', name: 'Glow Salon · agent',
-      ask: 'Hi! Any slot for a haircut on Tuesday, after 6?',
-      reply: 'Yes! 6:30 PM is free with Meera. Shall I book it?',
-      booked: 'Booked · Tue · 6:30 PM', note: 'Reminder set',
+      id: 'salon', label: 'Salon', name: 'Glow Salon',
+      ask: 'Hi, I just tried calling. Any slot tomorrow evening?',
+      reply: 'Sorry we missed you! 6:30 or 7:15 pm tomorrow are free. Which one?',
+      follow: '6:30 please', booked: 'Booked · Wed 6:30 pm',
     },
     {
-      id: 'clinic', label: 'Clinic', name: 'City Dental · agent',
-      ask: 'Tooth pain since morning. Can I see a doctor today?',
-      reply: 'Sorry to hear that. Dr Rao has 7:15 PM today. Booking it now.',
-      booked: 'Booked · Today · 7:15 PM', note: 'Clinic notified',
+      id: 'clinic', label: 'Clinic', name: 'City Dental',
+      ask: 'Tooth pain since this evening. Can I see a doctor tomorrow?',
+      reply: 'Sorry to hear that. Dr Rao has 9:15 am free tomorrow. Shall I book it?',
+      follow: 'Yes please', booked: 'Booked · Wed 9:15 am',
     },
     {
-      id: 'store', label: 'Store', name: 'Kiran Store · agent',
+      id: 'store', label: 'Store', name: 'Kiran Store',
       ask: 'Is the blue kurta in size M back in stock?',
-      reply: 'It is! 3 left. Want me to hold one and send a payment link?',
-      booked: 'Held · Kurta · M', note: 'Payment link sent',
+      reply: 'It is, 3 left. Want me to hold one and send a payment link?',
+      follow: 'Yes, hold it', booked: 'Held · Blue kurta · M',
     },
   ],
   cta: 'Get an agent like this',
@@ -87,8 +86,7 @@ export const whatsapp = {
 export const automations = {
   kicker: '03 — Automations',
   h2: 'The messy sheet runs itself.',
-  body: 'One order comes in. Everything after it happens on its own.',
-  film: { name: 'sheet', desktop: 161, mobile: 106 },
+  body: 'By morning the messy sheets are a dashboard that updates itself. One order comes in; everything after it happens on its own.',
   flow: [
     { k: 'IN', title: 'New order', text: 'Store or form' },
     { k: 'DOC', title: 'Invoice sent', text: 'PDF on WhatsApp' },

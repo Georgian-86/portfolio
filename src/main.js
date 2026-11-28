@@ -9,7 +9,7 @@ import { runLoader } from './loader.js';
 import { renderHero } from './hero.js';
 import { mountNode } from './cursor.js';
 import { renderServices } from './services.js';
-import { renderWhatsapp, renderAutomations } from './scenes.js';
+import { renderScenes } from './scenes.js';
 import { renderWork } from './work.js';
 import { renderProcess, renderAbout, renderContact } from './late.js';
 
@@ -144,8 +144,7 @@ renderHeader();
 renderBar();
 const hero = renderHero();
 renderServices();
-renderWhatsapp();
-renderAutomations();
+renderScenes();
 renderWork();
 renderProcess();
 renderAbout();

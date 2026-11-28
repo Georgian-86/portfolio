@@ -45,19 +45,19 @@ test('02 services: the particle field mounts and the active group follows the sc
   }
 });
 
-test('03 WhatsApp: picking a business plays its sample conversation', async ({ page }) => {
+test('03 WhatsApp: the pills change the sample conversation on the 3D phone', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await gotoReady(page);
   const sec = page.locator('[data-sec="03"]');
-  await expect(sec.locator('.film')).toHaveCount(1);
   await expect(sec).toContainText('Sample conversation');
+  await expect(sec).toHaveAttribute('data-demo', 'salon');
   await scrollToSec(page, '03', 0.3);
   const clinic = sec.locator('.pill', { hasText: 'Clinic' });
   await clinic.click();
   await expect(clinic).toHaveAttribute('aria-pressed', 'true');
-  await expect(sec.locator('.chat')).toContainText('City Dental');
-  await expect(sec).toHaveAttribute('data-demo', 'end', { timeout: 6000 });
-  await expect(sec.locator('[data-step="booked"]')).toBeVisible();
+  await expect(sec).toHaveAttribute('data-demo', 'clinic');
+  await expect(sec.locator('.demo__transcript')).toContainText('City Dental');
+  await expect(sec.locator('.demo__transcript')).toContainText('Booked');
 });
 
 test('04 automations: the wire draws and every step lights by the end of the pin', async ({ page }) => {
