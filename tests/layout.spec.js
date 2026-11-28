@@ -25,7 +25,7 @@ test('header and bar visible on mobile (390)', async ({ page }) => {
   const bar = page.locator('form.bar');
   await expect(hdr).toBeVisible();
   await expect(bar).toBeVisible();
-  expect((await hdr.boundingBox()).height).toBe(60);
+  expect((await hdr.boundingBox()).height).toBe(64);
   const bb = await bar.boundingBox();
   expect(bb.height).toBe(76);
   expect(bb.y + bb.height).toBe(844);
@@ -80,11 +80,11 @@ test('bar submit opens WhatsApp with the typed text', async ({ page, context }) 
   expect(url.searchParams.get('text')).toBe('Hi there');
 });
 
-test('final CTA (09) clears the pinned bar when scrolled to the end', async ({ page }) => {
+test('final CTA (08) clears the pinned bar when scrolled to the end', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await scrollToEnd(page);
-  await expectClearsBar(page, page.locator('[data-sec="09"] .cta'));
+  await expectClearsBar(page, page.locator('[data-sec="08"] .contact__ctas'));
 });
 
 test('bar placeholder is short; "opens WhatsApp" is announced, font stays 16px', async ({ page }) => {

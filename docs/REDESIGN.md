@@ -10,14 +10,14 @@ Any agent or session working on this repo starts here. This file holds the curre
 - **Stack:** Vite 7, vanilla JS, GSAP 3.13 (ScrollTrigger and SplitText are free and included), Lenis, Playwright tests (`npm test`), and three.js where a scene needs real 3D (see §4).
 
 ## 2. Current phase
-**Redesign v3, "Systems in motion".**
+**Redesign v3.1, "Desk by day, agent by night".** Sections 01–08 are built (hero, services particles, WhatsApp, automations, work Stage/List, process, about, contact). Next: owner content (TBC items in §6), project screenshots, then polish.
 - **Plan:** `docs/superpowers/plans/2026-11-28-redesign-v3.md`. This is the spec: section flow, constraints and tasks.
 - **Ledger:** `.superpowers/sdd/2026-11-28-redesign-v3/progress.md` and `task-N-report.md`. This folder is git-ignored, so in a fresh cloud session it may be missing; if so, use `git log` and the plan checkboxes.
 - **Design tokens and section specs:** `docs/DESIGN.md`, written in Task 1.
 - **Reel study and brand/interaction strategy:** `docs/research/2026-11-28-reel-study-and-brand-strategy.md`. It extends v3 with the Node cursor, the Wire, the work List/Stage toggle and the "How this site is built" card; see its §6 for owner sign-off.
 
 ## 3. Decisions already made (do not re-open)
-1. **Direction:** "Balanced: Systems in motion". Dark navy stage (`#0B1426`), one mint accent (`#3DDC97`), Inter with JetBrains Mono labels, φ type and space scales, one idea per screen, full-screen scenes, no collage clutter.
+1. **Direction:** "Desk by day, agent by night" (v3.1, owner-approved 2026-11-28; it replaces the navy/mint stage). The palette is sampled from the films: paper `#EFE7DC`, ink `#14171C`, night `#07111B`, signal mint `#74D8B2`, sticky-note `#F0D890`, alert `#E05C5C`. The page goes day → night → day with the films. Inter + one Instrument Serif italic accent word + JetBrains Mono labels. One idea per screen, full-screen scenes, no collage clutter. The Node cursor and the work List/Stage toggle are approved. Full spec: `docs/DESIGN.md`.
 2. **Build approach:** build on the existing code. Do not start from scratch.
 3. **Flow films** (`public/film/{hero,night,sheet}/{desktop,mobile}`) are used full-bleed as scroll-scrubbed scenes.
    - **Their visible Flow watermark must stay visible.** Never crop, blur, cover, darken or scale it out of view. Keep the "AI-generated footage" label.

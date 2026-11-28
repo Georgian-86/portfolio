@@ -1,54 +1,57 @@
-/* v3 "Systems in motion" tokens (docs/DESIGN.md). Dark-first; Mint is the only saturated colour. */
+/* v3.1 "Desk by day, agent by night" tokens (docs/DESIGN.md).
+   Every colour is sampled from the films, so a full-bleed film meets the page with no seam and no scrim:
+   paper = the hero/sheet desk, night = the night film's shadows, signal = the chat-bubble mint,
+   note = the sticky notes, alert = the missed-call red. */
 :root {
-  /* Palette */
-  --stage: #0b1426;
-  --surface: #12203a;
-  --line-solid: #1e2e4d;
-  --text: #eef1f7;
-  --muted: #9da9c2;
-  --mint: #3ddc97;
-  --paper: #f3f1ec;     /* the light contact section only (Task 3) */
-  --hair: rgba(238, 241, 247, 0.14);
-  --scrim: 11, 20, 38;  /* rgb of --stage, for rgba() gradients over films */
-  --alert: #e5484d;     /* at most one per screen */
-  --sticky: #f7d154;    /* legacy props only; never as text */
+  /* Day */
+  --paper: #efe7dc;
+  --paper-2: #e6dcce;      /* cards, chips on paper */
+  --paper-3: #d9cdbc;      /* hairlines on paper */
+  --ink: #14171c;          /* text on paper, 14.7:1 */
+  --ink-2: #5c5549;        /* secondary text on paper, 6.0:1 */
+  --signal-ink: #0f6b4c;   /* mint as text on paper, 5.3:1 */
 
-  /* Legacy aliases: sections not yet restyled (Tasks 2–3) render on the dark set. */
-  --ink: var(--text);
-  --navy: var(--surface);
-  --navy-2: var(--line-solid);
-  --mint-deep: var(--mint);
-  --fog: var(--muted);
-  --white: var(--surface);
-  --line: var(--hair);
-  --line-soft: rgba(238, 241, 247, 0.1);
+  /* Night */
+  --night: #07111b;
+  --night-2: #0e1b27;      /* cards on night */
+  --night-3: #1c2a36;      /* hairlines on night */
+  --mist: #e9eef0;         /* text on night, 16.3:1 */
+  --mist-2: #8fa0a6;       /* secondary text on night, 7.0:1 */
+
+  /* Accents */
+  --signal: #74d8b2;       /* the Node, CTAs, live states. Text on it = --night (11:1) */
+  --note: #f0d890;         /* highlighter sweeps and sticky notes only. Never text */
+  --alert: #e05c5c;        /* the missed call: at most one per screen */
 
   /* Fonts */
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif; /* accent words only */
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* phi type scale, mobile (<768): 12/16/26/42/68 */
+  /* Fluid type: label / body / lead / h3 / h2 / h1 / display */
   --t-label: 12px;
-  --t-body: 16px;
-  --t-lead: 26px;
-  --t-h3: 42px;
-  --t-h2: 42px;
-  --t-h1: 68px;
-  --t-display: 68px;
+  --t-body: clamp(16px, 0.35vw + 14.6px, 18px);
+  --t-lead: clamp(19px, 0.9vw + 15px, 26px);
+  --t-h3: clamp(24px, 1.6vw + 17px, 38px);
+  --t-h2: clamp(40px, 4.6vw + 20px, 96px);
+  --t-h1: clamp(42px, 6.2vw + 16px, 128px);
+  --t-display: clamp(64px, 13vw, 240px);
 
-  /* phi space scale, mobile: 6/10/16/26/42/68 */
+  /* Space (φ) */
   --s-1: 6px;
   --s-2: 10px;
   --s-3: 16px;
   --s-4: 26px;
   --s-5: 42px;
   --s-6: 68px;
+  --s-7: clamp(96px, 12vw, 180px); /* section breathing room */
 
   /* Chrome */
-  --hdr-h: 60px;
+  --hdr-h: 64px;
   --bar-h: 76px;
-  --gutter: 16px;
-  --radius-btn: 12px;
+  --gutter: clamp(20px, 5.5vw, 88px);
+  --radius: 14px;
+  --radius-lg: 22px;
 
   /* Motion */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -56,25 +59,7 @@
 
 @media (min-width: 768px) {
   :root {
-    /* Desktop: 12/18/29/47/76/123/199 */
-    --t-body: 18px;
-    --t-lead: 29px;
-    --t-h3: 47px;
-    --t-h2: 76px;
-    --t-h1: 123px;
-    --t-display: 199px;
-    /* Desktop space: 7/11/18/29/47/76 */
-    --s-1: 7px;
-    --s-2: 11px;
-    --s-3: 18px;
-    --s-4: 29px;
-    --s-5: 47px;
-    --s-6: 76px;
     --hdr-h: 76px;
     --bar-h: 0px;
-    --gutter: 80px;
   }
-}
-@media (min-width: 768px) and (max-width: 1279px) {
-  :root { --gutter: 40px; }
 }

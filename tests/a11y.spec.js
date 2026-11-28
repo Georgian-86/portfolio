@@ -56,11 +56,12 @@ test('fonts use preconnect and display=swap', async ({ page }) => {
   await expect(page.locator('link[rel="stylesheet"][href*="fonts.googleapis.com"]')).toHaveAttribute('href', /display=swap/);
 });
 
-test('favicon matches the brand (G·K mark on Navy)', async ({ page, request }) => {
+test('favicon matches the brand (G·K mark on Night)', async ({ page, request }) => {
   await page.goto('/');
   const href = await page.locator('link[rel="icon"]').getAttribute('href');
   const svg = await (await request.get(href)).text();
-  expect(svg).toMatch(/#0F1E3D/i);
+  expect(svg).toMatch(/#07111B/i);
+  expect(svg).toMatch(/#74D8B2/i);
   expect(svg).toContain('G');
   expect(svg).toContain('K');
 });
@@ -73,8 +74,9 @@ const contrastOf = (page, sel) =>
       const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
       return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
     };
-    let bg = null;
-    for (let n = el; n; n = n.parentElement) {
+    // Sections are transparent: night sections sit on the fixed night layer.
+    let bg = el.closest('[data-theme="night"]') ? [7, 17, 27] : null;
+    for (let n = el; n && !bg; n = n.parentElement) {
       const c = parse(getComputedStyle(n).backgroundColor);
       if (c.length === 3 || (c.length === 4 && c[3] > 0.5)) { bg = c.slice(0, 3); break; }
     }
@@ -88,7 +90,7 @@ for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
   test(`at ${vp.width}: sampled body text contrast is ≥ 4.5`, async ({ page }) => {
     await page.setViewportSize(vp);
     await page.goto('/');
-    for (const sel of ['[data-sec="02"] .tangle__body', '.agent__body', '.story__desc', '.team-card__blurb', '.rail__body', '.about__body', '.cta-sec__body']) {
+    for (const sel of ['.svc__line', '.flow__text', '.panel__blurb', '.step__text', '.about__text .lead', '.readout dd', '.contact__row .lead', '.hero__status .label']) {
       const visible = await page.locator(sel).first().isVisible();
       if (!visible) continue;
       expect(await contrastOf(page, sel), sel).toBeGreaterThanOrEqual(4.5);
@@ -182,7 +184,7 @@ test('the scrim never covers the hero "AI-generated footage" label (desktop)', a
     const z = (n) => getComputedStyle(n).zIndex;
     return !!scrim && getComputedStyle(scrim).display !== 'none'
       && !!(scrim.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)
-      && z(scrim) === 'auto' && z(el) === 'auto';
+      && z(scrim) === 'auto' && (z(el) === 'auto' || Number(z(el)) > 0);
   });
   expect(onTop).toBe(true);
 });

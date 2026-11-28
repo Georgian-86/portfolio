@@ -106,13 +106,13 @@ test('films only fetch and decode near the viewport (hero vs night)', async ({ p
   page.on('request', (r) => { if (/\/film\/night\//.test(r.url())) night.push(r.url()); });
   await page.goto('/');
   const heroFilm = page.locator('[data-sec="01"] .film');
-  const nightFilm = page.locator('[data-sec="02"] .film');
+  const nightFilm = page.locator('[data-sec="03"] .film');
   await expect.poll(async () => Number(await heroFilm.getAttribute('data-decoded'))).toBeGreaterThan(0);
   await page.waitForTimeout(1000);
   expect(Number((await nightFilm.getAttribute('data-decoded')) || 0)).toBe(0);
   expect(night).toEqual([]);
   await page.evaluate(() => {
-    const t = document.querySelector('[data-sec="02"] .tangle__film-track');
+    const t = document.querySelector('[data-sec="03"] .scene__track');
     scrollTo(0, t.getBoundingClientRect().top + scrollY + t.offsetHeight / 2); // mid-film, > 1 viewport past the hero
   });
   await expect.poll(async () => Number(await nightFilm.getAttribute('data-decoded'))).toBeGreaterThan(0);
@@ -192,13 +192,13 @@ for (const w of [1440, 1920, 2560]) {
   });
 }
 
-for (const id of ['02', '04']) {
+for (const id of ['03', '04']) {
   test(`at 1920px the ${id} film covers its stage anchored bottom-right (no seam)`, async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 880 });
     await page.goto('/');
     const film = page.locator(`[data-sec="${id}"] .film`);
     await page.evaluate((id) => {
-      const t = document.querySelector(`[data-sec="${id}"] .tangle__film-track`);
+      const t = document.querySelector(`[data-sec="${id}"] .scene__track`);
       scrollTo(0, t.getBoundingClientRect().top + scrollY + t.offsetHeight * 0.3);
     }, id);
     await expect(film).toHaveAttribute('data-fit', 'cover', { timeout: 8000 });

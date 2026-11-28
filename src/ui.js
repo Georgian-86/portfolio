@@ -9,7 +9,7 @@ export const icon = {
   calendar: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g></svg>',
   missed: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3l1.5 4-2 1.3a11 11 0 0 0 5.2 5.2l1.3-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/><path d="m15 4 5 5M20 4l-5 5"/></g></svg>',
   tick: '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
-  mark: '<svg class="mark" width="20" height="22" viewBox="0 0 20 22" aria-hidden="true"><text x="0" y="10" font-family="Inter, sans-serif" font-weight="600" font-size="12" fill="currentColor">G</text><text x="8" y="21" font-family="Inter, sans-serif" font-weight="600" font-size="12" fill="currentColor">K</text></svg>',
+  mark: '<svg class="mark" width="40" height="22" viewBox="0 0 120 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M45.3 19.1A20 20 0 1 0 50 32H36"/><path d="M78 12v40M100 12L80 33M86 27l16 25"/></g><circle cx="62" cy="32" r="6" fill="var(--signal)"/></svg>',
 };
 
 // CSS-style cubic-bezier easing for GSAP (GSAP does not parse "cubic-bezier()" strings).
@@ -24,3 +24,24 @@ export function cubicBezier(x1, y1, x2, y2) {
 }
 // The site's motion ease: cubic-bezier(0.16, 1, 0.3, 1).
 export const easeOut = cubicBezier(0.16, 1, 0.3, 1);
+
+export const reducedQuery = matchMedia('(prefers-reduced-motion: reduce)');
+export const fineQuery = matchMedia('(hover: hover) and (pointer: fine)');
+export const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+
+/** Magnetic pull: the element drifts toward the pointer while it is within `reach` px of its box. */
+export function magnetic(el, gsap, { strength = 0.32, reach = 36 } = {}) {
+  const xTo = gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power3' });
+  const yTo = gsap.quickTo(el, 'y', { duration: 0.6, ease: 'power3' });
+  let on = false;
+  const move = (e) => {
+    if (!fineQuery.matches || reducedQuery.matches) return;
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const inside = e.clientX > r.left - reach && e.clientX < r.right + reach && e.clientY > r.top - reach && e.clientY < r.bottom + reach;
+    if (inside) { on = true; xTo((e.clientX - cx) * strength); yTo((e.clientY - cy) * strength); }
+    else if (on) { on = false; xTo(0); yTo(0); }
+  };
+  addEventListener('pointermove', move, { passive: true });
+  return () => removeEventListener('pointermove', move);
+}

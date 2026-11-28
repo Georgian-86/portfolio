@@ -1,7 +1,7 @@
 // Reusable bar-clearance check for mobile (Review Focus 2).
 import { expect } from '@playwright/test';
 
-export const HDR_H = 60;
+export const HDR_H = 64;
 export const BAR_H = 76;
 
 /** Asserts the element's rect sits between the pinned header and the pinned bar. */
