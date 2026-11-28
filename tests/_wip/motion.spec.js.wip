@@ -1,0 +1,108 @@
+import { test, expect } from '@playwright/test';
+
+// Every scroll-linked animation must move smoothly: wheel-scroll the whole page in small steps
+// and sample each animated element every animation frame. No single-frame jump may exceed
+// 0.15 opacity or 40px of translation, and colour switches must fade rather than snap.
+const TRACK = {
+  'hero cue': '.hero__cue',
+  'hero props': '[data-sec="01"] .hero__props',
+  '02 mess': '[data-sec="02"] .mess > *',
+  '02 chat rows': '[data-sec="02"] .chat--wide > *',
+  '02b typing': '.agent__typing',
+  '02b reply': '.agent__reply',
+  '02b booking': '.agent__booking',
+  '03 mess': '[data-sec="03"] .mess > *',
+  '03 steps': '[data-sec="03"] .steps > li',
+  '04 mess': '[data-sec="04"] .mess > *',
+  '04 board': '[data-sec="04"] .board > *',
+  '05 mess': '[data-sec="05"] .mess > *',
+  '05 story': '[data-sec="05"] .story > *',
+};
+const COLOUR = { header: 'header.hdr', bar: 'form.bar', 'untangled segs': '.hdr .untangled__segs i' };
+
+async function audit(page) {
+  await page.addInitScript(() => {
+    window.__cls = 0;
+    new PerformanceObserver((l) => l.getEntries().forEach((e) => { if (!e.hadRecentInput) window.__cls += e.value; })).observe({ type: 'layout-shift', buffered: true });
+  });
+  await page.goto('/');
+  await expect(page.locator('[data-sec="01"] .film')).toHaveAttribute('data-intro', 'done', { timeout: 15000 });
+  await page.evaluate(({ TRACK, COLOUR }) => {
+    const rgb = (c) => (c.match(/[\d.]+/g) || [0, 0, 0]).slice(0, 3).map(Number);
+    const read = (el) => {
+      const cs = getComputedStyle(el);
+      const m = new DOMMatrixReadOnly(cs.transform === 'none' ? undefined : cs.transform);
+      return [cs.visibility === 'hidden' ? 0 : Number(cs.opacity), m.m41, m.m42];
+    };
+    window.__max = {};
+    const prev = {};
+    const bump = (name, key, v, y) => {
+      const m = (window.__max[name] ||= { op: 0, move: 0, colour: 0, at: 0 });
+      if (v > m[key]) { m[key] = +v.toFixed(3); m.at = Math.round(y); }
+    };
+    const tick = () => {
+      for (const [name, sel] of Object.entries(TRACK)) {
+        document.querySelectorAll(sel).forEach((el, i) => {
+          const v = read(el), k = `${name}#${i}`, p = prev[k];
+          if (p) {
+            bump(name, 'op', Math.abs(v[0] - p[0]), scrollY);
+            bump(name, 'move', Math.hypot(v[1] - p[1], v[2] - p[2]), scrollY);
+          }
+          prev[k] = v;
+        });
+      }
+      for (const [name, sel] of Object.entries(COLOUR)) {
+        document.querySelectorAll(sel).forEach((el, i) => {
+          const c = rgb(getComputedStyle(el).backgroundColor), k = `${name}#${i}`, p = prev[k];
+          if (p) bump(name, 'colour', Math.max(...c.map((x, j) => Math.abs(x - p[j]))), scrollY);
+          prev[k] = c;
+        });
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, { TRACK, COLOUR });
+  const vp = page.viewportSize();
+  await page.mouse.move(vp.width / 2, vp.height / 2);
+  const end = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+  while ((await page.evaluate(() => scrollY)) < end - 5) { await page.mouse.wheel(0, 100); await page.waitForTimeout(60); }
+  await page.waitForTimeout(600);
+  return page.evaluate(() => ({ max: window.__max, cls: window.__cls }));
+}
+
+for (const vp of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+  test(`at ${vp.width}: every scroll animation moves smoothly (no snaps, no jumps, no layout shift)`, async ({ page }) => {
+    test.setTimeout(120000);
+    await page.setViewportSize(vp);
+    const { max, cls } = await audit(page);
+    console.log(`motion ${vp.width}: CLS ${cls.toFixed(4)} ${JSON.stringify(max)}`);
+    const bad = Object.entries(max).filter(([, m]) => m.op > 0.15 || m.move > 40 || m.colour > 40)
+      .map(([k, m]) => `${k}: Δopacity ${m.op}, Δmove ${m.move}px, Δcolour ${m.colour} (at y=${m.at})`);
+    expect(bad).toEqual([]);
+    expect(cls).toBeLessThan(0.05);
+  });
+}
+
+test('the menu sheet fades in and out instead of snapping', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const sample = () => page.evaluate(() => new Promise((ok) => {
+    const menu = document.querySelector('#menu');
+    const seen = [];
+    const t0 = performance.now();
+    const tick = () => {
+      const cs = getComputedStyle(menu);
+      seen.push(menu.hidden || cs.display === 'none' ? 0 : Number(cs.opacity));
+      if (performance.now() - t0 < 700) requestAnimationFrame(tick); else ok(seen);
+    };
+    requestAnimationFrame(tick);
+  }));
+  const maxStep = (s) => Math.max(...s.slice(1).map((v, i) => Math.abs(v - s[i])));
+  const btn = page.locator('header.hdr button[aria-controls="menu"]');
+  const [opening] = await Promise.all([sample(), btn.click()]);
+  expect(opening.at(-1)).toBe(1);
+  expect(maxStep(opening)).toBeLessThanOrEqual(0.34);
+  const [closing] = await Promise.all([sample(), page.keyboard.press('Escape')]);
+  expect(closing.at(-1)).toBe(0);
+  expect(maxStep(closing)).toBeLessThanOrEqual(0.34);
+});
