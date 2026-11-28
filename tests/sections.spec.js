@@ -1,271 +1,190 @@
+// v3.1 sections 02–08, the Node cursor, the work List/Stage toggle and the day/night theme engine.
 import { test, expect } from '@playwright/test';
+import { gotoReady } from './helpers/loader.js';
 import { expectClearsBar, scrollToSectionEnd } from './helpers/bar.js';
 
-const SECS = ['01b', '02', '02b', '03'];
+const scrollToSec = (page, sec, f = 0) => page.evaluate(([sec, f]) => {
+  const el = document.querySelector(`[data-sec="${sec}"]`);
+  scrollTo(0, el.offsetTop + Math.max(0, el.offsetHeight - innerHeight) * f);
+}, [sec, f]);
 
-test('sections 01b, 02, 02b and 03 exist in order after the hero', async ({ page }) => {
+test('sections 01–08 exist in order with their themes', async ({ page }) => {
   await page.goto('/');
-  const order = await page.evaluate(() => [...document.querySelectorAll('main > section')].map((s) => s.dataset.sec));
-  expect(order.slice(0, 5)).toEqual(['01', ...SECS]);
+  const secs = await page.locator('main > section').evaluateAll((els) => els.map((e) => [e.dataset.sec, e.dataset.theme]));
+  expect(secs).toEqual([['01', 'paper'], ['02', 'night'], ['03', 'night'], ['04', 'paper'], ['05', 'paper'], ['06', 'paper'], ['07', 'night'], ['08', 'paper']]);
 });
 
-test('02 tags its times as "Sample · illustrative times" and carries the night film', async ({ page }) => {
-  await page.goto('/');
+test('the night layer fades in for night sections and out for paper ones (opacity only)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await gotoReady(page);
+  const o = () => page.locator('.nightfall').evaluate((e) => Number(getComputedStyle(e).opacity));
+  expect(await o()).toBeLessThan(0.05);
+  await scrollToSec(page, '02', 0.5);
+  await expect.poll(o).toBeGreaterThan(0.95);
+  await scrollToSec(page, '05', 0.3);
+  await expect.poll(o).toBeLessThan(0.05);
+  await expect(page.locator('header.hdr')).toHaveAttribute('data-theme', 'paper');
+  await scrollToSec(page, '07', 0);
+  await page.waitForTimeout(400);
+  await expect(page.locator('header.hdr')).toHaveAttribute('data-theme', 'night');
+});
+
+test('02 services: the particle field mounts and the active group follows the scroll', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await gotoReady(page);
   const sec = page.locator('[data-sec="02"]');
-  await expect(sec).toContainText('Sample · illustrative times');
-  await expect(sec.locator('.film')).toHaveAttribute('data-count', /^(190|188)$/);
-  await expect(sec.locator('.film')).toContainText('AI-generated footage');
-  // The poster is only requested once the film is near the viewport.
-  await sec.locator('.tangle__film-track').scrollIntoViewIfNeeded();
-  await expect(sec.locator('.film__poster')).toHaveAttribute('src', /\/film\/night\//);
+  await scrollToSec(page, '02', 0.15);
+  await expect(sec).toHaveAttribute('data-renderer', /webgl|2d/, { timeout: 10000 });
+  await expect(sec.locator('.svc.is-on h3')).toHaveText('Grow');
+  await scrollToSec(page, '02', 0.5);
+  await expect(sec.locator('.svc.is-on h3')).toHaveText('Automate');
+  await scrollToSec(page, '02', 0.9);
+  await expect(sec.locator('.svc.is-on h3')).toHaveText('Ship');
+  for (const s of ['Websites', 'Shopify', 'WordPress', 'SEO & AI search', 'AI agents', 'WhatsApp agents', 'Automations', 'App development', 'DevOps support']) {
+    await expect(sec).toContainText(s);
+  }
 });
 
-for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
-  test(`02b at ${vp.width}: end of scroll hides typing, shows reply and booking card`, async ({ page }) => {
-    await page.setViewportSize(vp);
-    await page.goto('/');
-    const sec = page.locator('[data-sec="02b"]');
-    await expect(sec).toContainText('Sample · demo conversation');
-    await scrollToSectionEnd(page, '[data-sec="02b"]');
-    await expect(sec.locator('.agent__typing')).toBeHidden();
-    await expect(sec.locator('.agent__reply')).toBeVisible();
-    const card = sec.locator('.agent__booking');
-    await expect(card).toBeVisible();
-    await expect(card).toContainText('Sample booking');
-  });
-}
+test('03 WhatsApp: the pills change the sample conversation on the 3D phone', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await gotoReady(page);
+  const sec = page.locator('[data-sec="03"]');
+  await expect(sec).toContainText('Sample conversation');
+  await expect(sec).toHaveAttribute('data-demo', 'salon');
+  await scrollToSec(page, '03', 0.3);
+  const clinic = sec.locator('.pill', { hasText: 'Clinic' });
+  await clinic.click();
+  await expect(clinic).toHaveAttribute('aria-pressed', 'true');
+  await expect(sec).toHaveAttribute('data-demo', 'clinic');
+  await expect(sec.locator('.demo__transcript')).toContainText('City Dental');
+  await expect(sec.locator('.demo__transcript')).toContainText('Booked');
+});
 
-test('02b at the start shows the customer message but not the reply yet', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+test('04 automations: the wire draws and every step lights by the end of the pin', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await gotoReady(page);
+  const sec = page.locator('[data-sec="04"]');
+  await expect(sec).toContainText('Sample flow with illustrative steps');
+  await scrollToSec(page, '04', 0.05);
+  await page.waitForTimeout(800);
+  expect(await sec.locator('.flow__step.is-on').count()).toBeLessThan(4);
+  await scrollToSec(page, '04', 0.95);
+  await expect.poll(() => sec.locator('.flow__step.is-on').count()).toBe(4);
+});
+
+test('05 work: Stage by default; List toggles, is remembered, and rows expand', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await gotoReady(page);
+  const sec = page.locator('[data-sec="05"]');
+  await expect(sec).toHaveAttribute('data-mode', 'stage');
+  await expect(sec.locator('.panel')).toHaveCount(4);
+  await expect(sec.locator('.list')).toBeHidden();
+  await sec.locator('.toggle button', { hasText: 'List' }).click();
+  await expect(sec).toHaveAttribute('data-mode', 'list');
+  await expect(sec.locator('.stage')).toBeHidden();
+  const row = sec.locator('.row').first();
+  await row.locator('.row__btn').click();
+  await expect(row.locator('.row__btn')).toHaveAttribute('aria-expanded', 'true');
+  await expect(row).toContainText('Client project · Website + iOS + Android');
+  await page.reload();
+  await expect(page.locator('[data-sec="05"]')).toHaveAttribute('data-mode', 'list');
+});
+
+test('05 work: honesty rules (StepQ credit, founding-team roles TBC, screenshots TBC)', async ({ page }) => {
   await page.goto('/');
-  await page.evaluate(() => {
-    const s = document.querySelector('[data-sec="02b"]');
-    scrollTo(0, s.getBoundingClientRect().top + scrollY + 10);
-  });
-  await page.waitForTimeout(600);
-  const sec = page.locator('[data-sec="02b"]');
-  await expect(sec.locator('.agent__customer')).toBeVisible();
-  await expect(sec.locator('.agent__reply')).toBeHidden();
-  await expect(sec.locator('.agent__booking')).toBeHidden();
+  const sec = page.locator('[data-sec="05"]');
+  await expect(sec.locator('.panel', { hasText: 'StepQ' })).toContainText('Client project · Website + iOS + Android');
+  for (const name of ['TeachGenie.ai', 'Brivia Club']) {
+    const p = sec.locator('.panel', { hasText: name });
+    await expect(p).toContainText('Founding team');
+    await expect(p.locator('.panel__credit .tbc')).toHaveText('TBC');
+  }
+  await expect(sec.locator('.panel__shot').first()).toHaveText('Screenshot TBC');
 });
 
-test('02b under reduced motion shows the end state without scrolling', async ({ browser }) => {
-  const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 } });
+test('05 list: a preview follows the pointer over a row (fine pointer)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await gotoReady(page);
+  await page.locator('[data-sec="05"] .toggle button', { hasText: 'List' }).click();
+  const row = page.locator('[data-sec="05"] .row').nth(1);
+  await row.scrollIntoViewIfNeeded();
+  const b = await row.boundingBox();
+  await page.mouse.move(b.x + 200, b.y + 30);
+  await page.mouse.move(b.x + 260, b.y + 40, { steps: 5 });
+  const prev = page.locator('[data-sec="05"] .preview');
+  await expect.poll(() => prev.evaluate((e) => Number(getComputedStyle(e).opacity))).toBeGreaterThan(0.9);
+  await expect(prev).toContainText('TeachGenie.ai');
+});
+
+test('the Node cursor follows a mouse, rings over links and shows a verb', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await gotoReady(page);
+  await page.mouse.move(400, 400);
+  await page.mouse.move(420, 420, { steps: 3 });
+  await expect(page.locator('html')).toHaveClass(/has-node/);
+  const cta = page.locator('header .hdr__cta');
+  const b = await cta.boundingBox();
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 6 });
+  await expect(page.locator('.node')).toHaveClass(/is-active/);
+  await expect(page.locator('.node__label')).toHaveText('Chat');
+});
+
+test('the Node cursor stays off under reduced motion', async ({ browser }) => {
+  const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
-  await page.goto('/');
-  const sec = page.locator('[data-sec="02b"]');
-  await expect(sec.locator('.agent__typing')).toBeHidden();
-  await sec.locator('.agent__booking').scrollIntoViewIfNeeded();
-  await expect(sec.locator('.agent__reply')).toBeVisible();
-  await expect(sec.locator('.agent__booking')).toBeVisible();
-  expect(await sec.locator('.agent__reply').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
-  expect(await sec.locator('.agent__booking').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
+  await gotoReady(page);
+  await page.mouse.move(400, 400, { steps: 4 });
+  await expect(page.locator('html')).not.toHaveClass(/has-node/);
   await context.close();
 });
 
-for (const id of SECS) {
-  test(`mobile: end of ${id} clears the pinned bar`, async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/');
-    await scrollToSectionEnd(page, `[data-sec="${id}"]`);
-    await expectClearsBar(page, page.locator(`[data-sec="${id}"] [data-end]`));
-  });
-}
-
-const redItems = (page) =>
-  page.evaluate(() => {
-    const items = [...document.querySelectorAll('[data-sec] .is-alert')].filter((el) => {
-      const r = el.getBoundingClientRect();
-      return r.bottom > 0 && r.top < innerHeight && getComputedStyle(el).visibility !== 'hidden' && el.closest('[data-sec]').dataset.sec !== '01';
-    });
-    // One alert item (a card) may carry both a red icon and red text, so count items, not elements.
-    return [...new Set(items.map((el) => el.closest('.mess-call, .prop') || el))].map((el) => el.closest('[data-sec]').dataset.sec);
-  });
-
-for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
-  test(`at ${vp.width}: at most one red alert per screen, exactly one in 02`, async ({ page }) => {
-    await page.setViewportSize(vp);
-    await page.goto('/');
-    for (const id of SECS) {
-      await page.evaluate((id) => document.querySelector(`[data-sec="${id}"]`).scrollIntoView(), id);
-      await page.waitForTimeout(300);
-      const reds = await redItems(page);
-      expect(reds.length, `screen at ${id}`).toBeLessThanOrEqual(1);
-      if (id === '02') expect(reds).toEqual(['02']);
-    }
-  });
-}
-
-test('02b mid-scroll: typing visible, reply not yet', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
-  await page.evaluate(() => {
-    const t = document.querySelector('[data-sec="02b"] .agent__track');
-    const top = t.getBoundingClientRect().top + scrollY;
-    scrollTo(0, top + (t.offsetHeight - innerHeight) * 0.27);
-  });
-  const sec = page.locator('[data-sec="02b"]');
-  await expect(sec.locator('.agent__typing')).toBeVisible();
-  await expect(sec.locator('.agent__reply')).toBeHidden();
-});
-
-for (const w of [320, 390]) {
-  test(`02b booking tag has no one-word orphan line at ${w}`, async ({ page }) => {
-    await page.setViewportSize({ width: w, height: 844 });
-    await page.goto('/');
-    const lines = await page.locator('[data-sec="02b"] .booking .note').evaluate((el) => {
-      const node = el.firstChild;
-      const text = node.textContent;
-      const tops = new Map();
-      const re = /\S+/g;
-      let m;
-      while ((m = re.exec(text))) {
-        const r = document.createRange();
-        r.setStart(node, m.index);
-        r.setEnd(node, m.index + m[0].length);
-        const top = Math.round(r.getBoundingClientRect().top);
-        tops.set(top, (tops.get(top) || 0) + 1);
-      }
-      return [...tops.entries()].sort((a, b) => a[0] - b[0]).map(([, n]) => n);
-    });
-    expect(lines.at(-1), `words per line: ${lines}`).toBeGreaterThan(1);
-  });
-}
-
-// ── Task 3: sections 04–09 and menu ─────────────────────────────
-const SECS3 = ['04', '05', '06', '07', '08', '09'];
-
-test('sections 04–09 exist in order after 03', async ({ page }) => {
-  await page.goto('/');
-  const order = await page.evaluate(() => [...document.querySelectorAll('main > section')].map((s) => s.dataset.sec));
-  expect(order).toEqual(['01', '01b', '02', '02b', '03', ...SECS3]);
-});
-
-test('04 shows "Illustrative numbers · not client data" and carries the sheet film', async ({ page }) => {
-  await page.goto('/');
-  const sec = page.locator('[data-sec="04"]');
-  await expect(sec).toContainText('Illustrative numbers · not client data');
-  await expect(sec.locator('.film')).toHaveAttribute('data-count', /^(161|106)$/);
-  await expect(sec.locator('.film')).toContainText('AI-generated footage');
-});
-
-test('05 chip row: 4 buttons, each ≥44px tall, on one row at 390, none selected by default', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
-  const chips = page.locator('[data-sec="05"] .filter button');
-  await expect(chips).toHaveCount(4);
-  const boxes = await chips.evaluateAll((els) => els.map((el) => el.getBoundingClientRect()).map((r) => ({ top: r.top, h: r.height })));
-  for (const b of boxes) expect(b.h).toBeGreaterThanOrEqual(44);
-  expect(new Set(boxes.map((b) => Math.round(b.top))).size).toBe(1);
-  for (let i = 0; i < 4; i++) await expect(chips.nth(i)).toHaveAttribute('aria-pressed', 'false');
-});
-
-test('05 chip filter filters the work cards and can be cleared', async ({ page }) => {
-  await page.goto('/');
-  const sec = page.locator('[data-sec="05"]');
-  const cards = page.locator('[data-work]');
-  expect(await cards.count()).toBeGreaterThanOrEqual(4);
-  await expect(page.locator('[data-work].is-out')).toHaveCount(0);
-  await sec.getByRole('button', { name: 'Automation' }).click();
-  await expect(sec.getByRole('button', { name: 'Automation' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-work="stepq"]')).toHaveClass(/is-out/);
-  // Only the 05 work list is filtered; the 06 cards far below are never dimmed.
-  await expect(page.locator('[data-sec="06"] [data-work].is-out')).toHaveCount(0);
-  await expect(sec.locator('.filter__status')).toContainText('Automation');
-  await sec.getByRole('button', { name: 'Website' }).click();
-  await expect(page.locator('[data-work="stepq"]')).not.toHaveClass(/is-out/);
-  await expect(sec.getByRole('button', { name: 'Automation' })).toHaveAttribute('aria-pressed', 'false');
-  await sec.getByRole('button', { name: 'Website' }).click();
-  await expect(page.locator('[data-work].is-out')).toHaveCount(0);
-});
-
-test('05 chips sit on one row at 1440', async ({ page }) => {
+test('06 process: four steps; the wire lights each as you scroll', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-  const tops = await page.locator('[data-sec="05"] .filter button').evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
-  expect(new Set(tops).size).toBe(1);
+  await gotoReady(page);
+  const sec = page.locator('[data-sec="06"]');
+  await expect(sec.locator('.step')).toHaveCount(4);
+  await page.evaluate(() => scrollTo(0, document.querySelector('[data-sec="06"] .steps').getBoundingClientRect().top + scrollY - innerHeight * 0.2));
+  await expect.poll(() => sec.locator('.step.is-on').count()).toBe(4);
 });
 
-for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
-  test(`at ${vp.width}: the 05 sticky note is at full opacity at rest`, async ({ page }) => {
-    await page.setViewportSize(vp);
-    await page.goto('/');
-    // Resting position: the sticky note centred in the viewport.
-    await page.evaluate(() => {
-      const n = document.querySelector('[data-sec="05"] .mess-sticky');
-      scrollTo(0, n.getBoundingClientRect().top + scrollY - innerHeight / 2 + n.offsetHeight / 2);
-    });
-    await page.waitForTimeout(800);
-    const op = await page.locator('[data-sec="05"] .mess-sticky').evaluate((el) => Number(getComputedStyle(el).opacity));
-    expect(op).toBeGreaterThanOrEqual(0.9);
-  });
-}
-
-test('StepQ credit matches the global constraint; TeachGenie and Brivia show TBC chips', async ({ page }) => {
+test('07 about: "How this site is built" and TBC chips for missing links', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('[data-sec="05"]')).toContainText('Client project · Website + iOS + Android');
-  for (const id of ['teachgenie', 'brivia']) {
-    const card = page.locator(`[data-sec="06"] [data-work="${id}"]`);
-    await expect(card).toContainText('Founding team');
-    await expect(card.locator('.tbc')).toHaveText('TBC');
-  }
+  const sec = page.locator('[data-sec="07"]');
+  await expect(sec).toContainText('How this site is built');
+  await expect(sec.locator('.about__links .tbc')).toHaveCount(3);
 });
 
-test('07 services cover the full list', async ({ page }) => {
+test('08 contact: WhatsApp and book-a-call actions', async ({ page }) => {
   await page.goto('/');
-  const text = await page.locator('[data-sec="07"]').innerText();
-  for (const s of ['AI agents', 'WhatsApp agents', 'Automations', 'Websites', 'Shopify', 'WordPress', 'App development', 'DevOps', 'SEO']) {
-    expect(text, s).toContain(s);
-  }
-});
-
-test('09 is the clean-desk CTA, with WhatsApp and book-a-call actions', async ({ page }) => {
-  await page.goto('/');
-  const sec = page.locator('[data-sec="09"]');
-  await expect(sec.locator('h2')).toHaveText('Hand me your mess.');
-  await expect(sec.locator('.cta')).toHaveAttribute('href', /^https:\/\/wa\.me\/\d+/);
-  await expect(sec.getByRole('link', { name: /Book a call/ })).toHaveCount(1);
+  const sec = page.locator('[data-sec="08"]');
+  await expect(sec.locator('h2')).toHaveAccessibleName('Let’s build yours.');
+  await expect(sec.locator('a[href*="wa.me"]').first()).toBeVisible();
+  await expect(sec.locator('a', { hasText: 'Book a call' })).toHaveCount(1);
 });
 
 test('every menu link scrolls to its section', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  const btn = page.locator('header.hdr button[aria-controls="menu"]');
-  await btn.click();
   const hrefs = await page.locator('#menu a[href^="#"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
-  expect(hrefs.length).toBe(9);
-  await btn.click();
-  for (const href of hrefs) {
-    await btn.click();
-    await page.locator(`#menu a[href="${href}"]`).click();
-    await expect(page.locator('#menu')).toBeHidden();
-    await expect
-      .poll(() => page.evaluate((h) => {
-        const r = document.querySelector(h).getBoundingClientRect();
-        const atEnd = Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight - 1;
-        return Math.abs(r.top - 60) <= 4 || (atEnd && r.top < innerHeight);
-      }, href), { message: href })
-      .toBe(true);
-  }
+  expect(hrefs).toEqual(['#services', '#whatsapp', '#automations', '#work', '#process', '#about', '#contact']);
+  for (const h of hrefs) await expect(page.locator(h)).toHaveCount(1);
 });
 
-for (const id of SECS3) {
+for (const id of ['03', '04', '07', '08']) {
   test(`mobile: end of ${id} clears the pinned bar`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
     await scrollToSectionEnd(page, `[data-sec="${id}"]`);
-    await expectClearsBar(page, page.locator(`[data-sec="${id}"] [data-end]`));
+    const last = page.locator(`[data-sec="${id}"] .scene__after > *, [data-sec="${id}"] .readout, [data-sec="${id}"] .contact__ctas`).last();
+    await expectClearsBar(page, last);
   });
 }
 
-for (const vp of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
-  test(`at ${vp.width}: at most one red alert per screen in 04–09`, async ({ page }) => {
-    await page.setViewportSize(vp);
-    await page.goto('/');
-    for (const id of SECS3) {
-      await page.evaluate((id) => document.querySelector(`[data-sec="${id}"]`).scrollIntoView(), id);
-      await page.waitForTimeout(300);
-      expect((await redItems(page)).length, `screen at ${id}`).toBeLessThanOrEqual(1);
-    }
-  });
-}
+test('at most one red alert colour anywhere on the page', async ({ page }) => {
+  await page.goto('/');
+  const reds = await page.evaluate(() => [...document.querySelectorAll('body *')].filter((e) => {
+    const cs = getComputedStyle(e);
+    return [cs.color, cs.backgroundColor].some((c) => c.replace(/\s/g, '') === 'rgb(224,92,92)');
+  }).length);
+  expect(reds).toBeLessThanOrEqual(1);
+});

@@ -1,0 +1,35 @@
+/* Scene preview page. The canvas is the page: no chrome, no labels, one sentence per chapter. */
+@import '../tokens.css';
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; background: #07111b; color: var(--ink); font: 400 18px/1.5 var(--font-sans); -webkit-font-smoothing: antialiased; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+.world { position: relative; height: 1400svh; }
+.world__stage { position: sticky; top: 0; height: 100svh; overflow: clip; }
+.world__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* Film grain + a gentle lens vignette: keeps the render from looking clinically clean. */
+.world__grain {
+  position: absolute; inset: -50%; pointer-events: none; opacity: 0.09; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 0.9s steps(6) infinite;
+}
+.world__stage::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 120% 90% at 50% 45%, transparent 55%, rgba(7, 17, 27, 0.28) 100%);
+}
+@keyframes grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-3%, 2%); } 66% { transform: translate(2%, -3%); } 100% { transform: translate(-1%, 1%); } }
+
+.world__note {
+  position: absolute; left: var(--gutter); bottom: clamp(28px, 6vh, 64px); z-index: 2; max-width: 30ch;
+  font-size: clamp(20px, 1.8vw, 30px); line-height: 1.25; letter-spacing: -0.015em; font-weight: 500;
+  opacity: 0; pointer-events: none;
+}
+.world__note[data-chapter='night'] { color: var(--mist); }
+.world__note[data-chapter='sheet'] { color: var(--ink); }
+.world__loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--mist-2); margin: 0; }
+.after { min-height: 60svh; display: grid; place-items: center; background: var(--paper); padding: 40px; text-align: center; }
+@media (prefers-reduced-motion: reduce) {
+  .world { height: auto; }
+  .world__stage { position: relative; }
+  .world__grain { animation: none; }
+}

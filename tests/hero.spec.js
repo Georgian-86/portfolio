@@ -187,7 +187,7 @@ test('hero copy: the v3 headline, no clutter props, no Untangled counter', async
   await gotoReady(page);
   await expect(page.locator('h1')).toContainText('Every business runs on a little chaos.');
   await expect(page.locator('h1')).toContainText('I build the systems that untangle it.');
-  await expect(page.locator('h1')).toContainText('AI agents · automations · websites · apps.');
+  await expect(page.locator('h1')).toContainText('AI agents, automations, websites and apps.');
   await expect(page.locator('.prop, .hero__props')).toHaveCount(0);
   await expect(page.locator('.untangled, .hdr__progress')).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText('Less chaos');
